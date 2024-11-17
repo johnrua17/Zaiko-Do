@@ -8,6 +8,16 @@ app = Flask(__name__ , template_folder="templates")
 app.secret_key = "Zaikodo"
 
 
+# Configuración de la conexión a la base de datos MySQL
+app.config['MYSQL_HOST'] = 'XXXXXXXXX'
+app.config['MYSQL_USER'] = 'XXXXXXXXX'
+app.config['MYSQL_PASSWORD'] = 'XXXXXXXXX'
+app.config['MYSQL_DB'] = 'XXXXXXXXX'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+# Inicialización de la extensión MySQL
+mysql = MySQL(app)
+
 @app.route('/login', methods=["GET", "POST"])
 def login():
     return login_user()
@@ -40,7 +50,7 @@ def login_user():
                 tiempo_restante = account['bloqueado_hasta'].replace(tzinfo=ZONE_BOGOTA) - obtener_hora_actual_bogota()
                 minutos_restantes = int(tiempo_restante.total_seconds() / 60)
                 error_message = f"Cuenta bloqueada por demasiados intentos fallidos. Inténtelo de nuevo en {minutos_restantes} minutos."
-                logger.warning(f'Intento de inicio de sesión fallido: {correo}. Cuenta bloqueada.')
+                # logger.warning(f'Intento de inicio de sesión fallido: {correo}. Cuenta bloqueada.')
                 return render_template('login/index.html', error_message=error_message)
 
             # Si la contraseña es correcta, establecer la sesión
@@ -56,21 +66,21 @@ def login_user():
 
                 # Restablecer intentos fallidos
                 gestionar_intentos(correo, exito=True)
-                logger.info(f'Inicio de sesión exitoso: {correo}')
+                # logger.info(f'Inicio de sesión exitoso: {correo}')
                 return redirect(url_for('admin'))
 
             else:
                 # Incrementar intentos fallidos
                 gestionar_intentos(correo, exito=False)
 
-                logger.warning(f'Intento de inicio de sesión fallido: {correo}')
+                # logger.warning(f'Intento de inicio de sesión fallido: {correo}')
                 error_message = "Credenciales incorrectas"
                 return render_template('login/index.html', error_message=error_message)
 
         # Si el usuario no existe, no hacer nada y mostrar mensaje
         error_message = "El usuario no existe."
-        logger.warning(f'Usuario no encontrado: {correo}')
-        return render_template('login/index.html', error_message=error_message)
+        # logger.warning(f'Usuario no encontrado: {correo}')
+        return render_template('index.html', error_message=error_message)
 
     # Si la solicitud no es POST, redirigir a la página de inicio
     return render_template('index.html')
