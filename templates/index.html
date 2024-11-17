@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="mVHUZK0ttTK1OVSthHV116XJaoVDYSGnSdK2lIkcClQ" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="InvenTi es una aplicacion web desarrollada para que tenderos y emprendedores puedan mantener una excelente gestion de inventarios y elevar sus ventas,¡Gratis! Regitrate">
+    <title>Iniciar Sesion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/icons/icoprin.ico') }}" alt="Icono de InvenTi" type="image/x-icon">
+    <meta name="keywords" content="inventi, inventario, tiendas, negocios, ventas, colombia, gestion, productos, agregar, vender, pagina para inventatio, locales, pagina para vender, registrarse">
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        button {
+            width: 100%;
+            border-radius: 20px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: not-allowed; /* Cursor no permitido mientras está deshabilitado */
+        }
+    
+        /* Estilo cuando el botón está deshabilitado */
+        button:disabled {
+            background-color: #c0c0c0; /* Color pálido */
+            color: #808080; /* Texto pálido */
+            cursor: not-allowed;
+        }
+    
+        /* Estilo cuando el botón está activo (habilitado) */
+        button:enabled {
+            cursor: pointer; /* Mostrar puntero cuando el botón esté habilitado */
+        }
+    </style>
+    
+
+    <style>
+        
+        
+        .password-container {
+            position: relative;
+        }
+        .login-container input[type="password"] {
+            width: calc(100% - 0px);
+            padding-right: 40px;
+        }
+        .login-container input[type="text"] {
+            width: calc(100% - 0px);
+            padding-right: 30px;
+        }
+        #togglePasswordVisibility {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            padding-right: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Zaikodo</h1>
+    </div>
+
+    <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+        <form action="{{ url_for('login') }}" method="post" >
+            <div class="form-group">
+                <label for="email"></label>
+                <div class="input-group">
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Correo electrónico" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password"></label>
+                <div class="password-container">
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña" required>
+                        <img id="togglePasswordVisibility" src="static/img/icons/MdiEye.png" onclick="togglePassword()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Turnstile Cloudflare -->
+            <!-- Aquí nos aseguramos de tener un solo div con la clase 'cf-turnstile' -->
+<div class="form-group">
+    <div id="turnstile-container" class="cf-turnstile"></div>
+
+</div>
+<!-- Turnstile Cloudflare -->
+<!-- <div class="form-group">
+    <div id="turnstile-container" class="cf-turnstile" data-sitekey="0x4AAAAAAAwc-qxhL9WXOgK-"></div>
+</div> -->
+
+            {% if error_message %}
+            <div class="error-box" role="alert">
+                {{ error_message }}
+            </div>
+            {% endif %}
+
+            <button id="submitButton" type="submit" >Ingresar</button>
+        </form>
+        <div>
+        
+        </div>
+    </div>
+    <div class="footer">
+        <a href="terminos_condiciones">Términos y Condiciones</a>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function togglePassword() {
+            var passwordInput = document.getElementById('password');
+            var toggleIcon = document.getElementById('togglePasswordVisibility');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.src = 'static/img/icons/MdiEyeOff.png';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.src = 'static/img/icons/MdiEye.png';
+            }
+        }
+
+        
+    </script>
+    <script>
+        function turnstileCallback() {
+            // Si la validación del CAPTCHA fue exitosa, habilitar el botón
+            document.getElementById('submitButton').disabled = false;
+        }
+    
+        function renderTurnstile() {
+            if (document.getElementById('turnstile-container')) {
+                // Intenta renderizar el Turnstile
+                turnstile.render('#turnstile-container', {
+                    sitekey: '', // Reemplaza con tu sitio key
+                    callback: turnstileCallback // Llamar a la función cuando el CAPTCHA sea validado
+                });
+    
+                // Verifica si se ha renderizado correctamente después de un tiempo
+                setTimeout(function() {
+                    // Chequea si el contenedor del CAPTCHA tiene hijos (se ha renderizado)
+                    if (document.querySelector('#turnstile-container').childElementCount === 0) {
+                        console.log('El CAPTCHA no se ha renderizado, intentando nuevamente.');
+                        renderTurnstile(); // Vuelve a intentar la renderización
+                    }
+                }, 1000); // 1000ms = 1 segundos (ajusta este valor si es necesario)
+            }
+        }
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            // Intenta renderizar el Turnstile cuando la página se cargue
+            renderTurnstile();
+        });
+    </script>
+    
+
+
+
+    <!-- <script src="{{ url_for('static', filename='js/hora.js') }}"></script> -->
+</body>
+</html>
