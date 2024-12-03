@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/icons/icoprin.ico') }}" type="image/x-icon">
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS and Popper.js -->
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <title>Registrarse</title>
+   
+
+
+</head>
+<style>
+        /* .login-container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        } */
+        /* .login-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-control {
+            border-radius: 5px;
+        }
+        .input-group-text {
+            cursor: pointer;
+        } */
+        button {
+            width: 100%;
+            border-radius: 20px; /* Bordes redondeados */
+            padding: 10px;
+            background-color: #16a875;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #09ac2f;
+        }
+
+        /* Estilo cuando el botón está deshabilitado */
+        button:disabled {
+            background-color: #c0c0c0; /* Color pálido */
+            color: #808080; /* Texto pálido */
+            cursor: not-allowed;
+        }
+
+        /* Estilo cuando el botón está activo (habilitado) */
+        button:enabled {
+            cursor: pointer; /* Mostrar puntero cuando el botón esté habilitado */
+        }
+    </style>
+<body>
+    <!-- <div class="header">
+        <h1 class="title"></h1>
+    </div> -->
+
+    <div class="login-container">
+        <h2>Registrarse</h2>
+        <form action="{{ url_for('register') }}" method="post">
+            <div class="form-group">
+                <label for="name"></label>
+                <div class="input-group">
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Nombre" required>
+                    <div class="input-group-append">
+                        <span class="input-group-text" data-toggle="tooltip" data-placement="right" title="Por favor ingresa tu nombre.">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Correo electrónico" required>
+                    <div class="input-group-append">
+                        <span class="input-group-text" data-toggle="tooltip" data-placement="right" title="Correo necesario en caso de que olvides la contraseña.">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña" required>
+                    <div class="input-group-append">
+                        <span class="input-group-text" data-toggle="tooltip" data-placement="right" title="Elige una contraseña segura.">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+            <!-- Turnstile Cloudflare -->
+            <div class="form-group">
+                <div id="turnstile-container" class="cf-turnstile"></div>
+            </div>
+            {% if message %}
+            <div class="error-box" role="alert">
+                {{ message }}
+            </div>
+            {% endif %}
+            <!-- <button type="submit">Registrarse</button> -->
+            <button id="registerButton" type="submit" disabled>Registrarse</button>
+        </form>
+        <p>¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">¡Iniciar Sesión!</a></p>
+    </div>
+    <div class="footer">
+        <a href="terminos_condiciones">Términos y Condiciones</a>
+    </div>
+    <!-- Turnstile Script -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+    
+    <script>
+        function turnstileCallback() {
+            // Si la validación del CAPTCHA fue exitosa, habilitar el botón
+            document.getElementById('registerButton').disabled = false;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Renderizar solo una vez el turnstile usando el ID específico
+            if (document.getElementById('turnstile-container')) {
+                turnstile.render('#turnstile-container', {
+                    sitekey: 'XXXXXXX', // Reemplaza con tu sitio key
+                    callback: turnstileCallback // Llamar a la función cuando el CAPTCHA sea validado
+                });
+            }
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
