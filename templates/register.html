@@ -2,51 +2,185 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='img/icons/icoprin.ico') }}" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap JS and Popper.js -->
-    <!-- FontAwesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <title>Registrarse</title>
-   
-
-
 </head>
 <style>
-        /* .login-container {
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        } */
-        /* .login-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-control {
-            border-radius: 5px;
-        }
-        .input-group-text {
-            cursor: pointer;
-        } */
+    /* Variables de colores */
+:root {
+    --primary-color: #007bff;
+    --primary-hover: #0056b3;
+    --background-color: #f8f9fa;
+    --text-color: #333;
+    --error-color: #dc3545;
+    --success-color: #28a745;
+    --border-color: #dee2e6;
+}
+
+/* Estilos generales */
+body {
+    background-color: var(--background-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.header {
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.title {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin: 0;
+    font-weight: bold;
+}
+
+/* Contenedor del formulario */
+.login-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.login-container h2 {
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+}
+
+/* Grupos de formulario */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    border-radius: 20px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    outline: none;
+}
+
+/* Input group */
+.input-group-text {
+    border-radius: 0 20px 20px 0;
+    background-color: transparent;
+    border-left: none;
+}
+
+.input-group-text i {
+    color: var(--primary-color);
+}
+
+/* Botón */
+button {
+    width: 100%;
+    border-radius: 20px;
+    padding: 0.75rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+}
+
+button:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+}
+
+button:disabled {
+    background-color: #c0c0c0;
+    color: #808080;
+    cursor: not-allowed;
+}
+
+button:enabled {
+    cursor: pointer;
+}
+
+/* Enlaces */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* Mensaje de error */
+.error-box {
+    background-color: #fff3f3;
+    border: 1px solid var(--error-color);
+    color: var(--error-color);
+    padding: 0.75rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Footer */
+.footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 1rem;
+    background-color: white;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+}
+
+/* Turnstile container */
+.cf-turnstile {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .login-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .title {
+        font-size: 2rem;
+    }
+}
+</style>
+<style>
+
         button {
             width: 100%;
             border-radius: 20px; /* Bordes redondeados */
             padding: 10px;
-            background-color: #16a875;
+            background-color: #007bff;
             color: white;
             border: none;
         }
         button:hover {
-            background-color: #09ac2f;
+            background-color: #0056b3;
         }
 
         /* Estilo cuando el botón está deshabilitado */
@@ -62,9 +196,9 @@
         }
     </style>
 <body>
-    <!-- <div class="header">
-        <h1 class="title"></h1>
-    </div> -->
+    <div class="header">
+        <h1 class="title">Zaiko Do</h1>
+    </div>
 
     <div class="login-container">
         <h2>Registrarse</h2>
@@ -103,17 +237,17 @@
 
                 </div>
             </div>
-            <!-- Turnstile Cloudflare -->
+            <!-- Turnstile Cloudflare
             <div class="form-group">
                 <div id="turnstile-container" class="cf-turnstile"></div>
-            </div>
+            </div> -->
             {% if message %}
             <div class="error-box" role="alert">
                 {{ message }}
             </div>
             {% endif %}
             <!-- <button type="submit">Registrarse</button> -->
-            <button id="registerButton" type="submit" disabled>Registrarse</button>
+            <button id="registerButton" type="submit" >Registrarse</button>
         </form>
         <p>¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">¡Iniciar Sesión!</a></p>
     </div>
@@ -122,7 +256,35 @@
     </div>
     <!-- Turnstile Script -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
-    
+    <!-- <script>
+        function onClick(e) {
+          e.preventDefault();
+          grecaptcha.enterprise.ready(async () => {
+            const token = await grecaptcha.enterprise.execute('6LeZgt8pAAAAANTHyYyTJmIqg2AVRqXutjC2ucMy', {action: 'LOGIN'});
+          });
+        }
+    </script>
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script> -->
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let registerButton = document.getElementById('registerButton');
+            let interacted = false;
+
+            function enableButton() {
+                if (!interacted) {
+                    registerButton.disabled = false;
+                    interacted = true;
+                    document.removeEventListener('click', enableButton);
+                }
+            }
+
+            document.addEventListener('click', enableButton);
+        });
+    </script> -->
     <script>
         function turnstileCallback() {
             // Si la validación del CAPTCHA fue exitosa, habilitar el botón
@@ -133,7 +295,7 @@
             // Renderizar solo una vez el turnstile usando el ID específico
             if (document.getElementById('turnstile-container')) {
                 turnstile.render('#turnstile-container', {
-                    sitekey: 'XXXXXXX', // Reemplaza con tu sitio key
+                    sitekey: '0x4AAAAAAAj_2LTIMCC3wnX8', // Reemplaza con tu sitio key
                     callback: turnstileCallback // Llamar a la función cuando el CAPTCHA sea validado
                 });
             }
@@ -142,6 +304,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+    <!-- <script src="https://www.google.com/recaptcha/enterprise.js?render=6LeZgt8pAAAAANTHyYyTJmIqg2AVRqXutjC2ucMy"></script> -->
+    <script src="{{ url_for('static', filename='js/hora.js') }}"></script>
 </body>
 </html>
