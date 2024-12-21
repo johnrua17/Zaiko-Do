@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaiko Do </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1d976c;
+            --primary-gradient: linear-gradient(to right, #1d976c, #93f9b9);
+            --sidebar-bg: #1a1a1a;
+            --text-light: #ffffff;
+            --text-muted: #a0aec0;
+            --border-color: #2d3748;
+            --content-bg: #f7fafc;
+            --card-bg: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--content-bg);
+        }
+
+        /* Sidebar refinado */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 0;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-280px);
+        }
+
+        .logo-container {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-items {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            padding: 0.875rem 1.25rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            color: var(--text-light);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            color: var(--text-light);
+            background: var(--primary-gradient);
+        }
+
+        .nav-item i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        .logout-item {
+            margin-top: auto;
+            color: #fc8181;
+            margin: 1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            padding: 2rem;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .welcome-section {
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: var(--primary-gradient);
+            border-radius: 12px;
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .welcome-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtext {
+            opacity: 0.9;
+        }
+
+        /* Table Section */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-header h2 {
+            color: #2d3748;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .data-table tr:hover {
+            background-color: #f7fafc;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-280px);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .welcome-section {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Toggle Button */
+        .toggle-sidebar {
+            position: fixed;
+            left: 290px;
+            top: 20px;
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-sidebar:hover {
+            transform: scale(1.1);
+        }
+
+        .toggle-sidebar.collapsed {
+            left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <button class="toggle-sidebar" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar">
+        <div class="logo-container">
+            <div class="logo">Zaiko Do</div>
+        </div>
+        <nav class="nav-items">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-box"></i> Productos
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-shopping-cart"></i> Ventas
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-bar"></i> Inventario
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-users"></i> Clientes
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i> Configuración
+            </a>
+            <a class="nav-item logout-item">
+                <form action="logout" method="post">
+                    <button class="fas fa-sign-out-alt" type="submit">Cerrar Sesión</button>
+                </form>
+                
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="welcome-section">
+            <div class="welcome-text">Bienvenido de nuevo, {{username}}</div>
+            <div class="welcome-subtext">¿Qué te gustaría hacer hoy?</div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Productos </h2>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Categoría</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleButton = document.querySelector('.toggle-sidebar');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            toggleButton.classList.toggle('collapsed');
+        }
+
+        // Manejo responsive
+        function handleMobileView() {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleButton = document.querySelector('.toggle-sidebar');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('collapsed');
+                toggleButton.classList.add('collapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
+                toggleButton.classList.remove('collapsed');
+            }
+        }
+
+        window.addEventListener('load', handleMobileView);
+        window.addEventListener('resize', handleMobileView);
+    </script>
+</body>
+</html>
