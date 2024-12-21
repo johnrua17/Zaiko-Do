@@ -1,7 +1,12 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask import session
 from flask_mysqldb import MySQL, MySQLdb
 from datetime import datetime, timedelta
+import pytz
+import requests
+import bleach
+from flask_mail import Mail, Message
 
 app = Flask(__name__ , template_folder="templates")
 
@@ -9,10 +14,10 @@ app.secret_key = "Zaikodo"
 
 
 # Configuración de la conexión a la base de datos MySQL
-app.config['MYSQL_HOST'] = 'XXXXXXXXX'
-app.config['MYSQL_USER'] = 'XXXXXXXXX'
-app.config['MYSQL_PASSWORD'] = 'XXXXXXXXX'
-app.config['MYSQL_DB'] = 'XXXXXXXXX'
+app.config['MYSQL_HOST'] = 'bb8xmknvzukpsmgzmsf2-mysql.services.clever-cloud.com'
+app.config['MYSQL_USER'] = 'uh5cr91ugvcpsou7'
+app.config['MYSQL_PASSWORD'] = 'BFXoblKJ8YszXDOyQSHx'
+app.config['MYSQL_DB'] = 'bb8xmknvzukpsmgzmsf2'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 # Inicialización de la extensión MySQL
@@ -22,6 +27,52 @@ mysql = MySQL(app)
 def login():
     return login_user()
 
+
+# Zona horaria de Bogotá
+ZONE_BOGOTA = pytz.timezone('America/Bogota')
+
+# Definir constantes para el manejo de intentos
+MAX_INTENTOS = 3  # Máximo de intentos fallidos permitidos
+TIEMPO_BLOQUEO_MINUTOS = 15  # Tiempo de bloqueo en minutos
+
+# Función para obtener la hora actual en Bogotá
+def obtener_hora_actual_bogota():
+    return datetime.now(ZONE_BOGOTA)
+
+
+# Función para gestionar los intentos de inicio de sesión
+def gestionar_intentos(correo, exito=False):
+    from app import mysql
+    cur = mysql.connection.cursor()
+
+    if exito:
+        # Restablecer intentos fallidos si el login es exitoso
+        cur.execute("""
+            UPDATE usuario 
+            SET intentos_fallidos = 0, bloqueado_hasta = NULL, ultimo_intento = %s 
+            WHERE correo = %s
+        """, (obtener_hora_actual_bogota(), correo))
+    else:
+        # Incrementar intentos fallidos
+        cur.execute("""
+            UPDATE usuario 
+            SET intentos_fallidos = intentos_fallidos + 1, ultimo_intento = %s 
+            WHERE correo = %s
+        """, (obtener_hora_actual_bogota(), correo))
+
+        # Verificar si el usuario ha alcanzado el máximo de intentos
+        cur.execute("SELECT intentos_fallidos FROM usuario WHERE correo = %s", [correo])
+        result = cur.fetchone()
+
+        if result and result['intentos_fallidos'] >= MAX_INTENTOS:
+            # Bloquear al usuario por un periodo determinado
+            cur.execute("""
+                UPDATE usuario 
+                SET bloqueado_hasta = %s 
+                WHERE correo = %s
+            """, (obtener_hora_actual_bogota() + timedelta(minutes=TIEMPO_BLOQUEO_MINUTOS), correo))
+
+    mysql.connection.commit()
 
 def login_user():
  
@@ -51,7 +102,7 @@ def login_user():
                 minutos_restantes = int(tiempo_restante.total_seconds() / 60)
                 error_message = f"Cuenta bloqueada por demasiados intentos fallidos. Inténtelo de nuevo en {minutos_restantes} minutos."
                 # logger.warning(f'Intento de inicio de sesión fallido: {correo}. Cuenta bloqueada.')
-                return render_template('login/index.html', error_message=error_message)
+                return render_template('index.html', error_message=error_message)
 
             # Si la contraseña es correcta, establecer la sesión
             if check_password_hash(account['contraseña'], contraseña):
@@ -75,7 +126,7 @@ def login_user():
 
                 # logger.warning(f'Intento de inicio de sesión fallido: {correo}')
                 error_message = "Credenciales incorrectas"
-                return render_template('login/index.html', error_message=error_message)
+                return render_template('index.html', error_message=error_message)
 
         # Si el usuario no existe, no hacer nada y mostrar mensaje
         error_message = "El usuario no existe."
@@ -85,6 +136,94 @@ def login_user():
     # Si la solicitud no es POST, redirigir a la página de inicio
     return render_template('index.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    return register_user()
 
+
+
+
+def register_user():
+    if request.method == 'POST':
+
+        # Obtener y verificar el token de Turnstile
+        # turnstile_token = request.form.get('cf-turnstile-response')
+        # if not verify_turnstile_token(turnstile_token):
+        #     logger.info('Fallo la verificación de Turnstile.')
+        #     return render_template('login/register.html', message='Error en la verificación de seguridad. Inténtelo nuevamente.')
+
+
+        nombre = bleach.clean(request.form['name'])
+        correo = bleach.clean(request.form['email'])
+        contraseña = request.form['password']
+
+        # Obtener la zona horaria de Bogotá
+        timezone_bogota = pytz.timezone('America/Bogota')
+        fecha_creacion_plan = datetime.now(timezone_bogota)
+
+        cur = mysql.connection.cursor()
+
+        try:
+            cur.execute('START TRANSACTION')
+
+            cur.execute('SELECT * FROM usuario WHERE correo = %s', [correo])
+            existing_user = cur.fetchone()
+
+            if existing_user:
+                return render_template('login/register.html', message='El correo ya está en uso.')
+
+            contraseña_hash = generate_password_hash(contraseña)
+
+            cur.execute('INSERT INTO usuario (nombre, correo, contraseña, role, idplan, fecha_creacion_plan, fecha_expiracion_plan) VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                        (nombre, correo, contraseña_hash, 'usuario', 1, fecha_creacion_plan, None))
+
+            id_usuario = cur.lastrowid
+
+            mysql.connection.commit()
+
+            session['logueado'] = True
+            session['idusuario'] = id_usuario
+            session['nombre'] = nombre
+            session['role'] = 'usuario'
+            session['username'] = nombre
+            session['idplan'] = 1
+
+            # enviar_correo_registro_exitoso(nombre, correo)
+            # logger.info(f'Nuevo usuario registrado: {correo}')
+
+            return redirect(url_for('admin'))
+
+        except Exception as e:
+            mysql.connection.rollback()
+            
+            return render_template('register.html', message='Error en el registro. Inténtelo de nuevo más tarde.')
+
+        finally:
+            cur.close()
+
+    return render_template('register.html')
+
+
+@app.route('/admin', methods=["GET", "POST"])
+
+def admin():
+    saludo = session.get('saludo')
+    username = session.get('username')
+    idplan = session.get('idplan')
+    id_usuario_actual = session.get('idusuario')
+
+    if request.method == 'POST':
+        codigo_barras = request.form.get('codigo_barras')
+
+
+    # Renderizar la plantilla si no hay búsqueda
+    return render_template('admin.html', saludo=saludo, username=username, idplan=idplan)
+
+
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 if __name__ == '__main__':
     app.run(debug=True , host="0.0.0.0", port=5000, threaded=True)
