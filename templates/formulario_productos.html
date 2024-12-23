@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaiko Do </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        
+    </style>
+    <style>
+        /* Estilos generales para el formulario */
+.product-form {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 6001px;
+    margin: 2rem auto;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Estilos para los grupos del formulario */
+.product-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.product-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+.product-form input,
+.product-form textarea,
+.product-form select {
+    width: 100%;
+    padding: 0.875rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-form input:focus,
+.product-form textarea:focus,
+.product-form select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(29, 151, 108, 0.2);
+    outline: none;
+}
+
+.product-form textarea {
+    resize: vertical;
+}
+
+/* Estilos para el botón de enviar */
+.product-form .btn-submit {
+    display: inline-block;
+    background: var(--primary-gradient);
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.3s ease;
+}
+
+.product-form .btn-submit:hover {
+    background: #1d976c;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .product-form {
+        padding: 1.5rem;
+    }
+}
+
+        
+    </style>
+</head>
+<body>
+    <button class="toggle-sidebar" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar">
+        <div class="logo-container">
+            <div class="logo">Zaiko Do</div>
+        </div>
+        <nav class="nav-items">
+            <a href="/admin" class="nav-item">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <div class="nav-item" onclick="toggleSubmenu('productos-submenu')">
+                <i class="fas fa-box"></i>
+                <span>Productos</span>
+                <i class="fas fa-chevron-down arrow"></i>
+            </div>
+            <div class="submenu" id="productos-submenu">
+                <a href="/productos/agregar" class="submenu-item">
+                    <i class="fas fa-plus"></i> Agregar Producto
+                </a>
+                <a href="#" class="submenu-item">
+                    <i class="fas fa-list"></i> Listar Productos
+                </a>
+                
+            </div>
+            <div class="nav-item" onclick="toggleSubmenu('ventas-submenu')">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Ventas</span>
+                <i class="fas fa-chevron-down arrow"></i>
+            </div>
+            <div class="submenu" id="ventas-submenu">
+                
+            </div>
+            <a href="/inventario" class="nav-item">
+                <i class="fas fa-chart-bar"></i> Inventario
+            </a>
+            <a href="/clientes" class="nav-item">
+                <i class="fas fa-users"></i> Clientes
+            </a>
+            <a href="/configuracion" class="nav-item">
+                <i class="fas fa-cog"></i> Configuración
+            </a>
+            <div class="nav-item logout-item">
+                <form action="logout" method="post">
+                    <button type="submit">Cerrar Sesión</button>
+                </form>
+            </div>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <h1>Agregar Producto</h1>
+        {{message}}
+        <form action="/productos/agregar" method="post" class="product-form">
+            <div class="form-group">
+                <label for="codigo_barras">Código de Barras:</label>
+                <input type="text" id="codigo_barras" name="codigo_barras" required>
+            </div>
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+            <div class="form-group">
+                <label for="descripcion">Descripción:</label>
+                <textarea id="descripcion" name="descripcion" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="precio_valor">Precio de Venta:</label>
+                <input type="number" id="precio_valor" name="precio_valor" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="precio_costo">Precio de Costo:</label>
+                <input type="number" id="precio_costo" name="precio_costo" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="cantidad">Cantidad:</label>
+                <input type="number" id="cantidad" name="cantidad" required>
+            </div>
+            <div class="form-group">
+                <label for="categoria">Categoría:</label>
+                <select id="categoria" name="categoria" required>
+                    <option value="">Seleccione una categoría</option>
+                    <option value="Electrónica">Electrónica</option>
+                    <option value="Ropa">Ropa</option>
+                    <option value="Alimentos">Alimentos</option>
+                    <!-- Agregar más categorías según sea necesario -->
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Agregar Producto</button>
+        </form>
+       
+    </div>
+    <script>
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const parentItem = submenu.previousElementSibling;
+            
+            // Cerrar todos los submenús primero
+            document.querySelectorAll('.submenu').forEach(menu => {
+                if (menu.id !== submenuId) {
+                    menu.classList.remove('active');
+                    menu.previousElementSibling.classList.remove('expanded');
+                }
+            });
+            
+            // Alternar el submenú actual
+            submenu.classList.toggle('active');
+            parentItem.classList.toggle('expanded');
+        }
+
+        // Marcar como activo el enlace actual según la URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-items a').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                    // Si es un submenú, expandir el padre
+                    if (link.classList.contains('submenu-item')) {
+                        const submenu = link.parentElement;
+                        submenu.classList.add('active');
+                        submenu.previousElementSibling.classList.add('expanded');
+                    }
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleButton = document.querySelector('.toggle-sidebar');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            toggleButton.classList.toggle('collapsed');
+        }
+
+        // Manejo responsive
+        function handleMobileView() {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleButton = document.querySelector('.toggle-sidebar');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('collapsed');
+                toggleButton.classList.add('collapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
+                toggleButton.classList.remove('collapsed');
+            }
+        }
+
+        window.addEventListener('load', handleMobileView);
+        window.addEventListener('resize', handleMobileView);
+    </script>
+</body>
+</html>
