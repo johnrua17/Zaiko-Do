@@ -7,6 +7,7 @@ import pytz
 import requests
 import bleach
 from flask_mail import Mail, Message
+from flask import jsonify
 
 app = Flask(__name__ , template_folder="templates")
 
@@ -203,9 +204,54 @@ def register_user():
 
     return render_template('register.html')
 
+@app.route('/buscar_producto', methods=["POST"])
+def buscar_producto():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return jsonify({"error": "Usuario no autenticado"}), 401
+
+    # Obtener datos de la solicitud
+    data = request.get_json()
+    codigo_barras = data.get('codigo_barras')
+    id_usuario_actual = session.get('idusuario')
+
+    if not codigo_barras:
+        return jsonify({"error": "Código de barras no proporcionado"}), 400
+
+    try:
+        # Usar la conexión de MySQL
+        cur = mysql.connection.cursor()
+
+        # Consultar el producto en la base de datos
+        query = """
+            SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Precio_Costo, Cantidad, Categoria
+            FROM productos
+            WHERE Codigo_de_barras = %s AND id_usuario = %s
+        """
+        cur.execute(query, (codigo_barras, id_usuario_actual))
+        producto = cur.fetchone()
+
+        if not producto:
+            return jsonify({"error": "Producto no encontrado"}), 200
+
+        # Formatear la respuesta con los datos del producto
+        return jsonify({
+            "codigo": producto["Codigo_de_barras"],
+            "nombre": producto["Nombre"],
+            "descripcion": producto["Descripcion"],
+            "precio": producto["Precio_Valor"],
+            "precio_costo": producto["Precio_Costo"],
+            "stock": producto["Cantidad"],
+            "categoria": producto["Categoria"],
+        })
+    except Exception as e:
+        print(f"Error al buscar el producto: {e}")  # Registro para depuración
+        return jsonify({"error": "Error al buscar el producto"}), 500
+    finally:
+        cur.close()
+
 
 @app.route('/admin', methods=["GET", "POST"])
-
 def admin():
     saludo = session.get('saludo')
     username = session.get('username')
@@ -219,7 +265,78 @@ def admin():
     # Renderizar la plantilla si no hay búsqueda
     return render_template('admin.html', saludo=saludo, username=username, idplan=idplan)
 
+@app.route('/productos/agregar', methods=["GET", "POST"])
+def agregar_producto():
+    if request.method == 'POST':
+        # Capturar los datos del formulario
+        codigo_barras = bleach.clean(request.form['codigo_barras'])
+        nombre = bleach.clean(request.form['nombre'])
+        descripcion = bleach.clean(request.form['descripcion'])
+        precio_valor = request.form['precio_valor']
+        precio_costo = request.form['precio_costo']
+        cantidad = request.form['cantidad']
+        categoria = bleach.clean(request.form['categoria'])
 
+        # Obtener el id del usuario actual desde la sesión
+        id_usuario_actual = session.get('idusuario')
+        cur = mysql.connection.cursor()
+
+        cur.execute('SELECT idplan from usuario where idusuario = %s',(id_usuario_actual,))
+        idplan = cur.fetchone()['idplan']
+            
+            # Si el idplan es 1 (plan gratuito), verificar el límite de productos
+        if idplan == 1:
+                # Obtener el límite de productos del plan gratuito
+            cur.execute('SELECT limite_productos FROM planes WHERE idplan = %s', (idplan,))
+            limite_productos = cur.fetchone()['limite_productos']
+
+                # Contar cuántos productos tiene el usuario actualmente
+            cur.execute('SELECT COUNT(*) AS total_productos FROM productos WHERE id_usuario = %s', (id_usuario_actual,))
+            total_productos = cur.fetchone()['total_productos']
+
+                # Si ha alcanzado el límite de productos, devolver un mensaje
+            if total_productos >= limite_productos:
+                return jsonify({'success': False, 'message': f'Has alcanzado el límite de {limite_productos} productos en el plan gratuito. Para tener productos ilimitados, adquiere cualquier plan.  Para adquirir un plan, ve a "Configuración" en el menú lateral, selecciona "Planes Disponibles" y elige el que más te guste.'})
+
+
+        # Validar campos obligatorios
+        if not (codigo_barras and nombre and precio_valor and precio_costo and cantidad and categoria):
+            return render_template('formulario_productos.html', message='Todos los campos son obligatorios.')
+
+        
+
+        try:
+            cur.execute('START TRANSACTION')
+
+            # Validar si el código de barras ya existe
+            cur.execute('SELECT * FROM productos WHERE Codigo_de_barras = %s AND id_usuario = %s', 
+                        (codigo_barras, id_usuario_actual))
+            existing_product = cur.fetchone()
+
+            if existing_product:
+                return render_template('formulario_productos.html', 
+                                       message='El código de barras ya está registrado.')
+                # print(message)
+
+            # Insertar el producto
+            cur.execute('INSERT INTO productos (id_usuario,Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Precio_Costo, Cantidad, Categoria) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', 
+                        ( id_usuario_actual,codigo_barras, nombre, descripcion, precio_valor, precio_costo, cantidad, categoria))
+
+            mysql.connection.commit()
+
+            return render_template('formulario_productos.html', 
+                                   message='Producto agregado exitosamente.')
+
+        except Exception as e:
+            mysql.connection.rollback()
+            print(f"Error al agregar el producto: {e}")  # Depuración
+            return render_template('formulario_productos.html', 
+                                   message='Error al agregar el producto. Inténtelo más tarde.')
+
+        finally:
+            cur.close()
+
+    return render_template('formulario_productos.html')
 
 @app.route("/logout", methods=["POST"])
 def logout():
