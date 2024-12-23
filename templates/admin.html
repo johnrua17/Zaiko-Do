@@ -5,329 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zaiko Do </title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
     <style>
-        .sidebar {
-            width: 280px;
-            background-color: #1a1a1a;
-            color: #ffffff;
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            padding: 1.5rem 0;
-        }
-
-        .logo-container {
-            padding: 0 1.5rem 1.5rem;
-            border-bottom: 1px solid #2d3748;
-            margin-bottom: 1.5rem;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #1d976c, #93f9b9);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-items {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            padding: 0 1rem;
-        }
-
-        .nav-item {
-            padding: 0.875rem 1.25rem;
-            display: flex;
-            align-items: center;
-            color: #a0aec0;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .nav-item:hover {
-            color: #ffffff;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .nav-item.active {
-            color: #ffffff;
-            background: linear-gradient(to right, #1d976c, #93f9b9);
-        }
-
-        .nav-item i {
-            width: 20px;
-            margin-right: 12px;
-            font-size: 1.1rem;
-        }
-
-        /* Estilos para el submenú */
-        .submenu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            margin-left: 2.5rem;
-        }
-
-        .submenu.active {
-            max-height: 500px; /* Altura máxima del submenú desplegado */
-        }
-
-        .submenu-item {
-            padding: 0.75rem 1.25rem;
-            display: flex;
-            align-items: center;
-            color: #a0aec0;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .submenu-item:hover {
-            color: #ffffff;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .nav-item .arrow {
-            margin-left: auto;
-            transition: transform 0.3s ease;
-        }
-
-        .nav-item.expanded .arrow {
-            transform: rotate(180deg);
-        }
-
-        /* Estilos para el botón de logout */
-        .logout-item {
-            margin-top: auto;
-            margin: 1rem;
-        }
-
-        .logout-item form {
-            width: 100%;
-        }
-
-        .logout-item button {
-            width: 100%;
-            background: none;
-            border: none;
-            color: #fc8181;
-            padding: 0.875rem 1.25rem;
-            text-align: left;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            font-family: inherit;
-        }
-
-        .logout-item button:hover {
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-        }
-
-        .logout-item button::before {
-            content: "\f2f5"; /* Código del icono fa-sign-out-alt */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            margin-right: 12px;
-            width: 20px;
-        }
+        
     </style>
     <style>
-        :root {
-            --primary-color: #1d976c;
-            --primary-gradient: linear-gradient(to right, #1d976c, #93f9b9);
-            --sidebar-bg: #1a1a1a;
-            --text-light: #ffffff;
-            --text-muted: #a0aec0;
-            --border-color: #2d3748;
-            --content-bg: #f7fafc;
-            --card-bg: #ffffff;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-        }
+        /* Contenedor principal para el campo de entrada */
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-        }
+        .barcode-entry {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 4000px;
+    margin: 0 auto;
+}
 
-        body {
-            display: flex;
-            min-height: 100vh;
-            background-color: var(--content-bg);
-        }
+/* Estilo de la etiqueta */
+.barcode-entry label {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    text-align: left;
+    width: 100%;
+}
 
-        /* Sidebar refinado */
-        .sidebar {
-            width: 280px;
-            background-color: var(--sidebar-bg);
-            color: var(--text-light);
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            padding: 1.5rem 0;
-        }
+/* Estilo del campo de entrada */
+.barcode-entry input[type="text"] {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
 
-        .sidebar.collapsed {
-            transform: translateX(-280px);
-        }
+/* Cambiar color del borde cuando el campo tiene foco */
+.barcode-entry input[type="text"]:focus {
+    border-color: #007bff;
+}
 
-        .logo-container {
-            padding: 0 1.5rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 1.5rem;
-        }
+/* Estilo del botón de búsqueda */
+.barcode-entry button {
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-        
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            transition: margin-left 0.3s ease;
-            padding: 2rem;
-        }
+/* Efecto de hover para el botón */
+.barcode-entry button:hover {
+    background-color: #0056b3;
+}
 
-        .main-content.expanded {
-            margin-left: 0;
-        }
+/* Agregar espacio entre el campo de entrada y el botón */
+.barcode-entry button {
+    margin-top: 10px;
+}
 
-        .welcome-section {
-            margin-bottom: 2rem;
-            padding: 2rem;
-            background: var(--primary-gradient);
-            border-radius: 12px;
-            color: white;
-            box-shadow: var(--shadow-md);
-        }
+.barcode-entry button:focus {
+    outline: none;
+}
 
-        .welcome-text {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .welcome-subtext {
-            opacity: 0.9;
-        }
-
-        /* Table Section */
-        .table-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-
-        .table-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .table-header h2 {
-            color: #2d3748;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .data-table th {
-            background-color: #f8fafc;
-            font-weight: 600;
-            color: #4a5568;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 1rem 1.5rem;
-            text-align: left;
-            border-bottom: 1px solid #edf2f7;
-        }
-
-        .data-table tr:hover {
-            background-color: #f7fafc;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-280px);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-
-            .table-container {
-                overflow-x: auto;
-            }
-
-            .welcome-section {
-                padding: 1.5rem;
-            }
-        }
-
-        /* Toggle Button */
-        .toggle-sidebar {
-            position: fixed;
-            left: 290px;
-            top: 20px;
-            background: white;
-            color: var(--primary-color);
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 1000;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-md);
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .toggle-sidebar:hover {
-            transform: scale(1.1);
-        }
-
-        .toggle-sidebar.collapsed {
-            left: 20px;
-        }
     </style>
 </head>
 <body>
@@ -340,7 +87,7 @@
             <div class="logo">Zaiko Do</div>
         </div>
         <nav class="nav-items">
-            <a href="/dashboard" class="nav-item">
+            <a href="/admin" class="nav-item">
                 <i class="fas fa-home"></i> Dashboard
             </a>
             <div class="nav-item" onclick="toggleSubmenu('productos-submenu')">
@@ -352,12 +99,10 @@
                 <a href="/productos/agregar" class="submenu-item">
                     <i class="fas fa-plus"></i> Agregar Producto
                 </a>
-                <a href="/productos/listar" class="submenu-item">
+                <a href="#" class="submenu-item">
                     <i class="fas fa-list"></i> Listar Productos
                 </a>
-                <a href="/productos/categorias" class="submenu-item">
-                    <i class="fas fa-tags"></i> Categorías
-                </a>
+                
             </div>
             <div class="nav-item" onclick="toggleSubmenu('ventas-submenu')">
                 <i class="fas fa-shopping-cart"></i>
@@ -365,12 +110,7 @@
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu" id="ventas-submenu">
-                <a href="/ventas/nueva" class="submenu-item">
-                    <i class="fas fa-plus"></i> Nueva Venta
-                </a>
-                <a href="/ventas/historial" class="submenu-item">
-                    <i class="fas fa-history"></i> Historial
-                </a>
+               
             </div>
             <a href="/inventario" class="nav-item">
                 <i class="fas fa-chart-bar"></i> Inventario
@@ -394,10 +134,17 @@
             <div class="welcome-text">Bienvenido de nuevo, {{username}}</div>
             <div class="welcome-subtext">¿Qué te gustaría hacer hoy?</div>
         </div>
+        
 
         <div class="table-container">
+            <div class="barcode-entry">
+                <label for="codigo_barras">Ingresar Código de Barras:</label>
+                <input type="text" id="codigo_barras" name="codigo_barras" />
+                <button id="buscar_producto">Buscar Producto</button>
+            </div>
             <div class="table-header">
-                <h2>Productos </h2>
+                
+                <h2>Productos</h2>
             </div>
             <table class="data-table">
                 <thead>
@@ -408,14 +155,95 @@
                         <th>Precio</th>
                         <th>Stock</th>
                         <th>Categoría</th>
+                        <th>Cantidad</th> <!-- Nueva columna para la cantidad -->
                     </tr>
                 </thead>
-                <tbody>
-                  
+                <tbody id="tabla_productos">
+                    <!-- Productos se añadirán aquí dinámicamente -->
                 </tbody>
             </table>
         </div>
     </div>
+    
+    
+    <script>
+        document.getElementById('buscar_producto').addEventListener('click', async () => {
+    const codigoBarras = document.getElementById('codigo_barras').value;
+
+    if (!codigoBarras) {
+        alert('Por favor, ingresa un código de barras.');
+        return;
+    }
+
+    try {
+        const response = await fetch('/buscar_producto', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ codigo_barras: codigoBarras }),
+        });
+
+        if (!response.ok) throw new Error('Error al buscar el producto');
+
+        const producto = await response.json();
+
+        if (producto.error) {
+            alert(producto.error);
+            return;
+        }
+
+        if (producto.stock <= 0) {
+            alert('Este producto no está disponible.');
+            return;
+        }
+
+        const tablaProductos = document.getElementById('tabla_productos');
+        let productoExistente = false;
+
+        // Verificar si el producto ya existe en la tabla
+        for (let row of tablaProductos.rows) {
+            const codigoCelda = row.cells[0].textContent;
+            if (codigoCelda === producto.codigo) {
+                // Si ya existe, actualizar la cantidad solo si es menor que el stock
+                const cantidadCelda = row.cells[6];
+                let cantidad = parseInt(cantidadCelda.textContent);
+
+                // Verificar que la cantidad no supere el stock
+                if (cantidad < producto.stock) {
+                    cantidadCelda.textContent = cantidad + 1;
+                } else {
+                    alert('No puedes agregar más unidades de este producto, ya alcanzaste el stock disponible.');
+                }
+                
+                productoExistente = true;
+                break;
+            }
+        }
+
+        if (!productoExistente) {
+            // Si no existe, agregar el producto con cantidad 1
+            const fila = `
+                <tr>
+                    <td>${producto.codigo}</td>
+                    <td>${producto.nombre}</td>
+                    <td>${producto.descripcion}</td>
+                    <td>${producto.precio}</td>
+                    <td>${producto.stock}</td>
+                    <td>${producto.categoria}</td>
+                    <td>1</td> <!-- Inicialmente la cantidad es 1 -->
+                </tr>
+            `;
+            tablaProductos.insertAdjacentHTML('beforeend', fila);
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Ocurrió un error al buscar el producto.');
+    }
+});
+
+    </script>
+    
     <script>
         function toggleSubmenu(submenuId) {
             const submenu = document.getElementById(submenuId);
