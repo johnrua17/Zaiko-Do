@@ -344,3 +344,40 @@ def logout():
     return redirect(url_for('login'))
 if __name__ == '__main__':
     app.run(debug=True , host="0.0.0.0", port=5000, threaded=True)
+
+@app.route('/buscar_productos', methods=['POST'])
+def buscar_productos():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return jsonify({"error": "Usuario no autenticado"}), 401
+
+    # Obtener los datos enviados en la solicitud
+    data = request.get_json()
+    termino_busqueda = data.get('termino_busqueda')
+    id_usuario_actual = session.get('idusuario')
+
+    if not termino_busqueda:
+        return jsonify({"error": "No se proporcionó un término de búsqueda"}), 400
+
+    try:
+        cur = mysql.connection.cursor()
+
+        # Consulta SQL para buscar productos que coincidan con el término de búsqueda
+        query = """
+        SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Cantidad, Categoria
+        FROM productos
+        WHERE id_usuario = %s AND 
+              (Nombre LIKE %s OR Categoria LIKE %s OR Codigo_de_barras LIKE %s)
+        """
+        termino_busqueda = f"%{termino_busqueda}%"  # Agregar comodines para la búsqueda parcial
+        cur.execute(query, (id_usuario_actual, termino_busqueda, termino_busqueda, termino_busqueda))
+        productos = cur.fetchall()
+        cur.close()
+
+        if not productos:
+            return jsonify({"error": "No se encontraron productos"}), 200
+
+        return jsonify({"productos": productos})
+    except Exception as e:
+        print(f"Error al buscar productos: {e}")
+        return jsonify({"error": "Error interno del servidor"}), 500

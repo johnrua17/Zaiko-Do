@@ -138,10 +138,15 @@
 
         <div class="table-container">
             <div class="barcode-entry">
-                <label for="codigo_barras">Ingresar Código de Barras:</label>
+                <label for="codigo_barras">Ingresar código de barras:</label>
                 <input type="text" id="codigo_barras" name="codigo_barras" />
-                <button id="buscar_producto">Buscar Producto</button>
+                <button id="buscar_producto">Buscar producto</button>
             </div>
+            <div class="barcode-entry">
+                <label for="termino_busqueda">Buscar producto:</label>
+                <input type="text" id="termino_busqueda" name="termino_busqueda" placeholder="Nombre, categoría o código de barras">
+                <button id="buscar_dinamico">Buscar</button>
+            </div>            
             <div class="table-header">
                 
                 <h2>Productos</h2>
@@ -184,7 +189,7 @@
             body: JSON.stringify({ codigo_barras: codigoBarras }),
         });
 
-        if (!response.ok) throw new Error('Error al buscar el producto');
+        if (!response.ok) throw new Error('Error al buscar el producto.');
 
         const producto = await response.json();
 
@@ -243,7 +248,55 @@
 });
 
     </script>
+    <script>
+        document.getElementById('buscar_dinamico').addEventListener('click', async () => {
+            const terminoBusqueda = document.getElementById('termino_busqueda').value;
     
+            if (!terminoBusqueda) {
+                alert('Por favor, ingresa un término de búsqueda.');
+                return;
+            }
+    
+            try {
+                const response = await fetch('/buscar_productos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ termino_busqueda: terminoBusqueda }),
+                });
+    
+                if (!response.ok) throw new Error('Error al buscar productos');
+    
+                const data = await response.json();
+    
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+    
+                const tablaProductos = document.getElementById('tabla_productos');
+                tablaProductos.innerHTML = ''; // Limpiar tabla antes de agregar nuevos resultados
+    
+                data.productos.forEach((producto) => {
+                    const fila = `
+                        <tr>
+                            <td>${producto.Codigo_de_barras}</td>
+                            <td>${producto.Nombre}</td>
+                            <td>${producto.Descripcion}</td>
+                            <td>${producto.Precio_Valor}</td>
+                            <td>${producto.Cantidad}</td>
+                            <td>${producto.Categoria}</td>
+                        </tr>
+                    `;
+                    tablaProductos.insertAdjacentHTML('beforeend', fila);
+                });
+            } catch (error) {
+                console.error(error);
+                alert('Ocurrió un error al buscar los productos.');
+            }
+        });
+    </script>    
     <script>
         function toggleSubmenu(submenuId) {
             const submenu = document.getElementById(submenuId);

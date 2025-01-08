@@ -326,3 +326,8 @@ body {
 .toggle-sidebar.collapsed {
     left: 20px;
 }
+
+.barcode-entry #termino_busqueda {
+    width: calc(100% - 120px); /* Ajustar tamaño según el botón */
+    margin-right: 10px;
+}
