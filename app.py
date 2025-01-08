@@ -141,8 +141,9 @@ def login_user():
 def register():
     return register_user()
 
-
-
+@app.route('/')
+def home():
+    return redirect(url_for('login'))
 
 def register_user():
     if request.method == 'POST':
