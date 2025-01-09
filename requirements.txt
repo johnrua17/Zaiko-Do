@@ -4,3 +4,4 @@ Flask-MySQLdb==2.0.0
 pytz==2023.3
 requests==2.31.0
 bleach==6.1.0
+openpyxl==3.1.2

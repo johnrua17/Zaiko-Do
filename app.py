@@ -8,11 +8,12 @@ import requests
 import bleach
 from flask_mail import Mail, Message
 from flask import jsonify
+from io import BytesIO
+from openpyxl import Workbook
+from flask import send_file
 
 app = Flask(__name__ , template_folder="templates")
-
 app.secret_key = "Zaikodo"
-
 
 # Configuración de la conexión a la base de datos MySQL
 app.config['MYSQL_HOST'] = 'bb8xmknvzukpsmgzmsf2-mysql.services.clever-cloud.com'
@@ -251,6 +252,60 @@ def buscar_producto():
     finally:
         cur.close()
 
+@app.route('/descargar_productos', methods=['POST'])
+def descargar_productos():
+    print("Se accedió a descargar_productos")
+    # Obtener el ID del usuario actual desde la sesión
+    id_usuario = session.get('idusuario')
+    username = session.get('username')
+
+    if not id_usuario:
+        return jsonify({"error": "Usuario no autenticado"}), 401
+
+    try:
+        # Consultar la base de datos para obtener los productos del usuario
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Precio_Costo, Cantidad, Categoria 
+            FROM productos 
+            WHERE id_usuario = %s
+        """, (id_usuario,))
+        productos = cur.fetchall()
+
+        # Crear un archivo Excel en memoria
+        output = BytesIO()
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Productos"
+
+        # Agregar encabezados
+        encabezados = ["Código de Barras", "Nombre", "Descripción", "Precio Valor", "Precio Costo", "Cantidad", "Categoría"]
+        ws.append(encabezados)
+
+        # Agregar datos de productos
+        for producto in productos:
+            ws.append([
+                producto["Codigo_de_barras"],
+                producto["Nombre"],
+                producto["Descripcion"],
+                producto["Precio_Valor"],
+                producto["Precio_Costo"],
+                producto["Cantidad"],
+                producto["Categoria"]
+            ])
+
+        # Guardar el archivo Excel en memoria
+        wb.save(output)
+        output.seek(0)
+
+        # Nombre del archivo para la descarga
+        nombre_archivo = f"productos_{username}.xlsx"
+
+        # Enviar el archivo Excel para descarga
+        return send_file(output, as_attachment=True, download_name=nombre_archivo)
+    except Exception as e:
+        print(f"Error al generar el archivo: {e}")
+        return jsonify({"error": "Error interno del servidor"}), 500
 
 @app.route('/admin', methods=["GET", "POST"])
 def admin():

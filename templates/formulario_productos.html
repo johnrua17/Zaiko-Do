@@ -106,10 +106,10 @@
             </div>
             <div class="submenu" id="productos-submenu">
                 <a href="/productos/agregar" class="submenu-item">
-                    <i class="fas fa-plus"></i> Agregar Producto
+                    <i class="fas fa-plus"></i> Agregar producto
                 </a>
                 <a href="#" class="submenu-item">
-                    <i class="fas fa-list"></i> Listar Productos
+                    <i class="fas fa-list"></i> Listar productos
                 </a>
                 
             </div>
@@ -132,18 +132,18 @@
             </a>
             <div class="nav-item logout-item">
                 <form action="logout" method="post">
-                    <button type="submit">Cerrar Sesión</button>
+                    <button type="submit">Cerrar sesión</button>
                 </form>
             </div>
         </nav>
     </div>
 
     <div class="main-content">
-        <h1>Agregar Producto</h1>
+        <h1>Agregar producto</h1>
         {{message}}
         <form action="/productos/agregar" method="post" class="product-form">
             <div class="form-group">
-                <label for="codigo_barras">Código de Barras:</label>
+                <label for="codigo_barras">Código de barras:</label>
                 <input type="text" id="codigo_barras" name="codigo_barras" required>
             </div>
             <div class="form-group">
@@ -155,11 +155,11 @@
                 <textarea id="descripcion" name="descripcion" rows="4" required></textarea>
             </div>
             <div class="form-group">
-                <label for="precio_valor">Precio de Venta:</label>
+                <label for="precio_valor">Precio de venta:</label>
                 <input type="number" id="precio_valor" name="precio_valor" step="0.01" required>
             </div>
             <div class="form-group">
-                <label for="precio_costo">Precio de Costo:</label>
+                <label for="precio_costo">Precio de costo:</label>
                 <input type="number" id="precio_costo" name="precio_costo" step="0.01" required>
             </div>
             <div class="form-group">
@@ -176,7 +176,7 @@
                     <!-- Agregar más categorías según sea necesario -->
                 </select>
             </div>
-            <button type="submit" class="btn-submit">Agregar Producto</button>
+            <button type="submit" class="btn-submit">Agregar producto</button>
         </form>
        
     </div>

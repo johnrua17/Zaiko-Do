@@ -14,9 +14,6 @@ CREATE TABLE `usuario` (
   UNIQUE KEY `correo_UNIQUE` (`correo`)
 ) ENGINE=InnoDB AUTO_INCREMENT=120 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-
-
-
 CREATE TABLE `ventas` (
   `idventas` int NOT NULL AUTO_INCREMENT,
   `idusuario` int NOT NULL,
@@ -36,9 +33,6 @@ CREATE TABLE `ventas` (
   CONSTRAINT `idusuario` FOREIGN KEY (`idusuario`) REFERENCES `usuario` (`idusuario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1662 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-
-
-
 CREATE TABLE `tienda` (
   `idTienda` int NOT NULL AUTO_INCREMENT,
   `idusuario` int DEFAULT NULL,
@@ -53,8 +47,6 @@ CREATE TABLE `tienda` (
   KEY `idusuario_idx` (`idusuario`) /*!80000 INVISIBLE */,
   CONSTRAINT `id_usuarios` FOREIGN KEY (`idusuario`) REFERENCES `usuario` (`idusuario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3
-
-
 
 CREATE TABLE `suscripciones` (
   `idsuscripcion` int NOT NULL AUTO_INCREMENT,
@@ -72,8 +64,6 @@ CREATE TABLE `suscripciones` (
   CONSTRAINT `suscripciones_ibfk_2` FOREIGN KEY (`idplan`) REFERENCES `planes` (`idplan`)
 ) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb3
 
-
-
 CREATE TABLE `registro_abonos` (
   `id` int NOT NULL AUTO_INCREMENT,
   `idcredito` int NOT NULL,
@@ -88,10 +78,6 @@ CREATE TABLE `registro_abonos` (
   CONSTRAINT `registro_abonos_ibfk_2` FOREIGN KEY (`idusuario`) REFERENCES `usuario` (`idusuario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb3
 
-
-
-
-
 CREATE TABLE `recuperar_contra` (
   `idrecuperar_contra` int NOT NULL AUTO_INCREMENT,
   `correo` varchar(100) NOT NULL,
@@ -101,9 +87,6 @@ CREATE TABLE `recuperar_contra` (
   `usado` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`idrecuperar_contra`)
 ) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb3
-
-
-
 
 CREATE TABLE `productos` (
   `idproductos` int NOT NULL AUTO_INCREMENT,
@@ -120,9 +103,6 @@ CREATE TABLE `productos` (
   CONSTRAINT `id_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`idusuario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=947 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-
-
-
 CREATE TABLE `planes` (
   `idplan` int NOT NULL AUTO_INCREMENT,
   `nombre` varchar(50) NOT NULL,
@@ -132,9 +112,6 @@ CREATE TABLE `planes` (
   `limite_ventas` int NOT NULL,
   PRIMARY KEY (`idplan`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-
-
-
 
 CREATE TABLE `historial_planes_usuarios` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -149,8 +126,6 @@ CREATE TABLE `historial_planes_usuarios` (
   CONSTRAINT `historial_planes_usuarios_ibfk_1` FOREIGN KEY (`idusuario`) REFERENCES `usuario` (`idusuario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3
 
-
-
 CREATE TABLE `historial_planes` (
   `id` int NOT NULL AUTO_INCREMENT,
   `idusuario` int NOT NULL,
@@ -161,8 +136,6 @@ CREATE TABLE `historial_planes` (
   KEY `idusuario` (`idusuario`),
   CONSTRAINT `historial_planes_ibfk_1` FOREIGN KEY (`idusuario`) REFERENCES `usuario` (`idusuario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3
-
-
 
 CREATE TABLE `detalleventas` (
   `iddetalle` int NOT NULL AUTO_INCREMENT,
@@ -179,8 +152,6 @@ CREATE TABLE `detalleventas` (
   PRIMARY KEY (`iddetalle`),
   KEY `idusuario_idx` (`idusuario`) /*!80000 INVISIBLE */
 ) ENGINE=InnoDB AUTO_INCREMENT=2958 DEFAULT CHARSET=utf8mb3
-
-
 
 CREATE TABLE `creditos` (
   `idcredito` int NOT NULL AUTO_INCREMENT,
@@ -199,9 +170,6 @@ CREATE TABLE `creditos` (
   KEY `idusuario` (`idusuario`),
   CONSTRAINT `creditos_ibfk_1` FOREIGN KEY (`idusuario`) REFERENCES `usuario` (`idusuario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb3
-
-
-
 
 CREATE TABLE `clientes` (
   `idcliente` int NOT NULL AUTO_INCREMENT,

@@ -331,3 +331,25 @@ body {
     width: calc(100% - 120px); /* Ajustar tamaño según el botón */
     margin-right: 10px;
 }
+
+.download-btn {
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.download-btn:hover {
+    background-color: #218838;
+}
+
+.download-btn i {
+    margin-right: 5px;
+}
