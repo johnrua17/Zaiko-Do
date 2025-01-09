@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El título de la página</title>
+    <link rel="stylesheet" href="css/home.css">
+</head>
+
+<body>
+    <nav class = "navbar">
+        <img src="images/Imagotipo.png" alt="Logo" class="logo">
+        <ul>
+            <li><a href="#home" id="inicio-btn">Inicio </a></li>
+            <li><a href="#about" id="conocenos-btn">Conócenos </a></li>
+            <li><a href="#plans">Planes </a></li>
+        </ul>
+        <div class="navbar-buttons">
+            <button class="button1">Iniciar sesión</button>
+            <button class="button2">Registrarse</button>
+        </div>
+    </nav>
+
+    <div class="main">
+        <div class="row" id="vision-mision">
+            <div class="col">
+                <div class="content-box">
+                    <h2 class="title_style">Visión</h2>
+                    <p class="justify-text">Zaiko Do será la herramienta digital más accesible para la gestión digital de inventario de pequeños y medianos comerciantes para el 2030, permitiéndoles optimizar sus operaciones, tomar decisiones informadas y crecer de manera eficiente. Seremos reconocidos como líderes en soluciones tecnológicas que empoderan a los negocios locales, contribuyendo al desarrollo económico de las comunidades donde operamos.</p>    
+                </div>
+            </div>
+            <div class="col">
+                <div class="content-box">
+                    <h2 class="title_style">Misión</h2>
+                    <p class="justify-text">Facilitar la gestión de inventario de los pequeños y medianos comerciantes, ejecutando estas tareas a través de una plataforma web accesible, para promover la eficiencia operativa, el crecimiento empresarial y el fortalecimiento de la economía local.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="team" id="equipo">
+            <h2>Equipo de Desarrollo</h2>
+            <div class="team-container">
+                <div class="card">
+                    <h3>Jhon Andrés Rua Cortés</h3>
+                    <p>Desarrollador Backend</p>
+                    <div class="social-icons">
+                        <a href="https://www.flaticon.com/free-icons/github" title="github icons"></a><img src="images/github.png" alt="Github" class="social-icon github-icon"></a>
+                        <a href="https://www.flaticon.com/free-icons/linkedin" title="linkedin icons"></a><img src="images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Fabio Esteban Murcia Martínez </h3>
+                    <p>Desarrollador Frontend</p>
+                    <div class="social-icons">
+                        <a href="https://www.flaticon.com/free-icons/github" title="github icons"></a><img src="images/github.png" alt="Github" class="social-icon github-icon"></a>
+                        <a href="https://www.flaticon.com/free-icons/linkedin" title="linkedin icons"></a><img src="images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="images/fnovoas.jpg" alt="Fernando Novoa" class="profile-pic">
+                    <h3>Fernando Novoa Salazar</h3>
+                    <p>Desarrollador Backend</p>
+                    <div class="social-icons">
+                        <a href="https://www.flaticon.com/free-icons/github" title="github icons"></a><img src="images/github.png" alt="Github" class="social-icon github-icon"></a>
+                        <a href="https://www.flaticon.com/free-icons/linkedin" title="linkedin icons"></a><img src="images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Byron Daniel Giraldo Castro</h3>
+                    <p>Desarrollador Backend</p>
+                    <div class="social-icons">
+                        <a href="https://www.flaticon.com/free-icons/github" title="github icons"></a><img src="images/github.png" alt="Github" class="social-icon github-icon"></a>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="images/croncancio.jpg" alt="Camilo Roncancio" class="profile-pic">
+                    <h3>Camilo Andres Roncancio Toca</h3>
+                    <p>Desarrollador Frontend</p>
+                    <div class="social-icons">
+                        <a href="https://github.com/UnalKami" title="Github de Camilo Roncancio" target="_blank">
+                            <img src="images/github.png" alt="Github" class="social-icon github-icon"></a>
+                        <a href="https://www.linkedin.com/in/camilo-roncancio-toca-401310276/" title="LinkedIn de Camilo Roncancio" target="_blank">
+                            <img src="images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>        
+
+            
+    
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <img src="images/Imagotipo_white.png" alt="Logo" class="footer-logo">
+                <p>&copy;2024 Zaiko Do. Todos los derechos reservados.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p>Email: zaikodo.services@gmail.com </p>
+                <p>Linea de atención: +123 456 7890</p>
+
+            </div>
+            <div class="footer-section">
+                <h4>Síguenos</h4>
+                <a href="https://instagram.com" target="_blank">Instagram</a>
+            </div>
+            <div class="footer-section">
+                <h4>Enlaces</h4>
+                <a href="#home">Inicio</a>
+                <a href="#about">Conócenos</a>
+                <a href="#plans">Planes</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+
+<script>
+    document.getElementById('inicio-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('vision-mision').style.display = 'block';
+        document.getElementById('equipo').style.display = 'none';
+    });
+
+    document.getElementById('conocenos-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('vision-mision').style.display = 'none';
+        document.getElementById('equipo').style.display = 'block';
+    }); 
+
+    // Mostrar solo las secciones de Visión y Misión al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('vision-mision').style.display = 'block';
+        document.getElementById('equipo').style.display = 'none';
+    });
+</script>
