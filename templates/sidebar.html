@@ -1,0 +1,56 @@
+<div class="sidebar">
+    <div class="logo-container">
+        <!-- Enlace a la página de admin con la imagen como logo -->
+        <a href="{{ url_for('routes.admin') }}">
+            <!-- Ruta correcta para cargar la imagen -->
+            <img src="{{ url_for('static', filename='images/Imagotipo_white.png') }}" alt="Zaiko Do Logo" class="logo-image">
+        </a>
+    </div>
+    <nav class="nav-items">
+        <a href="{{ url_for('routes.admin') }}" class="nav-item">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <div class="nav-item" onclick="toggleSubmenu('productos-submenu')">
+            <i class="fas fa-box"></i>
+            <span>Productos</span>
+            <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <div class="submenu" id="productos-submenu">
+            <a href="{{ url_for('routes.agregar_producto') }}" class="submenu-item">
+                <i class="fas fa-plus"></i> &nbsp;Agregar producto
+            </a>
+            <a href="{{ url_for('routes.listar_productos') }}" class="submenu-item">
+                <i class="fas fa-list"></i> &nbsp;Listar productos
+            </a>
+        </div>
+        <div class="nav-item" onclick="toggleSubmenu('ventas-submenu')">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Ventas</span>
+            <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <div class="submenu" id="ventas-submenu"></div>
+        <a href="{{ url_for('routes.inventario') }}" class="nav-item">
+            <i class="fas fa-chart-bar"></i> Inventario
+        </a>
+        <a href="{{ url_for('routes.clientes') }}" class="nav-item">
+            <i class="fas fa-users"></i> Clientes
+        </a>
+        <a href="{{ url_for('routes.configuracion') }}" class="nav-item">
+            <i class="fas fa-cog"></i> Configuración
+        </a>
+        <div class="nav-item logout-item">
+            <form action="{{ url_for('routes.logout') }}" method="post">
+                <button type="submit">Cerrar sesión</button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<style>
+    .logo-image {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto; /* Centrar la imagen si es necesario */
+    }
+</style>

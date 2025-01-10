@@ -64,7 +64,7 @@
 
     <div class="login-container">
         <h2>Iniciar sesión</h2>
-        <form action="{{ url_for('login') }}" method="post" >
+        <form action="{{ url_for('routes.login') }}" method="post">
             <div class="form-group">
                 <label for="email"></label>
                 <div class="input-group">
@@ -94,13 +94,13 @@
             {% endif %}
 
             <button id="submitButton" type="submit">Ingresar</button>
-            <p>¿No tienes una cuenta? <a href="{{ url_for('register') }}">¡Regístrate!</a></p>
+            <p>¿No tienes una cuenta? <a href="{{ url_for('auth.register') }}">¡Regístrate!</a></p>
         </form>
         <div>
         </div>
     </div>
     <div class="footer">
-        <a href="terminos_condiciones">Términos y condiciones</a>
+        <a href="{{ url_for('routes.terminos_condiciones') }}">Términos y condiciones</a>
     </div>
 
     <style>

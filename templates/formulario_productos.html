@@ -90,58 +90,11 @@
     <button class="toggle-sidebar" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </button>
-
-    <div class="sidebar">
-        <div class="logo-container">
-            <div class="logo">Zaiko Do</div>
-        </div>
-        <nav class="nav-items">
-            <a href="/admin" class="nav-item">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <div class="nav-item" onclick="toggleSubmenu('productos-submenu')">
-                <i class="fas fa-box"></i>
-                <span>Productos</span>
-                <i class="fas fa-chevron-down arrow"></i>
-            </div>
-            <div class="submenu" id="productos-submenu">
-                <a href="/productos/agregar" class="submenu-item">
-                    <i class="fas fa-plus"></i> Agregar producto
-                </a>
-                <a href="#" class="submenu-item">
-                    <i class="fas fa-list"></i> Listar productos
-                </a>
-                
-            </div>
-            <div class="nav-item" onclick="toggleSubmenu('ventas-submenu')">
-                <i class="fas fa-shopping-cart"></i>
-                <span>Ventas</span>
-                <i class="fas fa-chevron-down arrow"></i>
-            </div>
-            <div class="submenu" id="ventas-submenu">
-                
-            </div>
-            <a href="/inventario" class="nav-item">
-                <i class="fas fa-chart-bar"></i> Inventario
-            </a>
-            <a href="/clientes" class="nav-item">
-                <i class="fas fa-users"></i> Clientes
-            </a>
-            <a href="/configuracion" class="nav-item">
-                <i class="fas fa-cog"></i> Configuración
-            </a>
-            <div class="nav-item logout-item">
-                <form action="logout" method="post">
-                    <button type="submit">Cerrar sesión</button>
-                </form>
-            </div>
-        </nav>
-    </div>
-
+    {% include 'sidebar.html' %}
     <div class="main-content">
         <h1>Agregar producto</h1>
         {{message}}
-        <form action="/productos/agregar" method="post" class="product-form">
+        <form action="{{ url_for('routes.agregar_producto') }}" method="post" class="product-form">
             <div class="form-group">
                 <label for="codigo_barras">Código de barras:</label>
                 <input type="text" id="codigo_barras" name="codigo_barras" required>
