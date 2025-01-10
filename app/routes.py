@@ -154,7 +154,7 @@ def editar_producto(codigo_barras):
             mysql.connection.commit()
 
 
-            return redirect(url_for('listar_productos'))
+            return redirect(url_for('routes.listar_productos'))
 
 
         except Exception as e:
@@ -209,7 +209,7 @@ def eliminar_producto(codigo_barras):
         mysql.connection.commit()
 
 
-        return redirect(url_for('listar_productos'))
+        return redirect(url_for('routes.listar_productos'))
 
 
     except Exception as e:
