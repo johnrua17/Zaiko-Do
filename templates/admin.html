@@ -87,7 +87,7 @@
             <div class="logo">Zaiko Do</div>
         </div>
         <nav class="nav-items">
-            <a href="/admin" class="nav-item">
+            <a href="{{ url_for('routes.admin') }}" class="nav-item">
                 <i class="fas fa-home"></i> Dashboard
             </a>
             <div class="nav-item" onclick="toggleSubmenu('productos-submenu')">
@@ -96,7 +96,7 @@
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu" id="productos-submenu">
-                <a href="/productos/agregar" class="submenu-item">
+                <a href="{{ url_for('routes.agregar_producto') }}" class="submenu-item">
                     <i class="fas fa-plus"></i> &nbsp;Agregar producto
                 </a>
                 <a href="#" class="submenu-item">
@@ -112,17 +112,17 @@
             <div class="submenu" id="ventas-submenu">
                
             </div>
-            <a href="/inventario" class="nav-item">
+            <a href="{{ url_for('routes.inventario') }}" class="nav-item">
                 <i class="fas fa-chart-bar"></i> Inventario
-            </a>
-            <a href="/clientes" class="nav-item">
+            </a>            
+            <a href="{{ url_for('routes.clientes') }}" class="nav-item">
                 <i class="fas fa-users"></i> Clientes
-            </a>
-            <a href="/configuracion" class="nav-item">
+            </a>            
+            <a href="{{ url_for('routes.configuracion') }}" class="nav-item">
                 <i class="fas fa-cog"></i> Configuración
             </a>
             <div class="nav-item logout-item">
-                <form action="logout" method="post">
+                <form action="{{ url_for('routes.logout') }}" method="post">
                     <button type="submit">Cerrar sesión</button>
                 </form>
             </div>
@@ -148,7 +148,7 @@
                 <button id="buscar_dinamico">Buscar</button>
             </div>
             <div class="barcode-entry">
-                <form method="POST" action="{{ url_for('descargar_productos') }}">
+                <form method="POST" action="{{ url_for('routes.descargar_productos') }}">
                     <button type="submit" class="download-btn" title="Descargar Productos">
                         <i class="fas fa-download"></i> Descargar productos
                     </button>

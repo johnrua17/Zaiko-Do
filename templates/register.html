@@ -202,7 +202,7 @@ a:hover {
 
     <div class="login-container">
         <h2>Registrarse</h2>
-        <form action="{{ url_for('register') }}" method="post">
+        <form action="{{ url_for('auth.register') }}" method="post">
             <div class="form-group">
                 <label for="name"></label>
                 <div class="input-group">
@@ -249,10 +249,10 @@ a:hover {
             <!-- <button type="submit">Registrarse</button> -->
             <button id="registerButton" type="submit" >Registrarse</button>
         </form>
-        <p>¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">¡Iniciar sesión!</a></p>
+        <p>¿Ya tienes una cuenta? <a href="{{ url_for('auth.login') }}">¡Iniciar sesión!</a></p>
     </div>
     <div class="footer">
-        <a href="terminos_condiciones">Términos y Condiciones</a>
+        <a href="terminos_condiciones">Términos y condiciones</a>
     </div>
     <!-- Turnstile Script -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>

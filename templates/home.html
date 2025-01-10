@@ -16,8 +16,8 @@
             <li><a href="#plans">Planes </a></li>
         </ul>
         <div class="navbar-buttons">
-            <button class="button1">Iniciar sesión</button>
-            <button class="button2">Registrarse</button>
+            <a href="{{ url_for('routes.login') }}" class="button1">Iniciar sesión</a>
+            <a href="{{ url_for('auth.register') }}" class="button2">Registrarse</a>
         </div>
     </nav>
 
