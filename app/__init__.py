@@ -13,12 +13,15 @@ def create_app():
     app.config.from_object(Config)
 
     # Inicializar extensiones
-    mysql.init_app(app)
+        
 
     # Registrar Blueprints para rutas
     from app.routes import routes_blueprint
     from app.auth import auth_blueprint
     app.register_blueprint(routes_blueprint, url_prefix="")
     app.register_blueprint(auth_blueprint, url_prefix="")
+
+    from app.routes import init_mysql
+    init_mysql(app)
 
     return app

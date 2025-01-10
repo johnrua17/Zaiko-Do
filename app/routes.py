@@ -278,6 +278,7 @@ def admin():
 
 @routes_blueprint.route('/productos/agregar', methods=["GET", "POST"])
 def agregar_producto():
+    from app import mysql
     if request.method == 'POST':
         codigo_barras = bleach.clean(request.form['codigo_barras'])
         nombre = bleach.clean(request.form['nombre'])
