@@ -69,6 +69,159 @@ def buscar_producto():
     finally:
         cur.close()
 
+@routes_blueprint.route('/productos/listar', methods=["GET"])
+def listar_productos():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return redirect(url_for('login'))
+
+
+    id_usuario_actual = session.get('idusuario')
+
+
+    try:
+       
+        cur = mysql.connection.cursor()
+
+
+        # Obtener todos los productos del usuario actual
+        query = """
+        SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Cantidad, Categoria
+        FROM productos
+        WHERE id_usuario = %s
+        """
+        cur.execute(query, (id_usuario_actual,))
+        productos = cur.fetchall()
+        cur.close()
+
+
+        # Renderizar la plantilla con los productos
+        return render_template('listar_productos.html', productos=productos)
+    except Exception as e:
+        print(f"Error al listar productos: {e}")
+        return render_template('listar_productos.html', error_message="Error al cargar los productos.")
+
+
+@routes_blueprint.route('/productos/editar/<codigo_barras>', methods=['GET', 'POST'])
+def editar_producto(codigo_barras):
+    id_usuario_actual = session.get('idusuario')  # Obtener ID del usuario actual
+
+
+    # Crear cursor para consultas
+    cur = mysql.connection.cursor()
+
+
+    # Consultar el producto con el código de barras
+    cur.execute('SELECT * FROM productos WHERE Codigo_de_barras = %s AND id_usuario = %s',
+                (codigo_barras, id_usuario_actual))
+    producto = cur.fetchone()
+
+
+    # Si no se encuentra el producto, devolver un error
+    if not producto:
+        return "Producto no encontrado, que va a editar payaso", 404
+
+
+    if request.method == 'POST':
+        # Capturar los datos del formulario
+        codigo_barras = bleach.clean(request.form['codigo_barras'])
+        nombre = bleach.clean(request.form['nombre'])
+        descripcion = bleach.clean(request.form['descripcion'])
+        precio_valor = request.form['precio_valor']
+        precio_costo = request.form['precio_costo']
+        cantidad = request.form['cantidad']
+        categoria = bleach.clean(request.form['categoria'])
+        try:
+            cur.execute('START TRANSACTION')
+
+
+            # Validar si el producto con el código de barras existe
+            cur.execute('SELECT * FROM productos WHERE Codigo_de_barras = %s AND id_usuario = %s',
+                        (codigo_barras, id_usuario_actual))
+            existing_product = cur.fetchone()
+
+
+            if not existing_product:
+                return render_template('formulario_productos.html',
+                                    message='El producto con este código de barras no existe.')
+
+
+            # Actualizar el producto existente
+            cur.execute('UPDATE productos SET Nombre = %s, Descripcion = %s, Precio_Valor = %s, Precio_Costo = %s, Cantidad = %s, Categoria = %s WHERE Codigo_de_barras = %s AND id_usuario = %s',
+                        (nombre, descripcion, precio_valor, precio_costo, cantidad, categoria, codigo_barras, id_usuario_actual))
+
+
+            mysql.connection.commit()
+
+
+            return redirect(url_for('listar_productos'))
+
+
+        except Exception as e:
+            mysql.connection.rollback()
+            print(f"Error al editar el producto: {e}")  # Depuración
+            return redirect(url_for('listar_productos'))
+
+
+        finally:
+            cur.close()
+
+
+
+
+   
+
+
+    # Renderizar el formulario con los datos actuales del producto
+    return render_template('editar_producto.html', producto=producto)
+
+
+@routes_blueprint.route('/productos/eliminar/<codigo_barras>', methods=['GET'])
+def eliminar_producto(codigo_barras):
+    id_usuario_actual = session.get('idusuario')  # Obtener ID del usuario actual
+
+
+    # Crear cursor para consultas
+    cur = mysql.connection.cursor()
+
+
+    try:
+        # Iniciar transacción
+        cur.execute('START TRANSACTION')
+
+
+        # Consultar si el producto existe
+        cur.execute('SELECT * FROM productos WHERE Codigo_de_barras = %s AND id_usuario = %s',
+                    (codigo_barras, id_usuario_actual))
+        producto = cur.fetchone()
+
+
+        if not producto:
+            return render_template('formulario_productos.html', message='Producto no encontrado.')
+
+
+        # Eliminar el producto de la base de datos
+        cur.execute('DELETE FROM productos WHERE Codigo_de_barras = %s AND id_usuario = %s',
+                    (codigo_barras, id_usuario_actual))
+
+
+        # Confirmar la eliminación
+        mysql.connection.commit()
+
+
+        return redirect(url_for('listar_productos'))
+
+
+    except Exception as e:
+        # Si ocurre un error, hacer rollback y mostrar mensaje
+        mysql.connection.rollback()
+        print(f"Error al eliminar el producto: {e}")  # Depuración
+        return redirect(url_for('listar_productos'))
+
+
+    finally:
+        cur.close()
+
 @routes_blueprint.route('/descargar_productos', methods=['POST'])
 def descargar_productos():
     id_usuario = session.get('idusuario')

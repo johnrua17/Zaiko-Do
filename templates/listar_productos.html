@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Zaiko Do </title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/static/styles.css">
+        <style>
+           
+        </style>
+        <style>
+            /* Contenedor principal para el campo de entrada */
+   
+            .barcode-entry {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 4000px;
+        margin: 0 auto;
+    }
+   
+    /* Estilo de la etiqueta */
+    .barcode-entry label {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        text-align: left;
+        width: 100%;
+    }
+   
+    /* Estilo del campo de entrada */
+    .barcode-entry input[type="text"] {
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 100%;
+        margin-bottom: 16px;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+   
+    /* Cambiar color del borde cuando el campo tiene foco */
+    .barcode-entry input[type="text"]:focus {
+        border-color: #007bff;
+    }
+   
+    /* Estilo del botón de búsqueda */
+    .barcode-entry button {
+        padding: 10px 15px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+   
+    /* Efecto de hover para el botón */
+    .barcode-entry button:hover {
+        background-color: #0056b3;
+    }
+   
+    /* Agregar espacio entre el campo de entrada y el botón */
+    .barcode-entry button {
+        margin-top: 10px;
+    }
+   
+    .barcode-entry button:focus {
+        outline: none;
+    }
+
+
+
+
+    .data-table button {
+        padding: 10px 15px;
+        font-size: 14px;
+        background-color: #4caf83;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+   
+        </style>
+    </head>
+    <body>
+        <button class="toggle-sidebar" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+   
+        <div class="sidebar">
+            <div class="logo-container">
+                <div class="logo">Zaiko Do</div>
+            </div>
+            <nav class="nav-items">
+                <a href="{{ url_for('routes.admin') }}" class="nav-item">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <div class="nav-item" onclick="toggleSubmenu('productos-submenu')">
+                    <i class="fas fa-box"></i>
+                    <span>Productos</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="submenu" id="productos-submenu">
+                    <a href="{{ url_for('routes.agregar_producto') }}" class="submenu-item">
+                        <i class="fas fa-plus"></i> Agregar Producto
+                    </a>
+                    <a href="{{ url_for('routes.listar_productos') }}" class="submenu-item">
+                        <i class="fas fa-list"></i> Listar Productos
+                    </a>
+                   
+                </div>
+                <div class="nav-item" onclick="toggleSubmenu('ventas-submenu')">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Ventas</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="submenu" id="ventas-submenu">
+                   
+                </div>
+                <a href="{{ url_for('routes.inventario') }}" class="nav-item">
+                    <i class="fas fa-chart-bar"></i> Inventario
+                </a>
+                <a href="{{ url_for('routes.clientes') }}" class="nav-item">
+                    <i class="fas fa-users"></i> Clientes
+                </a>
+                <a href="{{ url_for('routes.configuracion') }}" class="nav-item">
+                    <i class="fas fa-cog"></i> Configuración
+                </a>
+                <div class="nav-item logout-item">
+                    <form action="logout" method="post">
+                        <button type="submit">Cerrar Sesión</button>
+                    </form>
+                </div>
+            </nav>
+        </div>
+   
+        <div class="main-content">
+           
+           
+   
+            <div class="table-container">
+                <div class="barcode-entry">
+                    <label for="codigo_barras">Ingresar código de barras:</label>
+                    <input type="text" id="codigo_barras" name="codigo_barras" />
+                    <button id="buscar_producto">Buscar producto</button>
+                </div>      
+                <div class="table-header">
+                   
+                    <h2>Productos</h2>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Categoría</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla_productos">
+                        {% for producto in productos %}
+                        <tr>
+                            <td>{{ producto.Codigo_de_barras }}</td>
+                            <td>{{ producto.Nombre }}</td>
+                            <td>{{ producto.Descripcion }}</td>
+                            <td>${{ producto.Precio_Valor }}</td>
+                            <td>{{ producto.Cantidad }}</td>
+                            <td>{{ producto.Categoria }}</td>
+                            <td>
+                                <a href="/productos/editar/{{ producto.Codigo_de_barras }}">
+                                    <button>Editar</button>
+                                </a>
+                                <form action="/productos/eliminar/{{ producto.Codigo_de_barras }}" method="get" class="delete-form">
+                                    <button type="submit" class="btn-delete" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?')">Eliminar Producto</button>
+                                </form>
+                        </tr>
+                        {% endfor %}
+                        <!-- Productos se añadirán aquí dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>  
+       
+        <script>
+           
+
+
+
+
+            function toggleSubmenu(submenuId) {
+                const submenu = document.getElementById(submenuId);
+                const parentItem = submenu.previousElementSibling;
+               
+                // Cerrar todos los submenús primero
+                document.querySelectorAll('.submenu').forEach(menu => {
+                    if (menu.id !== submenuId) {
+                        menu.classList.remove('active');
+                        menu.previousElementSibling.classList.remove('expanded');
+                    }
+                });
+               
+                // Alternar el submenú actual
+                submenu.classList.toggle('active');
+                parentItem.classList.toggle('expanded');
+            }
+   
+            // Marcar como activo el enlace actual según la URL
+            document.addEventListener('DOMContentLoaded', function() {
+                const currentPath = window.location.pathname;
+                document.querySelectorAll('.nav-items a').forEach(link => {
+                    if (link.getAttribute('href') === currentPath) {
+                        link.classList.add('active');
+                        // Si es un submenú, expandir el padre
+                        if (link.classList.contains('submenu-item')) {
+                            const submenu = link.parentElement;
+                            submenu.classList.add('active');
+                            submenu.previousElementSibling.classList.add('expanded');
+                        }
+                    }
+                });
+            });
+        </script>
+   
+        <script>
+            function toggleSidebar() {
+                const sidebar = document.querySelector('.sidebar');
+                const mainContent = document.querySelector('.main-content');
+                const toggleButton = document.querySelector('.toggle-sidebar');
+               
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                toggleButton.classList.toggle('collapsed');
+            }
+   
+            // Manejo responsive
+            function handleMobileView() {
+                const sidebar = document.querySelector('.sidebar');
+                const toggleButton = document.querySelector('.toggle-sidebar');
+               
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('collapsed');
+                    toggleButton.classList.add('collapsed');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    toggleButton.classList.remove('collapsed');
+                }
+            }
+   
+            window.addEventListener('load', handleMobileView);
+            window.addEventListener('resize', handleMobileView);
+        </script>
+   
+</body>
+</html>
+
+
