@@ -47,7 +47,7 @@ def gestionar_intentos(correo, exito=False):
     conn.commit()
     cur.close()
 
-@auth_blueprint.route('/login', methods=['GET', 'POST'])
+@auth_blueprint.route('/login', methods=['GET', 'POST'], endpoint='login')
 def login_user():
     """Autentica a un usuario en el sistema."""
     if request.method == 'POST':
