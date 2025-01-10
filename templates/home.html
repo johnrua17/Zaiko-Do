@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El título de la página</title>
-    <link rel="stylesheet" href="css/home.css">
+    <title>ZaikoDo Colombia | Página de Inicio</title>
+    <link rel="stylesheet" href="static/css/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
     <nav class = "navbar">
-        <img src="images/Imagotipo.png" alt="Logo" class="logo">
+        <img src="static/images/Imagotipo.png" alt="Logo" class="logo">
         <ul>
             <li><a href="#home" id="inicio-btn">Inicio </a></li>
             <li><a href="#about" id="conocenos-btn">Conócenos </a></li>
-            <li><a href="#plans">Planes </a></li>
+            <li><a href="#plans" id="planes-btn">Planes </a></li>
         </ul>
         <div class="navbar-buttons">
-            <button class="button1">Iniciar sesión</button>
-            <button class="button2">Registrarse</button>
+            <a href="/login" class="button1">Iniciar sesión</a>
+            <a href="/register" class="button2">Registrarse</a>
         </div>
     </nav>
 
@@ -25,14 +26,61 @@
         <div class="row" id="vision-mision">
             <div class="col">
                 <div class="content-box">
-                    <h2 class="title_style">Visión</h2>
+                    <h2 class="title_style">¿Cuál es nuestra visión?</h2>
                     <p class="justify-text">Zaiko Do será la herramienta digital más accesible para la gestión digital de inventario de pequeños y medianos comerciantes para el 2030, permitiéndoles optimizar sus operaciones, tomar decisiones informadas y crecer de manera eficiente. Seremos reconocidos como líderes en soluciones tecnológicas que empoderan a los negocios locales, contribuyendo al desarrollo económico de las comunidades donde operamos.</p>    
                 </div>
             </div>
             <div class="col">
                 <div class="content-box">
-                    <h2 class="title_style">Misión</h2>
+                    <h2 class="title_style">¿Cúal es nuestra misión?</h2>
                     <p class="justify-text">Facilitar la gestión de inventario de los pequeños y medianos comerciantes, ejecutando estas tareas a través de una plataforma web accesible, para promover la eficiencia operativa, el crecimiento empresarial y el fortalecimiento de la economía local.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq" id="faq">
+            <div class="faq-container">
+                <div class="faq-title">Preguntas frecuentes</div>
+                <div class="faq-items">
+                    <div class="faq-question">
+                        ¿Qué es Zaiko Do y para quién está diseñado?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Zaiko Do es un sistema POS en línea diseñado para pequeños comerciantes que buscan una herramienta económica y fácil de usar para gestionar inventarios, ventas y clientes desde cualquier navegador.
+                    </div>
+
+                    <div class="faq-question">
+                        ¿Cómo puedo empezar a usar Zaiko Do?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Puedes registrarte de forma gratuita creando una cuenta en nuestra página principal. Podrás usar las funciones básicas del plan gratuito para empezar a gestionar tu tienda.
+                    </div>
+
+                    <div class="faq-question">
+                        ¿Qué beneficios tiene usar Zaiko Do en comparación con otros sistemas POS?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Zaiko Do es accesible, económico y fácil de usar. Ofrecemos todo lo esencial: gestión de inventarios, registro de ventas y generación de reportes; desde una plataforma web sin necesidad de instalaciones adicionales.
+                    </div>
+
+                    <div class="faq-question">
+                        ¿Qué sucede si necesito más funciones que las ofrecidas en el plan gratuito?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Puedes explorar nuestros planes de pago desde la sección de "Planes". Cada plan tiene características adicionales como límites mayores en productos y ventas, reportes avanzados y soporte prioritario.
+                    </div>
+
+                    <div class="faq-question">
+                        ¿Cómo puedo obtener ayuda si tengo preguntas o problemas?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Puedes contactar a nuestro equipo de soporte a través del nuestras redes sociales, escribiendo al correo zaikodo.services@gmail.com o llamando a nuestra línea de atención al cliente.
+                    </div>
                 </div>
             </div>
         </div>
@@ -44,55 +92,95 @@
                     <h3>Jhon Andrés Rua Cortés</h3>
                     <p>Desarrollador Backend</p>
                     <div class="social-icons">
-                        <a href="https://www.flaticon.com/free-icons/github" title="github icons"></a><img src="images/github.png" alt="Github" class="social-icon github-icon"></a>
-                        <a href="https://www.flaticon.com/free-icons/linkedin" title="linkedin icons"></a><img src="images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
+                        <a href="https://github.com/johnrua17" title="github icons">
+                            <img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
+                        <a href="https://www.flaticon.com/free-icons/linkedin" title="linkedin icons"></a><img src="static/images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
                     </div>
                 </div>
                 <div class="card">
                     <h3>Fabio Esteban Murcia Martínez </h3>
                     <p>Desarrollador Frontend</p>
                     <div class="social-icons">
-                        <a href="https://www.flaticon.com/free-icons/github" title="github icons"></a><img src="images/github.png" alt="Github" class="social-icon github-icon"></a>
-                        <a href="https://www.flaticon.com/free-icons/linkedin" title="linkedin icons"></a><img src="images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
+                        <a href="https://www.flaticon.com/free-icons/github" title="github icons"></a><img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
+                        <a href="https://www.flaticon.com/free-icons/linkedin" title="linkedin icons"></a><img src="static/images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
                     </div>
                 </div>
                 <div class="card">
-                    <img src="images/fnovoas.jpg" alt="Fernando Novoa" class="profile-pic">
+                    <img src="static/images/fnovoas.jpg" alt="Fernando Novoa" class="profile-pic">
                     <h3>Fernando Novoa Salazar</h3>
                     <p>Desarrollador Backend</p>
                     <div class="social-icons">
-                        <a href="https://www.flaticon.com/free-icons/github" title="github icons"></a><img src="images/github.png" alt="Github" class="social-icon github-icon"></a>
-                        <a href="https://www.flaticon.com/free-icons/linkedin" title="linkedin icons"></a><img src="images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
+                        <a href="https://github.com/fnovoas/" title="Github de Fernando Novoa" target="_blank">
+                            <img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
+                        <a href="https://www.linkedin.com/in/fernando-novoa-salazar-b97457223/" title="Linkedin de Fernando Novoa" target="-blank">
+                            <img src="static/images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
                     </div>
                 </div>
                 <div class="card">
                     <h3>Byron Daniel Giraldo Castro</h3>
                     <p>Desarrollador Backend</p>
                     <div class="social-icons">
-                        <a href="https://www.flaticon.com/free-icons/github" title="github icons"></a><img src="images/github.png" alt="Github" class="social-icon github-icon"></a>
+                        <a href="https://www.flaticon.com/free-icons/github" title="github icons"></a><img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
                     </div>
                 </div>
                 <div class="card">
-                    <img src="images/croncancio.jpg" alt="Camilo Roncancio" class="profile-pic">
+                    <img src="static/images/croncancio.jpg" alt="Camilo Roncancio" class="profile-pic">
                     <h3>Camilo Andres Roncancio Toca</h3>
                     <p>Desarrollador Frontend</p>
                     <div class="social-icons">
                         <a href="https://github.com/UnalKami" title="Github de Camilo Roncancio" target="_blank">
-                            <img src="images/github.png" alt="Github" class="social-icon github-icon"></a>
+                            <img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
                         <a href="https://www.linkedin.com/in/camilo-roncancio-toca-401310276/" title="LinkedIn de Camilo Roncancio" target="_blank">
-                            <img src="images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
+                            <img src="static/images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="table-container" id="planes">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th class="plan-header">ESTÁNDAR<br>COP 34.900/mes (final)**</th>
+                        <th class="plan-header popular">PREMIUM<br>COP 46.900/mes (final)**</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>El deporte de ESPN*</td>
+                        <td>Selección de canales de ESPN (ESPN e ESPN3)</td>
+                        <td>Todos los canales de ESPN, torneos y más de 500 eventos exclusivos por mes</td>
+                    </tr>
+                    <tr>
+                        <td>Estrenos de películas, series originales y clásicos de Disney, Pixar, Marvel, Star Wars, National Geographic y Star</td>
+                        <td class="checkmark">✔</td>
+                        <td class="checkmark">✔</td>
+                    </tr>
+                    <tr>
+                        <td>Calidad de video hasta 4K UHD/HDR y sonido Dolby Atmos***</td>
+                        <td class="crossmark">-</td>
+                        <td class="checkmark">✔</td>
+                    </tr>
+                    <tr>
+                        <td>Dispositivos para ver en simultáneo</td>
+                        <td>2</td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td>Descargas para ver tus favoritos sin conexión ni demoras</td>
+                        <td class="checkmark">✔</td>
+                        <td class="checkmark">✔</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>        
 
-            
-    
     <footer class="footer">
         <div class="footer-container">
             <div class="footer-section">
-                <img src="images/Imagotipo_white.png" alt="Logo" class="footer-logo">
+                <img src="static/images/Imagotipo_white.png" alt="Logo" class="footer-logo">
                 <p>&copy;2024 Zaiko Do. Todos los derechos reservados.</p>
             </div>
             <div class="footer-section">
@@ -103,13 +191,8 @@
             </div>
             <div class="footer-section">
                 <h4>Síguenos</h4>
-                <a href="https://instagram.com" target="_blank">Instagram</a>
-            </div>
-            <div class="footer-section">
-                <h4>Enlaces</h4>
-                <a href="#home">Inicio</a>
-                <a href="#about">Conócenos</a>
-                <a href="#plans">Planes</a>
+                <a href="#" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+                <a href="#" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
             </div>
         </div>
     </footer>
@@ -120,18 +203,44 @@
     document.getElementById('inicio-btn').addEventListener('click', function(event) {
         event.preventDefault();
         document.getElementById('vision-mision').style.display = 'block';
+        document.getElementById('faq').style.display = 'block';
         document.getElementById('equipo').style.display = 'none';
+        document.getElementById('planes').style.display = 'none';
     });
 
     document.getElementById('conocenos-btn').addEventListener('click', function(event) {
         event.preventDefault();
         document.getElementById('vision-mision').style.display = 'none';
+        document.getElementById('faq').style.display = 'none';
         document.getElementById('equipo').style.display = 'block';
+        document.getElementById('planes').style.display = 'none';
     }); 
 
-    // Mostrar solo las secciones de Visión y Misión al cargar la página
+    document.getElementById('planes-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('vision-mision').style.display = 'none';
+        document.getElementById('faq').style.display = 'none';
+        document.getElementById('equipo').style.display = 'none';
+        document.getElementById('planes').style.display = 'block';
+    }); 
+
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('vision-mision').style.display = 'block';
+        document.getElementById('faq').style.display = 'block';
         document.getElementById('equipo').style.display = 'none';
+        document.getElementById('planes').style.display = 'none';
     });
+
+    document.querySelectorAll('.faq-question').forEach(item => {
+        item.addEventListener('click', event => {
+            item.classList.toggle('active');
+            const answer = item.nextElementSibling;
+            if (answer.style.display === 'block') {
+                answer.style.display = 'none';
+            } else {
+                answer.style.display = 'block';
+            }
+        });
+    });
+
 </script>

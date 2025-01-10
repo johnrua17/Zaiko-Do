@@ -144,7 +144,7 @@ def register():
 
 @app.route('/')
 def home():
-    return redirect(url_for('login'))
+    return render_template('home.html')
 
 def register_user():
     if request.method == 'POST':
