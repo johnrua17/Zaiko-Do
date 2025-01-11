@@ -59,7 +59,7 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="title">Zaiko Do</h1>
+        <img src="static/images/Imagotipo.png" alt="Logo" width="200" height="85">
     </div>
 
     <div class="login-container">
@@ -77,7 +77,7 @@
                 <div class="password-container">
                     <div class="input-group">
                         <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña" required>
-                        <img id="togglePasswordVisibility" src="static/img/icons/MdiEye.png" onclick="togglePassword()">
+                        <img id="togglePasswordVisibility" src="static/images/hide.png" onclick="togglePassword()">
                     </div>
                 </div>
             </div>
@@ -104,8 +104,18 @@
     </div>
 
     <style>
+        :root{
+            --Verde_azulado_oscuro2:  #276f65;
+            --Verde_azulado: #4caf83;
+            --Verde: #7ad9b0;
+            --Verde_claro: #BBEBD6;
+            --Verde_2: #90d082;
+            --Blanco: #f7f9fc;
+            --Azul_grisaceo: #131A29;
+        }
+
         body {
-            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            background: linear-gradient(135deg, var(--Blanco), var(--Verde_claro));
             margin: 0;
             padding: 0;
             height: 100vh;
@@ -137,7 +147,7 @@
         }
 
         .login-container h2 {
-            color: #1a237e;
+            color: var(--Verde_azulado_oscuro2);
             text-align: center;
             margin-bottom: 2rem;
             font-weight: bold;
@@ -155,7 +165,7 @@
         }
 
         .form-control:focus {
-            border-color: #1a237e;
+            border-color: var(--Azul_grisaceo);
             box-shadow: 0 0 8px rgba(26,35,126,0.2);
         }
 
@@ -169,7 +179,7 @@
         }
 
         button[type="submit"] {
-            background: linear-gradient(45deg, #1a237e, #0d47a1);
+            background: var(--Verde_azulado_oscuro2);
             color: white;
             padding: 12px;
             border: none;
@@ -183,7 +193,7 @@
         }
 
         button[type="submit"]:hover {
-            background: linear-gradient(45deg, #0d47a1, #1a237e);
+            background: var(--Azul_grisaceo);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(26,35,126,0.3);
         }
@@ -194,14 +204,14 @@
         }
 
         .footer a {
-            color: #ffffff;
+            color: var(--Azul_grisaceo);
             text-decoration: none;
             font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
         .footer a:hover {
-            color: #bbdefb;
+            color: var(--Azul_grisaceo);
             text-decoration: underline;
         }
 

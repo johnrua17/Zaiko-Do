@@ -27,7 +27,7 @@ def register():
 
 @routes_blueprint.route('/')
 def home():
-    return redirect(url_for('routes.login'))
+    return render_template('home.html')
 
 @routes_blueprint.route('/buscar_producto', methods=["POST"])
 def buscar_producto():
