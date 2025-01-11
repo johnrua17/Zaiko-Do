@@ -1,62 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar sesión</title>
-    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="static/css/index.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <style>
-        button {
-            width: 100%;
-            border-radius: 20px;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: not-allowed; /* Cursor no permitido mientras está deshabilitado */
-        }
-    
-        /* Estilo cuando el botón está deshabilitado */
-        button:disabled {
-            background-color: #c0c0c0; /* Color pálido */
-            color: #808080; /* Texto pálido */
-            cursor: not-allowed;
-        }
-    
-        /* Estilo cuando el botón está activo (habilitado) */
-        button:enabled {
-            cursor: pointer; /* Mostrar puntero cuando el botón esté habilitado */
-        }
-    </style>
-    
 
-    <style>
-        
-        
-        .password-container {
-            position: relative;
-        }
-        .login-container input[type="password"] {
-            width: calc(100% - 0px);
-            padding-right: 40px;
-        }
-        .login-container input[type="text"] {
-            width: calc(100% - 0px);
-            padding-right: 30px;
-        }
-        #togglePasswordVisibility {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            cursor: pointer;
-            padding-right: 1px;
-        }
-    </style>
 </head>
+
 <body>
     <div class="header">
         <img src="static/images/Imagotipo.png" alt="Logo" width="200" height="85">
@@ -99,141 +53,16 @@
         <div>
         </div>
     </div>
+
     <div class="footer">
         <a href="{{ url_for('routes.terminos_condiciones') }}">Términos y condiciones</a>
     </div>
 
-    <style>
-        :root{
-            --Verde_azulado_oscuro2:  #276f65;
-            --Verde_azulado: #4caf83;
-            --Verde: #7ad9b0;
-            --Verde_claro: #BBEBD6;
-            --Verde_2: #90d082;
-            --Blanco: #f7f9fc;
-            --Azul_grisaceo: #131A29;
-        }
-
-        body {
-            background: linear-gradient(135deg, var(--Blanco), var(--Verde_claro));
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: 'Roboto', sans-serif;
-        }
-
-        .header {
-            text-align: center;
-            margin: 2rem 0;
-        }
-
-        .title {
-            color: #ffffff;
-            font-size: 3rem;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 400px;
-        }
-
-        .login-container h2 {
-            color: var(--Verde_azulado_oscuro2);
-            text-align: center;
-            margin-bottom: 2rem;
-            font-weight: bold;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-control {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            border-color: var(--Azul_grisaceo);
-            box-shadow: 0 0 8px rgba(26,35,126,0.2);
-        }
-
-        .error-box {
-            background-color: #ffebee;
-            color: #c62828;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        button[type="submit"] {
-            background: var(--Verde_azulado_oscuro2);
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            width: 100%;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-        }
-
-        button[type="submit"]:hover {
-            background: var(--Azul_grisaceo);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(26,35,126,0.3);
-        }
-
-        .footer {
-            margin-top: 2rem;
-            text-align: center;
-        }
-
-        .footer a {
-            color: var(--Azul_grisaceo);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .footer a:hover {
-            color: var(--Azul_grisaceo);
-            text-decoration: underline;
-        }
-
-        #togglePasswordVisibility {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-        }
-
-        #togglePasswordVisibility:hover {
-            opacity: 1;
-        }
-    </style>
-
-    <!-- Bootstrap JS and Popper.js -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
-
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <script>
         function togglePassword() {
             var passwordInput = document.getElementById('password');
@@ -248,9 +77,6 @@
             }
         }
 
-        
-    </script>
-    <script>
         function turnstileCallback() {
             // Si la validación del CAPTCHA fue exitosa, habilitar el botón
             document.getElementById('submitButton').disabled = false;
