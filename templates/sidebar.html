@@ -35,9 +35,22 @@
         <a href="{{ url_for('routes.clientes') }}" class="nav-item">
             <i class="fas fa-users"></i> Clientes
         </a>
-        <a href="{{ url_for('routes.configuracion') }}" class="nav-item">
-            <i class="fas fa-cog"></i> Configuración
-        </a>
+        
+        
+       
+        <div class="nav-item" onclick="toggleSubmenu('configuracion-submenu')">
+            <i class="fas fa-box"></i>
+            <span>Configuración</span>
+            <i class="fas fa-chevron-down arrow"></i>
+          </div>
+          <div class="submenu" id="configuracion-submenu"> 
+            <a href="{{ url_for('routes.planes') }}" class="submenu-item">
+              <i class="fas fa-plus"></i> &nbsp;Gestionar planes
+            </a>
+          </div>
+        
+          
+        
         <div class="nav-item logout-item">
             <form action="{{ url_for('routes.logout') }}" method="post">
                 <button type="submit">Cerrar sesión</button>

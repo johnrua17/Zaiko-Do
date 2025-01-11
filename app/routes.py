@@ -349,3 +349,8 @@ def clientes():
 def configuracion():
     """Página para gestionar la configuración."""
     return render_template('configuracion.html')
+
+@routes_blueprint.route('/planes', methods=['GET'], endpoint='planes')
+def planes():
+    """Página para gestionar los planes."""
+    return render_template('planes.html')
