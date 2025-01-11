@@ -9,15 +9,15 @@
 }
 
 body {
+    background: linear-gradient(45deg, var(--Blanco), var(--Verde_claro));
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     font-size: 16px;
-    background-color: var(--Blanco);
 }
 
 .title_style{
-    color: var(--Verde_azulado_oscuro2  );
+    color: var(--Verde_azulado_oscuro2 );
 }
 
 .justify-text {
@@ -31,7 +31,7 @@ body {
 }
 
 .navbar {
-    background-color: white;
+    background-color: transparent;
     overflow: hidden;
     display: flex;
     justify-content: space-between;
@@ -63,6 +63,11 @@ body {
     color: var(--Verde_azulado_oscuro2);
 }
 
+.navbar-buttons {
+    display: flex;
+    align-items: center;
+}
+
 .navbar-buttons .button1 {
     background-color: var(--Azul_grisaceo);
     color: var(--Blanco);
@@ -92,6 +97,10 @@ body {
 .navbar-buttons .button2:hover {
     background-color: var(--Verde_azulado_oscuro2);
     color: var(--Blanco);
+}
+
+.main{
+    background-color: linear-gradient(135deg, var(--Blanco), var(--Verde_claro));
 }
 
 .container {
@@ -189,6 +198,7 @@ body {
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
+    margin-bottom: 20px;
 }
 
 .card {
