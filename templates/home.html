@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZaikoDo Colombia | Página de Inicio</title>
+    <title>Zaiko Do Colombia | Página de inicio</title>
     <link rel="stylesheet" href="static/css/home.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
     <nav class = "navbar">
-        <img src="static/images/Imagotipo.png" alt="Logo" class="logo">
+        <a href="#home">
+            <img src="static/images/Imagotipo.png" alt="Logo" class="logo">
+        </a>
         <ul>
             <li><a href="#home" id="inicio-btn">Inicio </a></li>
             <li><a href="#about" id="conocenos-btn">Conócenos </a></li>
@@ -21,7 +23,11 @@
             <a href="/register" class="button2">Registrarse</a>
         </div>
     </nav>
-
+    <div class="content-box primary" id="intro-message">
+        <h2 class="title_style" style="font-size: 20px;">
+            Gestione el inventario de su comercio minorista con una plataforma accesible
+        </h2>
+    </div>             
     <div class="main">
         <div class="row" id="vision-mision">
             <div class="col">
@@ -86,15 +92,15 @@
             </div>
         </div>
 
-        <div class="team" id="equipo">
+        <div class="team section-container" id="equipo">
             <h2>Equipo de Desarrollo</h2>
             <div class="team-container">
                 <div class="card">
-                    <img src="static/images/demorados.jpg" alt="Jhon Rua" class="profile-pic">
-                    <h3>Jhon Andrés Rua Cortés</h3>
+                    <img src="static/images/demorados.jpg" alt="John Rua" class="profile-pic">
+                    <h3>John Andrés Rua Cortés</h3>
                     <p>Desarrollador Backend</p>
                     <div class="social-icons">
-                        <a href="https://github.com/johnrua17" title="Gitgub de John Rua" target="_blank">
+                        <a href="https://github.com/johnrua17" title="Github de John Rua" target="_blank">
                             <img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
                         <a href="https://www.linkedin.com/in/john-rua-5bb032231/" title="LinkedIn de John Rua" target="_blank">
                             <img src="static/images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
@@ -133,7 +139,7 @@
                 </div>
                 <div class="card">
                     <img src="static/images/croncancio.jpg" alt="Camilo Roncancio" class="profile-pic">
-                    <h3>Camilo Andres Roncancio Toca</h3>
+                    <h3>Camilo Andrés Roncancio Toca</h3>
                     <p>Desarrollador Frontend</p>
                     <div class="social-icons">
                         <a href="https://github.com/UnalKami" title="Github de Camilo Roncancio" target="_blank">
@@ -142,7 +148,7 @@
                             <img src="static/images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
                     </div>
                 </div>
-            </div>
+            </div>                  
         </div>
 
         <div class="plans" id="planes">
@@ -155,23 +161,23 @@
                 <div class="subscription-plan">
                     <h2>Plan gratuito</h2>
                     <ul>
-                        <li>Registro de <strong>50 productos</strong></li>
-                        <li>Registro de <strong>50 ventas</strong> al mes</li>
-                        <li>Generar <strong>un solo reporte</strong></li>
+                        <li>Registro de <strong>50 productos</strong>.</li>
+                        <li>Registro de <strong>50 ventas</strong> al mes.</li>
+                        <li>Generar <strong>un solo reporte</strong>.</li>
                     </ul>
                     <div class="subscription-price">Gratuito</div>
                     <div class="button-container">
-                        <a href="/login" class="choose-plan-button">Elegir Plan</a>
+                        <a href="/login" class="choose-plan-button">Elegir plan</a>
                     </div>
                 </div>
                     
                 <div class="subscription-plan">
                     <h2>Mensual</h2>
                     <ul>
-                        <li>Registro de <strong>productos ilimitados</strong></li>
-                        <li>Eliminar <strong>10 productos</strong> al mes</li>
-                        <li>Registro de <strong>ilimitadas</strong> al mes</li>
-                        <li>Generar <strong>un solo reporte</strong></li>
+                        <li>Registro de <strong>productos ilimitados</strong>.</li>
+                        <li>Eliminar <strong>10 productos</strong> al mes.</li>
+                        <li>Registro de <strong>ilimitadas</strong> al mes.</li>
+                        <li>Generar <strong>un solo reporte</strong>.</li>
                     </ul>
                     <div class="subscription-price">$24.900*</div>
                 </div>
@@ -179,10 +185,10 @@
                 <div class="subscription-plan">
                     <h2>Semestral</h2>
                     <ul>
-                        <li>Registro de <strong>productos ilimitados</strong></li>
-                        <li>Eliminar <strong>10 productos</strong> al mes</li>
-                        <li>Registro de <strong>ilimitadas</strong> al mes</li>
-                        <li>Generar <strong>un solo reporte</strong></li>
+                        <li>Registro de <strong>productos ilimitados</strong>.</li>
+                        <li>Eliminar <strong>10 productos</strong> al mes.</li>
+                        <li>Registro de <strong>ilimitadas</strong> al mes.</li>
+                        <li>Generar <strong>un solo reporte</strong>.</li>
                     </ul>
                     <div class="subscription-price">$32.900*</div>
                 </div>
@@ -190,10 +196,10 @@
                 <div class="subscription-plan">
                     <h2>Anual</h2>
                     <ul>
-                        <li>Registro de <strong>productos ilimitados</strong></li>
-                        <li>Eliminar <strong>10 productos</strong> al mes</li>
-                        <li>Registro de <strong>ilimitadas</strong> al mes</li>
-                        <li>Generar <strong>un solo reporte</strong></li>
+                        <li>Registro de <strong>productos ilimitados</strong>.</li>
+                        <li>Eliminar <strong>10 productos</strong> al mes.</li>
+                        <li>Registro de <strong>ilimitadas</strong> al mes.</li>
+                        <li>Generar <strong>un solo reporte</strong>.</li>
                     </ul>
                     <div class="subscription-price">$52.900*</div>
                 </div>
@@ -209,17 +215,17 @@
         <div class="footer-container">
             <div class="footer-section">
                 <img src="static/images/Imagotipo_white.png" alt="Logo" class="footer-logo">
-                <p>&copy;2024 Zaiko Do. Todos los derechos reservados.</p>
+                <p>&copy;2025 Zaiko Do. Todos los derechos reservados.</p>
             </div>
             <div class="footer-section">
                 <h4>Contacto</h4>
                 <p>Email: zaikodo.services@gmail.com </p>
-                <p>Linea de atención: +123 456 7890</p>
+                <p>Línea de atención: +123 456 7890</p>
 
             </div>
             <div class="footer-section">
                 <h4>Síguenos</h4>
-                <a href="#" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+                <a href="https://instagram.com/zaiko.do/" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
                 <a href="#" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
             </div>
         </div>
@@ -234,7 +240,8 @@
         document.getElementById('faq').style.display = 'block';
         document.getElementById('equipo').style.display = 'none';
         document.getElementById('planes').style.display = 'none';
-    });
+        document.getElementById('intro-message').style.display = 'block'; // Mostrar en Inicio
+        });
 
     document.getElementById('conocenos-btn').addEventListener('click', function(event) {
         event.preventDefault();
@@ -242,7 +249,8 @@
         document.getElementById('faq').style.display = 'none';
         document.getElementById('equipo').style.display = 'block';
         document.getElementById('planes').style.display = 'none';
-    }); 
+        document.getElementById('intro-message').style.display = 'none'; // Ocultar en Conócenos
+        }); 
 
     document.getElementById('planes-btn').addEventListener('click', function(event) {
         event.preventDefault();
@@ -250,13 +258,15 @@
         document.getElementById('faq').style.display = 'none';
         document.getElementById('equipo').style.display = 'none';
         document.getElementById('planes').style.display = 'block';
-    }); 
+        document.getElementById('intro-message').style.display = 'none'; // Ocultar en Planes
+        });
 
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('vision-mision').style.display = 'flex';
         document.getElementById('faq').style.display = 'block';
         document.getElementById('equipo').style.display = 'none';
         document.getElementById('planes').style.display = 'none';
+        document.getElementById('intro-message').style.display = 'block'; // Mostrar por defecto
     });
 
     document.querySelectorAll('.faq-question').forEach(item => {
@@ -270,5 +280,13 @@
             }
         });
     });
+    
+    document.querySelector('.logo').addEventListener('click', function(event) {
+    event.preventDefault();
+    document.getElementById('vision-mision').style.display = 'flex';
+    document.getElementById('faq').style.display = 'block';
+    document.getElementById('equipo').style.display = 'none';
+    document.getElementById('planes').style.display = 'none';
+});
 
 </script>

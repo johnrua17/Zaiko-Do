@@ -13,8 +13,10 @@
 
 <body>
     <div class="header">
-        <img src="static/images/Imagotipo.png" alt="Logo" width="200" height="85">
-    </div>
+        <a href="/home">
+            <img src="static/images/Imagotipo.png" alt="Logo" width="248" height="85">
+        </a>        
+    </div>       
 
     <div class="login-container">
         <h2>Iniciar sesión</h2>
@@ -105,6 +107,10 @@
             // Intenta renderizar el Turnstile cuando la página se cargue
             renderTurnstile();
         });
+        document.getElementById('logo-link').addEventListener('click', function(event) {
+        event.preventDefault(); // Previene el comportamiento predeterminado del enlace
+        window.location.href = '/home'; // Redirige a la página de inicio
+    });
     </script>
     
 

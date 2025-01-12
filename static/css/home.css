@@ -11,6 +11,9 @@
 body {
     background: linear-gradient(45deg, var(--Blanco), var(--Verde_claro));
     font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Asegura que el cuerpo ocupe al menos toda la altura de la pantalla */
     margin: 0;
     padding: 0;
     font-size: 16px;
@@ -102,6 +105,7 @@ body {
 
 .main{
     background-color: linear-gradient(135deg, var(--Blanco), var(--Verde_claro));
+    flex: 1; /* Empuja el footer hacia el extremo inferior si el contenido es insuficiente */
 }
 
 #vision-mision {
@@ -358,6 +362,9 @@ body {
     color: var(--Blanco);
     padding: 20px 0;
     text-align: center;
+    flex-shrink: 0; /* Previene que el footer colapse cuando no hay suficiente espacio */
+    min-height: 100px; /* Ajusta este valor según el diseño deseado */
+    position: relative;
 }
 
 .footer-logo {
@@ -447,4 +454,10 @@ body {
         margin-right: 2vw; /* Ajusta el margen para pantallas muy pequeñas */
         margin-left: 2vw; /* Ajusta el margen para pantallas muy pequeñas */
     }
+}
+
+.content-box.primary { /*Rectángulo valla publicitaria*/
+    max-width: 72%; /* Ajusta según el ancho de los otros rectángulos */
+    margin-left: 40px; /* Alinea con los demás rectángulos */
+    margin-right: auto; /* Asegura que el margen derecho se ajuste automáticamente */
 }

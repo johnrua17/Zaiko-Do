@@ -29,6 +29,10 @@ def register():
 def home():
     return render_template('home.html')
 
+@routes_blueprint.route('/home')
+def home_redirect():
+    return redirect(url_for('routes.home'))
+
 @routes_blueprint.route('/buscar_producto', methods=["POST"])
 def buscar_producto():
     if not session.get('idusuario'):
