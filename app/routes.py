@@ -9,6 +9,7 @@ import bleach
 import pytz
 import uuid
 import hashlib
+import hmac
 from datetime import datetime, timedelta
 import pdfkit  # Para convertir a PDF (requiere wkhtmltopdf instalado)
 ''' para Windows:
@@ -567,3 +568,201 @@ def detalle_plan(token):
     integrity_hash = hashlib.sha256(cadena_concatenada.encode()).hexdigest()
 
     return render_template('detalle_plan.html', suscripcion=suscripcion, integrity_hash=integrity_hash, precio_centavos=precio_centavos)
+
+
+
+
+def validar_firma(signature, event_data, secreto_eventos, timestamp):
+    """
+    Valida la firma del evento usando el checksum y el secreto proporcionados.
+
+    :param signature: Diccionario con la firma del evento.
+    :param event_data: Datos del evento recibidos.
+    :param secreto_eventos: Secreto de eventos para verificar la firma.
+    :param timestamp: Timestamp del evento.
+    :return: True si la firma es válida, False en caso contrario.
+    """
+
+    # Extraer propiedades de la firma
+    properties = signature.get('properties', [])
+    checksum_proporcionado = signature.get('checksum', '')
+
+    # Obtener los valores de los datos del evento
+    transaction_id = event_data.get('transaction', {}).get('id', '')
+    transaction_status = event_data.get('transaction', {}).get('status', '')
+    transaction_amount_in_cents = event_data.get('transaction', {}).get('amount_in_cents', '')
+
+    # Imprimir las variables para seguimiento
+    # print(f"Transaction ID: {transaction_id}")
+    # print(f"Transaction Status: {transaction_status}")
+    # print(f"Transaction Amount in Cents: {transaction_amount_in_cents}")
+    # print(f"Timestamp: {timestamp}")
+    # print(f"Secret: {secreto_eventos}")
+
+    # Construir la cadena para el hash usando f-strings
+    cadena_concatenada = f"{transaction_id}{transaction_status}{transaction_amount_in_cents}{timestamp}{secreto_eventos}"
+
+    # Imprimir la cadena concatenada para seguimiento
+    # print(f"Cadena Concatenada: {cadena_concatenada}")
+
+    # Calcular el checksum esperado
+    checksum_calculado = hashlib.sha256(cadena_concatenada.encode()).hexdigest()
+    # print(f"Checksum Calculado: {checksum_calculado}")
+
+    # Comparar el checksum calculado con el proporcionado
+    return hmac.compare_digest(checksum_calculado, checksum_proporcionado)
+
+
+@routes_blueprint.route('/pagos_wompi', methods=['POST'])
+def actualizar_estado():
+    data = request.get_json()
+    secreto_eventos = "test_events_NWojPkGMpQ4P6omT0E2fM7wCIreHAQ1y"
+
+    # Verificar si la solicitud contiene datos suficientes
+    if 'data' not in data or 'transaction' not in data['data']:
+        return jsonify({'success': False, 'message': 'Datos insuficientes'}), 400
+
+    # Verificar la firma
+    signature = data.get('signature', {})
+    event_data = data['data']
+    # Obtener el timestamp
+    timestamp = data.get('timestamp', '')
+    if not validar_firma(signature, event_data, secreto_eventos, timestamp):
+        return jsonify({'success': False, 'message': 'Firma no válida'}), 400
+
+    transaction = data['data']['transaction']
+    reference = transaction.get('reference')
+    status = transaction.get('status')
+    finalized_at = transaction.get('finalized_at')
+    transaction_amount_in_cents = event_data.get('transaction', {}).get('amount_in_cents', '')
+
+    # Verificar si se recibieron los datos necesarios
+    if not reference or not status or not finalized_at:
+        return jsonify({'success': False, 'message': 'Datos de transacción incompletos'}), 400
+
+    # Parsear la fecha finalized_at de Wompi
+    try:
+        fecha_finalizada = datetime.strptime(finalized_at, "%Y-%m-%dT%H:%M:%S.%fZ")
+        # Convertir a la zona horaria de Bogotá
+        timezone_bogota = pytz.timezone('America/Bogota')
+        fecha_finalizada_bogota = fecha_finalizada.astimezone(timezone_bogota)
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error al parsear la fecha: {str(e)}'}), 400
+
+    # Actualizar la base de datos según el estado de la transacción
+    cur = mysql.connection.cursor()
+
+    try:
+        if status == 'APPROVED':
+            # Actualizar estado en suscripciones
+            cur.execute("UPDATE suscripciones SET estado='aprobado' WHERE token=%s", [reference])
+
+            # Obtener información de la suscripción aprobada
+            cur.execute("SELECT idusuario, idplan FROM suscripciones WHERE token=%s", [reference])
+            suscripcion_info = cur.fetchone()
+            if suscripcion_info:
+                idusuario = suscripcion_info['idusuario']
+                idplan = suscripcion_info['idplan']
+
+                # Guardar información actual del plan en historial_planes
+                cur.execute("INSERT INTO historial_planes (idusuario, idplan_anterior, fecha_creacion_plan_anterior, fecha_expiracion_plan_anterior) "
+                            "SELECT idusuario, idplan, fecha_creacion_plan, fecha_expiracion_plan FROM usuario WHERE idusuario=%s",
+                            [idusuario])
+
+                # Obtener la duración del plan desde la base de datos
+                cur.execute("SELECT duracion FROM planes WHERE idplan=%s", [idplan])
+                duracion_plan = cur.fetchone()
+                if duracion_plan and 'duracion' in duracion_plan:
+                    try:
+                        duracion = int(duracion_plan['duracion'])
+                        # Calcular fecha de expiración según la duración del plan
+                        fecha_expiracion = fecha_finalizada_bogota + timedelta(days=duracion)
+                        # Actualizar idplan y fechas en tabla usuario
+                        cur.execute("UPDATE usuario SET idplan=%s, fecha_creacion_plan=%s, fecha_expiracion_plan=%s WHERE idusuario=%s",
+                                    [idplan, fecha_finalizada_bogota, fecha_expiracion, idusuario])
+
+
+                        # Obtener información del plan
+                        cur.execute("SELECT nombre, precio FROM planes WHERE idplan=%s", [idplan])
+                        plan_info = cur.fetchone()
+
+                        # Obtener información del usuario y plan para el correo
+                        cur.execute("SELECT nombre,correo FROM usuario WHERE idusuario=%s", [idusuario])
+                        usuario_info = cur.fetchone()
+                        if plan_info:
+                            nombre_plan = plan_info['nombre']
+                            precio_plan = int(plan_info['precio'])
+                            # Registrar en el historial de planes
+                            registrar_historial_plan(idusuario, nombre_plan, transaction_amount_in_cents, duracion, fecha_finalizada_bogota, fecha_expiracion)
+
+                        if usuario_info:
+                            destinatario = usuario_info['correo']
+                            nombre = usuario_info['nombre']
+                            nombre_plan = plan_info['nombre']
+
+                            # enviar_correo_agradecimiento(destinatario,nombre, nombre_plan, fecha_expiracion)
+
+
+
+
+                        mysql.connection.commit()
+                        return jsonify({'success': True}), 200
+                    except ValueError:
+                        mysql.connection.rollback()
+                        return jsonify({'success': False, 'message': 'Duración del plan no es un número válido'}), 500
+
+                else:
+                    # Si no se encuentra la duración del plan, rollback y mensaje de error
+                    mysql.connection.rollback()
+                    return jsonify({'success': False, 'message': 'No se encontró la duración del plan'}), 500
+        elif status == 'VOIDED':
+            # Obtener información anterior del usuario desde la tabla historial_planes
+            cur.execute("SELECT idplan_anterior, fecha_creacion_plan_anterior, fecha_expiracion_plan_anterior "
+                        "FROM historial_planes WHERE idusuario=(SELECT idusuario FROM suscripciones WHERE token=%s) "
+                        "ORDER BY id DESC LIMIT 1", [reference])
+            historial_info = cur.fetchone()
+
+            if historial_info:
+                idplan_anterior = historial_info['idplan_anterior']
+                fecha_creacion_plan_anterior = historial_info['fecha_creacion_plan_anterior']
+                fecha_expiracion_plan_anterior = historial_info['fecha_expiracion_plan_anterior']
+                 # Actualizar el plan del usuario a los valores anteriores
+                cur.execute("UPDATE usuario SET idplan=%s, fecha_creacion_plan=%s, fecha_expiracion_plan=%s "
+                            "WHERE idusuario=(SELECT idusuario FROM suscripciones WHERE token=%s)",
+                            [idplan_anterior, fecha_creacion_plan_anterior, fecha_expiracion_plan_anterior, reference])
+                cur.execute("UPDATE suscripciones SET estado='anulado' WHERE token=%s", [reference])
+                mysql.connection.commit()
+                return jsonify({'success': True}), 200
+            else:
+                mysql.connection.rollback()
+                return jsonify({'success': False, 'message': 'No se encontró información previa del usuario'}), 500
+        else:
+            cur.execute("UPDATE suscripciones SET estado='rechazado' WHERE token=%s", [reference])
+            mysql.connection.commit()
+            return jsonify({'success': True}), 200
+
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({'success': False, 'message': f'Error al actualizar la base de datos: {str(e)}'}), 500
+
+    finally:
+        cur.close()
+
+    return jsonify({'success': False, 'message': 'Evento no procesado'}), 400
+
+
+def registrar_historial_plan(idusuario, nombre_plan, transaction_amount_in_cents, duracion, fecha_inicio, fecha_fin):
+    cur = mysql.connection.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO historial_planes_usuarios (idusuario, nombre_plan, precio, duracion, fecha_inicio, fecha_fin) "
+            "VALUES (%s, %s, %s, %s, %s, %s)",
+            (idusuario, nombre_plan, transaction_amount_in_cents, duracion, fecha_inicio, fecha_fin)
+        )
+        mysql.connection.commit()
+    except Exception as e:
+        mysql.connection.rollback()
+        # print(f"Error al registrar el historial del plan: {str(e)}")
+    finally:
+        cur.close()
+
