@@ -6,6 +6,10 @@ from io import BytesIO
 from openpyxl import Workbook
 from flask import send_file
 import bleach
+import pytz
+import uuid
+import hashlib
+from datetime import datetime, timedelta
 import pdfkit  # Para convertir a PDF (requiere wkhtmltopdf instalado)
 ''' para Windows:
     Descarga el instalador desde wkhtmltopdf.org.
@@ -466,3 +470,100 @@ def planes():
         return render_template('planes.html', message=f'Error: {str(e)}')
     finally:
         cur.close()
+
+
+
+@routes_blueprint.route('/suscribir/<int:idplan>', methods=['GET'])
+def suscribir(idplan):
+    id_usuario = session.get('idusuario')
+    # correo_usuario = session.get('correo')
+
+
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT correo FROM usuario WHERE idusuario= %s', [id_usuario])
+    correo_usuario=  cur.fetchone()['correo']
+    if not id_usuario or not correo_usuario:
+        return render_template('index.html')  # Redirigir al login si el usuario no está autenticado
+
+    # Obtener la hora actual en Bogotá
+    bogota_tz = pytz.timezone('America/Bogota')
+    fecha_actual = datetime.now(bogota_tz)
+
+    # fecha_actual = obtener_hora_actual_bogota()
+
+    # Verificar los últimos 5 tokens creados para este usuario
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT idplan, estado, token, fecha_expiracion FROM suscripciones WHERE idusuario = %s ORDER BY fecha_creacion DESC LIMIT 5', (id_usuario,))
+    suscripciones = cur.fetchall()
+
+    for suscripcion in suscripciones:
+        if suscripcion['idplan'] == idplan:
+            # Comprobar el estado del token
+            if suscripcion['estado'] in ['aprobado', 'rechazado']:
+                continue
+
+            # Convertir fecha_expiracion a zona horaria Bogotá si no tiene información de zona horaria
+            fecha_expiracion = suscripcion['fecha_expiracion']
+            if fecha_expiracion and fecha_expiracion.tzinfo is None:
+                fecha_expiracion = bogota_tz.localize(fecha_expiracion)
+
+            # Comprobar si la fecha de expiración ha pasado
+            if fecha_expiracion and fecha_actual > fecha_expiracion:
+                continue
+
+            # Si el estado es pendiente y la fecha de expiración no ha pasado, usar el token existente
+            if suscripcion['estado'] == 'pendiente' and fecha_expiracion and fecha_actual <= fecha_expiracion:
+                return redirect(url_for('routes.detalle_plan', token=suscripcion['token']))
+
+    # Generar un nuevo token si no se encontró uno válido
+    token = str(uuid.uuid4())
+    fecha_creacion_str = fecha_actual.strftime('%Y-%m-%d %H:%M:%S')
+    fecha_expiracion = fecha_actual + timedelta(minutes=15)
+    fecha_expiracion_str = fecha_expiracion.strftime('%Y-%m-%d %H:%M:%S')
+
+    # Guardar el nuevo token en la base de datos
+    cur.execute('INSERT INTO suscripciones (idusuario, correo, idplan, token, fecha_creacion, fecha_expiracion) VALUES (%s, %s, %s, %s, %s, %s)',
+                (id_usuario, correo_usuario, idplan, token, fecha_creacion_str, fecha_expiracion_str))
+    mysql.connection.commit()
+
+    # Redirigir a la página de detalles del plan con el token en la URL
+    return redirect(url_for('routes.detalle_plan', token=token))
+
+@routes_blueprint.route('/detalle_plan/<token>', methods=['GET'])
+def detalle_plan(token):
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT p.nombre, p.precio,p.duracion, s.token, s.correo, s.fecha_expiracion FROM suscripciones s JOIN planes p ON s.idplan = p.idplan WHERE s.token = %s', [token])
+    suscripcion = cur.fetchone()
+
+    if not suscripcion:
+        return 'Token inválido o expirado.', 404
+
+    # Obtener la hora actual en Bogotá, Colombia
+    # bogota_tz = pytz.timezone('America/Bogota')
+    # hora_actual = datetime.now(bogota_tz)
+    hora_actual= obtener_hora_actual_bogota()
+    hora_actual_str = hora_actual.strftime('%Y-%m-%d %H:%M:%S')
+    print("Hora actual en Bogotá:", hora_actual_str)
+
+    # La fecha de expiración ya está en la hora de Bogotá
+    fecha_expiracion_bogota = suscripcion['fecha_expiracion']
+    fecha_expiracion_bogota_str = fecha_expiracion_bogota.strftime('%Y-%m-%d %H:%M:%S')
+    # print("Fecha de expiración en Bogotá:", fecha_expiracion_bogota_str)
+
+    # Comparar la fecha de expiración con la hora actual
+    if fecha_expiracion_bogota_str <= hora_actual_str:
+        return 'Token inválido o expirado.', 404
+
+    # Debes tener tu secreto de integridad configurado
+    secreto_integridad = "test_integrity_kS7jQ33KmdsQEB7zam1tl80nrNpzZduK"
+
+    # Convertir el precio a centavos
+    precio_centavos = int(suscripcion['precio'] * 100)
+
+    # Construye la cadena para el hash
+    cadena_concatenada = f"{suscripcion['token']}{precio_centavos}COP{secreto_integridad}"
+
+    # Calcula el hash SHA-256
+    integrity_hash = hashlib.sha256(cadena_concatenada.encode()).hexdigest()
+
+    return render_template('detalle_plan.html', suscripcion=suscripcion, integrity_hash=integrity_hash, precio_centavos=precio_centavos)
