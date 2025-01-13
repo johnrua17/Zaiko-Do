@@ -37,43 +37,52 @@ def home():
 def home_redirect():
     return redirect(url_for('routes.home'))
 
-@routes_blueprint.route('/buscar_producto', methods=["POST"])
+@routes_blueprint.route('/buscar_productos', methods=["POST"])
 def buscar_producto():
     if not session.get('idusuario'):
         return jsonify({"error": "Usuario no autenticado"}), 401
 
     data = request.get_json()
-    codigo_barras = data.get('codigo_barras')
+    termino_busqueda = data.get('termino_busqueda')  # Recibe el término de búsqueda desde el cliente.
     id_usuario_actual = session.get('idusuario')
 
-    if not codigo_barras:
-        return jsonify({"error": "Código de barras no proporcionado"}), 400
+    if not termino_busqueda:
+        return jsonify({"error": "No se proporcionó un término de búsqueda"}), 400
 
     try:
         cur = mysql.connection.cursor()
+
+        # Consulta que busca por código de barras o por nombre del producto (usando LIKE para búsqueda parcial)
         query = """
-            SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Precio_Costo, Cantidad, Categoria
+            SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Cantidad, Categoria
             FROM productos
-            WHERE Codigo_de_barras = %s AND id_usuario = %s
+            WHERE (Codigo_de_barras = %s OR Nombre LIKE %s) AND id_usuario = %s
         """
-        cur.execute(query, (codigo_barras, id_usuario_actual))
-        producto = cur.fetchone()
+        # Agregar comodines para búsqueda parcial en el nombre
+        like_term = f"%{termino_busqueda}%"
+        cur.execute(query, (termino_busqueda, like_term, id_usuario_actual))
+        productos = cur.fetchall()
 
-        if not producto:
-            return jsonify({"error": "Producto no encontrado"}), 200
+        if not productos:
+            return jsonify({"error": "No se encontraron productos"}), 200
 
-        return jsonify({
-            "codigo": producto["Codigo_de_barras"],
-            "nombre": producto["Nombre"],
-            "descripcion": producto["Descripcion"],
-            "precio": producto["Precio_Valor"],
-            "precio_costo": producto["Precio_Costo"],
-            "stock": producto["Cantidad"],
-            "categoria": producto["Categoria"],
-        })
+        # Convertir los resultados a un formato JSON
+        productos_json = [
+            {
+                "Codigo_de_barras": prod["Codigo_de_barras"],
+                "Nombre": prod["Nombre"],
+                "Descripcion": prod["Descripcion"],
+                "Precio_Valor": prod["Precio_Valor"],
+                "Cantidad": prod["Cantidad"],
+                "Categoria": prod["Categoria"]
+            }
+            for prod in productos
+        ]
+
+        return jsonify({"productos": productos_json})
     except Exception as e:
-        print(f"Error al buscar el producto: {e}")
-        return jsonify({"error": "Error al buscar el producto"}), 500
+        print(f"Error al buscar productos: {e}")
+        return jsonify({"error": "Error al buscar productos"}), 500
     finally:
         cur.close()
 
