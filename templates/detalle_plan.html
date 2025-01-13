@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://checkout.wompi.co/widget.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Pago Wompi</title>
+    
+</head>
+<style>
+    /* Variables for Zaikodo colors */
+:root {
+  --primary-color: #7209B7;
+  --secondary-color: #3F3D56;
+  --accent-color: #4CC9F0;
+  --background-color: #F8F9FA;
+  --text-color: #333333;
+  --border-color: #E0E0E0;
+}
+
+/* Main layout */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--background-color);
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+}
+
+.main-content {
+  padding: 2rem;
+  margin-left: 250px; /* Space for sidebar */
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Card styling */
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin: 1rem 0;
+}
+
+.card-title {
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* Details styling */
+.detail {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+}
+
+.detail-label {
+  color: var(--secondary-color);
+  font-weight: 500;
+}
+
+.detail-value {
+  color: var(--text-color);
+  font-weight: 400;
+}
+
+/* Separator */
+.separator {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 1.5rem 0;
+}
+
+/* Total amount styling */
+.total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1.5rem 0;
+  padding: 1rem 0;
+  background-color: #F8F9FA;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.total-label {
+  color: var(--secondary-color);
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.total-value {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+
+/* Payment form */
+.payment-form {
+  margin: 2rem 0;
+}
+
+/* Wompi button styling */
+/* form button {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  padding: 1rem 2rem !important;
+  border-radius: 8px !important;
+  border: none !important;
+  font-weight: 600 !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  transition: background-color 0.3s ease !important;
+} */
+
+form button:hover {
+  background-color: #5A07A2 !important;
+}
+
+/* Informative text */
+p {
+  line-height: 1.6;
+  color: var(--secondary-color) !important;
+  margin: 1rem 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+  
+  .card {
+    padding: 1rem;
+  }
+  
+  .detail {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .total {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
+</style>
+<body>
+    {% include 'sidebar.html' %}
+    <main class="main-content">
+        <div class="container">
+        
+        
+            <main>
+                <div class="card">
+                    <h2 class="card-title">Detalles de tu Plan</h2>
+                    <div class="detail">
+                        <span class="detail-label">Usuario:</span>
+                        <span class="detail-value">{{suscripcion.correo }}</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Plan:</span>
+                        <span class="detail-value">{{suscripcion.nombre }}</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Duración:</span>
+                        <span class="detail-value">{{ suscripcion.duracion }} días</span>
+                    </div>
+                    <hr class="separator">
+                    <div class="total">
+                        <span class="total-label">Total a pagar:</span>
+                        <span class="total-value">{{suscripcion.precio }} COP</span>
+                    </div>
+    
+                    <form class="payment-form">
+                        <script
+                            src="https://checkout.wompi.co/widget.js"
+                            data-render="button"
+                            data-public-key="pub_test_ArEZan1EpGZMZQ89N3oISEhGpJpJN8Xh"
+                            data-currency="COP"
+                            data-amount-in-cents="{{ precio_centavos }}"
+                            data-reference="{{ suscripcion.token }}"
+                            data-signature:integrity="{{ integrity_hash }}"
+                            data-redirect-url="http://127.0.0.1:5000/planes">
+                        </script>
+                    </form>
+    
+                    <!-- Nota informativa -->
+                    <p style="font-size: 12px; color: #555; margin-top: 5px;">
+                        * Al elegir un plan de InvenTi, estás realizando un <strong>pago único</strong> que te dará acceso a las funcionalidades del sistema de gestión de inventarios. 
+                    </p>
+    
+                    <p style="font-size: 12px; color: #555; margin-top: 5px;">
+                        * Ten en cuenta que este no es un servicio de suscripción.  Una vez que expire tu plan, tu cuenta será automáticamente degradada al <strong>Plan Gratuito</strong>, lo que te permitirá seguir utilizando algunas funcionalidades básicas de InvenTi sin costo adicional. Si decides renovar tu plan, puedes hacerlo en cualquier momento antes de la fecha de expiración.
+    
+                    </p>
+    
+                    <p style="font-size: 12px; color: #555; margin-top: 5px;">
+                        * Aceptamos múltiples métodos de pago a través de Wompi, asegurando un proceso de pago rápido y seguro. No dudes en contactarnos si tienes alguna pregunta sobre las opciones de pago.
+    
+                    </p>
+                </div>
+    
+                
+            </main>
+    
+
+    </main>
+           
+    </div>
+</body>
+</html>
+    
