@@ -114,6 +114,20 @@
             <div class="table-container">
                 <!-- Reemplaza la barra de búsqueda con la inclusión de la plantilla -->
                 {% include 'buscar_productos.html' %}
+                <div class="barcode-entry">
+                    <!-- Botón para mostrar la ventana modal -->
+                    <button type="button" class="download-btn" title="Descargar Productos" onclick="openDownloadModal()">
+                        <i class="fas fa-download"></i> Descargar productos
+                    </button>
+                
+                    <!-- Ventana modal -->
+                    <div id="downloadModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1);">
+                        <p style="font-weight: normal;">Seleccione el formato de descarga</p>
+                        <button onclick="submitDownload('xlsx')">Descargar como Excel</button>
+                        <button onclick="submitDownload('pdf')">Descargar como PDF</button>
+                        <button onclick="closeDownloadModal()">Cancelar</button>
+                    </div>                    
+                </div>          
                 <div class="table-header"> 
                     <h2>Productos</h2>
                 </div>
