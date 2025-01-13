@@ -280,10 +280,20 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
 } 
 
-.subscription-data{
+.subscription-data {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    text-align: center;
+    margin: 10px auto;
+    padding: 2px;
+    width: 80%;
+    max-width: 800px;
+
+}
+
+.subscription-data p {
     margin: 10px 0;
 }
 
