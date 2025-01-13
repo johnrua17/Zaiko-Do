@@ -58,7 +58,69 @@
         </div>
     </nav>
 </div>
+<script>
+    function toggleSubmenu(submenuId) {
+        const submenu = document.getElementById(submenuId);
+        const parentItem = submenu.previousElementSibling;
+        
+        // Cerrar todos los submenús primero
+        document.querySelectorAll('.submenu').forEach(menu => {
+            if (menu.id !== submenuId) {
+                menu.classList.remove('active');
+                menu.previousElementSibling.classList.remove('expanded');
+            }
+        });
+        
+        // Alternar el submenú actual
+        submenu.classList.toggle('active');
+        parentItem.classList.toggle('expanded');
+    }
 
+    // Marcar como activo el enlace actual según la URL
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.nav-items a').forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+                // Si es un submenú, expandir el padre
+                if (link.classList.contains('submenu-item')) {
+                    const submenu = link.parentElement;
+                    submenu.classList.add('active');
+                    submenu.previousElementSibling.classList.add('expanded');
+                }
+            }
+        });
+    });
+</script>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const toggleButton = document.querySelector('.toggle-sidebar');
+        
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('expanded');
+        toggleButton.classList.toggle('collapsed');
+    }
+
+    // Manejo responsive
+    function handleMobileView() {
+        const sidebar = document.querySelector('.sidebar');
+        const toggleButton = document.querySelector('.toggle-sidebar');
+        
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+            toggleButton.classList.add('collapsed');
+        } else {
+            sidebar.classList.remove('collapsed');
+            toggleButton.classList.remove('collapsed');
+        }
+    }
+
+    window.addEventListener('load', handleMobileView);
+    window.addEventListener('resize', handleMobileView);
+</script>
 <style>
     .logo-image {
         max-width: 100%;
