@@ -182,7 +182,7 @@ def editar_producto(codigo_barras):
         except Exception as e:
             mysql.connection.rollback()
             print(f"Error al editar el producto: {e}")  # Depuración
-            return redirect(url_for('listar_productos'))
+            return redirect(url_for('routes.listar_productos'))
 
 
         finally:
@@ -238,7 +238,7 @@ def eliminar_producto(codigo_barras):
         # Si ocurre un error, hacer rollback y mostrar mensaje
         mysql.connection.rollback()
         print(f"Error al eliminar el producto: {e}")  # Depuración
-        return redirect(url_for('listar_productos'))
+        return redirect(url_for('routes.listar_productos'))
 
 
     finally:
