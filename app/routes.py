@@ -434,7 +434,35 @@ def configuracion():
     """Página para gestionar la configuración."""
     return render_template('configuracion.html')
 
-@routes_blueprint.route('/planes', methods=['GET'], endpoint='planes')
+
+@routes_blueprint.route('/planes', methods=['GET'])
 def planes():
-    """Página para gestionar los planes."""
-    return render_template('planes.html')
+
+    nombre = session.get('nombre')
+    id_usuario = session.get('idusuario')
+
+    try:
+        cur = mysql.connection.cursor()
+
+        # Obtener información del plan del usuario si está autenticado
+        if id_usuario:
+            cur.execute('SELECT idplan, fecha_expiracion_plan FROM usuario WHERE idusuario = %s', [id_usuario])
+            user_info = cur.fetchone()
+            if user_info:
+                id_plan = user_info['idplan']
+                fecha_expiracion_plan = user_info['fecha_expiracion_plan']
+        else:
+            id_plan = None
+            fecha_expiracion_plan = None
+
+        # Obtener todos los planes con detalles adicionales
+        cur.execute('SELECT idplan, nombre, precio, duracion FROM planes')
+        planes = cur.fetchall()
+
+        # Enviar datos a la plantilla
+        return render_template('planes.html', planes=planes, nombre=nombre, plan_actual=id_plan, fecha_expiracion_plan=fecha_expiracion_plan)
+
+    except Exception as e:
+        return render_template('planes.html', message=f'Error: {str(e)}')
+    finally:
+        cur.close()
