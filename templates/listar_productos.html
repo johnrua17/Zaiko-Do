@@ -75,9 +75,6 @@
         outline: none;
     }
 
-
-
-
     .data-table button {
         padding: 10px 15px;
         font-size: 14px;
@@ -88,7 +85,24 @@
         cursor: pointer;
         transition: background-color 0.3s ease;
     }
-   
+
+    .download-btn {
+        position: relative;
+    }
+
+    #downloadModal {
+        display: none;
+    position: absolute; /* Para que el modal se posicione relativo al botón */
+    top: calc(100% + 5px); /* Aseguramos que el modal esté justo debajo con un pequeño margen */
+    left: 50%; /* Movemos hacia la derecha, ajustaremos más en JS */
+    transform: translateX(-50%); /* Centra horizontalmente respecto al botón */
+    background: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    }
         </style>
     </head>
     <body>
@@ -102,9 +116,22 @@
                     <label for="codigo_barras">Ingresar código de barras:</label>
                     <input type="text" id="codigo_barras" name="codigo_barras" />
                     <button id="buscar_producto">Buscar producto</button>
-                </div>      
-                <div class="table-header">
-                   
+                </div>
+                <div class="barcode-entry">
+                    <!-- Botón para mostrar la ventana modal -->
+                    <button type="button" class="download-btn" title="Descargar Productos" onclick="openDownloadModal()">
+                        <i class="fas fa-download"></i> Descargar productos
+                    </button>
+                
+                    <!-- Ventana modal -->
+                    <div id="downloadModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1);">
+                        <p style="font-weight: normal;">Seleccione el formato de descarga</p>
+                        <button onclick="submitDownload('xlsx')">Descargar como Excel</button>
+                        <button onclick="submitDownload('pdf')">Descargar como PDF</button>
+                        <button onclick="closeDownloadModal()">Cancelar</button>
+                    </div>                    
+                </div>                    
+                <div class="table-header"> 
                     <h2>Productos</h2>
                 </div>
                 <table class="data-table">
@@ -144,11 +171,6 @@
         </div>  
        
         <script>
-           
-
-
-
-
             function toggleSubmenu(submenuId) {
                 const submenu = document.getElementById(submenuId);
                 const parentItem = submenu.previousElementSibling;
@@ -211,6 +233,33 @@
             window.addEventListener('load', handleMobileView);
             window.addEventListener('resize', handleMobileView);
         </script>
-   
+        <script>
+            function openDownloadModal() {
+    const button = document.querySelector('.download-btn');
+    const modal = document.getElementById('downloadModal');
+
+    // Obtén las coordenadas del botón
+    const buttonRect = button.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    // Ajusta la posición del modal
+    modal.style.top = `${buttonRect.bottom + scrollTop + 10}px`; // 10px debajo del botón
+    modal.style.left = `${buttonRect.left + buttonRect.width / 2}px`; // Centra horizontalmente respecto al botón
+    modal.style.transform = 'translateX(-25%)'; // Ajusta el modal para que esté centrado horizontalmente
+    modal.style.display = 'block';
+}
+
+function closeDownloadModal() {
+    document.getElementById('downloadModal').style.display = 'none';
+}
+
+            function submitDownload(format) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/descargar_productos?format=${format}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        </script>
 </body>
 </html>

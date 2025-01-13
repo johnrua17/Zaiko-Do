@@ -6,6 +6,10 @@ from io import BytesIO
 from openpyxl import Workbook
 from flask import send_file
 import bleach
+import pdfkit  # Para convertir a PDF (requiere wkhtmltopdf instalado)
+''' para Windows:
+    Descarga el instalador desde wkhtmltopdf.org.
+    Durante la instalación, marca la opción para agregar wkhtmltopdf al PATH del sistema.'''
 
 # Crear un Blueprint para las rutas
 routes_blueprint = Blueprint('routes', __name__)
@@ -230,6 +234,7 @@ def eliminar_producto(codigo_barras):
 def descargar_productos():
     id_usuario = session.get('idusuario')
     username = session.get('username')
+    formato = request.args.get('format', 'xlsx')  # Por defecto, Excel
 
     if not id_usuario:
         return jsonify({"error": "Usuario no autenticado"}), 401
@@ -243,28 +248,94 @@ def descargar_productos():
         """, (id_usuario,))
         productos = cur.fetchall()
 
-        output = BytesIO()
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "Productos"
-        encabezados = ["Código de Barras", "Nombre", "Descripción", "Precio Valor", "Precio Costo", "Cantidad", "Categoría"]
-        ws.append(encabezados)
+        if formato == 'xlsx':
+            # Generar archivo Excel
+            output = BytesIO()
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Productos"
+            encabezados = ["Código de Barras", "Nombre", "Descripción", "Precio Valor", "Precio Costo", "Cantidad", "Categoría"]
+            ws.append(encabezados)
 
-        for producto in productos:
-            ws.append([
-                producto["Codigo_de_barras"],
-                producto["Nombre"],
-                producto["Descripcion"],
-                producto["Precio_Valor"],
-                producto["Precio_Costo"],
-                producto["Cantidad"],
-                producto["Categoria"]
-            ])
+            for producto in productos:
+                ws.append([
+                    producto["Codigo_de_barras"],
+                    producto["Nombre"],
+                    producto["Descripcion"],
+                    producto["Precio_Valor"],
+                    producto["Precio_Costo"],
+                    producto["Cantidad"],
+                    producto["Categoria"]
+                ])
 
-        wb.save(output)
-        output.seek(0)
-        nombre_archivo = f"productos_{username}.xlsx"
-        return send_file(output, as_attachment=True, download_name=nombre_archivo)
+            wb.save(output)
+            output.seek(0)
+            nombre_archivo = f"productos_{username}.xlsx"
+            return send_file(output, as_attachment=True, download_name=nombre_archivo)
+
+        elif formato == 'pdf':
+            # Generar archivo PDF
+            html = """
+            <html>
+            <head>
+                <style>
+                    table {
+                        border-collapse: collapse;
+                        width: 100%;
+                    }
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                    }
+                    th {
+                        background-color: #f2f2f2;
+                        text-align: left;
+                    }
+                </style>
+            </head>
+            <body>
+                <h2>Lista de Productos</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código de Barras</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio Valor</th>
+                            <th>Precio Costo</th>
+                            <th>Cantidad</th>
+                            <th>Categoría</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            """
+            for producto in productos:
+                html += f"""
+                <tr>
+                    <td>{producto["Codigo_de_barras"]}</td>
+                    <td>{producto["Nombre"]}</td>
+                    <td>{producto["Descripcion"]}</td>
+                    <td>${producto["Precio_Valor"]}</td>
+                    <td>${producto["Precio_Costo"]}</td>
+                    <td>{producto["Cantidad"]}</td>
+                    <td>{producto["Categoria"]}</td>
+                </tr>
+                """
+            html += """
+                    </tbody>
+                </table>
+            </body>
+            </html>
+            """
+            pdf_output = BytesIO()
+            pdfkit.from_string(html, pdf_output)
+            pdf_output.seek(0)
+            nombre_archivo = f"productos_{username}.pdf"
+            return send_file(pdf_output, as_attachment=True, download_name=nombre_archivo)
+
+        else:
+            return jsonify({"error": "Formato no soportado"}), 400
+
     except Exception as e:
         print(f"Error al generar el archivo: {e}")
         return jsonify({"error": "Error interno del servidor"}), 500

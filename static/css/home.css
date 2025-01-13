@@ -34,7 +34,7 @@ body {
 }
 
 .navbar {
-    background-color: transparent;
+    background-color: #f7f9fc;
     overflow: hidden;
     display: flex;
     justify-content: space-between;

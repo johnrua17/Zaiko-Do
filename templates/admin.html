@@ -100,13 +100,6 @@
                 <label for="termino_busqueda">Buscar producto:</label>
                 <input type="text" id="termino_busqueda" name="termino_busqueda" placeholder="Nombre, categoría o código de barras">
                 <button id="buscar_dinamico">Buscar</button>
-            </div>
-            <div class="barcode-entry">
-                <form method="POST" action="{{ url_for('routes.descargar_productos') }}">
-                    <button type="submit" class="download-btn" title="Descargar Productos">
-                        <i class="fas fa-download"></i> Descargar productos
-                    </button>
-                </form>                
             </div>                        
             <div class="table-header">
                 
