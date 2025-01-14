@@ -7,6 +7,24 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
     <style>
+        /* Estilos para el botón de enviar */
+.btn-submit {
+    display: inline-block;
+    background: var(--primary-gradient);
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.3s ease;
+}
+.btn-submit:hover {
+    background: #1d976c;
+}
+
         
     </style>
     <style>
@@ -111,119 +129,66 @@
                 </tbody>
             </table>
         </div>
+        <div>
+            <button class="btn-submit" id="registrar_venta">Registrar Venta</button>
+        </div>
     </div>
 
     <script>
-    document.getElementById('buscar_producto').addEventListener('click', async () => {
-    const terminoBusqueda = document.getElementById('codigo_barras').value;
-
-    if (!terminoBusqueda) {
-        alert('Por favor, ingresa un término de búsqueda.');
+        // Manejar el registro de la venta
+document.getElementById('registrar_venta').addEventListener('click', async () => {
+    if (productosAgregados.length === 0) {
+        alert('No hay productos agregados para registrar la venta.');
         return;
     }
 
     try {
-        const response = await fetch('/buscar_productos', {
+        const response = await fetch('/ventas/registrar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ termino_busqueda: terminoBusqueda }),
+            body: JSON.stringify({ productos: productosAgregados }),
         });
 
-        if (!response.ok) throw new Error('Error al buscar productos');
+        if (!response.ok) throw new Error('Error al registrar la venta.');
 
         const data = await response.json();
 
-        if (data.error) {
+        if (data.success) {
+            // Registrar productos en detalleventas
+            const agregarProductosResponse = await fetch('/ventas/agregar_productos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idventa: data.idventa,
+                    productos: productosAgregados,
+                    fecha: data.fecha,
+                }),
+            });
+
+            if (!agregarProductosResponse.ok) throw new Error('Error al agregar productos.');
+
+            const productosData = await agregarProductosResponse.json();
+            if (productosData.success) {
+                alert('Venta y productos registrados correctamente.');
+
+                // Limpiar la tabla y los productos agregados
+                productosAgregados.length = 0; // Vaciar el array
+                document.getElementById('tabla_productos').innerHTML = ''; // Limpiar la tabla
+            }
+        } else {
             alert(data.error);
-            return;
         }
-
-        const tablaProductos = document.getElementById('tabla_productos');
-        tablaProductos.innerHTML = ''; // Limpiar tabla antes de agregar nuevos resultados
-
-        data.productos.forEach((producto) => {
-            const fila = `
-                <tr>
-                    <td>${producto.Codigo_de_barras}</td>
-                    <td>${producto.Nombre}</td>
-                    <td>${producto.Descripcion}</td>
-                    <td>${producto.Precio_Valor}</td>
-                    <td>${producto.Cantidad}</td>
-                    <td>${producto.Categoria}</td>
-                </tr>
-            `;
-            tablaProductos.insertAdjacentHTML('beforeend', fila);
-        });
     } catch (error) {
         console.error(error);
-        alert('Ocurrió un error al buscar los productos.');
+        alert('Ocurrió un error al registrar la venta.');
     }
 });
+
     </script>    
-    <script>
-        function toggleSubmenu(submenuId) {
-            const submenu = document.getElementById(submenuId);
-            const parentItem = submenu.previousElementSibling;
-            
-            // Cerrar todos los submenús primero
-            document.querySelectorAll('.submenu').forEach(menu => {
-                if (menu.id !== submenuId) {
-                    menu.classList.remove('active');
-                    menu.previousElementSibling.classList.remove('expanded');
-                }
-            });
-            
-            // Alternar el submenú actual
-            submenu.classList.toggle('active');
-            parentItem.classList.toggle('expanded');
-        }
-
-        // Marcar como activo el enlace actual según la URL
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            document.querySelectorAll('.nav-items a').forEach(link => {
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
-                    // Si es un submenú, expandir el padre
-                    if (link.classList.contains('submenu-item')) {
-                        const submenu = link.parentElement;
-                        submenu.classList.add('active');
-                        submenu.previousElementSibling.classList.add('expanded');
-                    }
-                }
-            });
-        });
-    </script>
-
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            const toggleButton = document.querySelector('.toggle-sidebar');
-            
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-            toggleButton.classList.toggle('collapsed');
-        }
-
-        // Manejo responsive
-        function handleMobileView() {
-            const sidebar = document.querySelector('.sidebar');
-            const toggleButton = document.querySelector('.toggle-sidebar');
-            
-            if (window.innerWidth <= 768) {
-                sidebar.classList.add('collapsed');
-                toggleButton.classList.add('collapsed');
-            } else {
-                sidebar.classList.remove('collapsed');
-                toggleButton.classList.remove('collapsed');
-            }
-        }
-
-        window.addEventListener('load', handleMobileView);
-        window.addEventListener('resize', handleMobileView);
-    </script>
+   
 </body>
 </html>

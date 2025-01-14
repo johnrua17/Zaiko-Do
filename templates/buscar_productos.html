@@ -4,6 +4,44 @@
     <button id="buscar_producto">Buscar</button>
 </div>
 <script>
+    // Almacén de productos agregados a la tabla
+    const productosAgregados = [];
+
+    // Función para verificar productos y manejar la tabla
+    function verificarProducto(producto) {
+        // Buscar si el producto ya existe en la tabla
+        const productoExistente = productosAgregados.find(item => item.Codigo_de_barras === producto.Codigo_de_barras);
+
+        if (productoExistente) {
+            // Si existe, aumentar la cantidad
+            productoExistente.Cantidad += 1;
+
+            // Actualizar la cantidad en la tabla
+            const filaExistente = document.querySelector(`tr[data-codigo="${producto.Codigo_de_barras}"]`);
+            const celdaCantidad = filaExistente.querySelector('.cantidad');
+            celdaCantidad.textContent = productoExistente.Cantidad;
+        } else {
+            // Si no existe, agregarlo al almacén y a la tabla
+            producto.Cantidad = 1; // Inicializar la cantidad
+            productosAgregados.push(producto);
+
+            // Agregar fila a la tabla
+            const fila = `
+                <tr data-codigo="${producto.Codigo_de_barras}">
+                    <td>${producto.Codigo_de_barras}</td>
+                    <td>${producto.Nombre}</td>
+                    <td>${producto.Descripcion}</td>
+                    <td>${producto.Precio_Valor}</td>
+                    <td>${producto.Cantidad}</td>
+                    <td>${producto.Categoria}</td>
+                    <td class="cantidad">${producto.Cantidad}</td>
+                </tr>
+            `;
+            document.getElementById('tabla_productos').insertAdjacentHTML('beforeend', fila);
+        }
+    }
+
+    // Manejar la búsqueda y verificar productos
     document.getElementById('buscar_producto').addEventListener('click', async () => {
         const terminoBusqueda = document.getElementById('codigo_barras').value;
 
@@ -30,22 +68,8 @@
                 return;
             }
 
-            const tablaProductos = document.getElementById('tabla_productos');
-            tablaProductos.innerHTML = ''; // Limpiar tabla antes de agregar nuevos resultados
-
-            data.productos.forEach((producto) => {
-                const fila = `
-                    <tr>
-                        <td>${producto.Codigo_de_barras}</td>
-                        <td>${producto.Nombre}</td>
-                        <td>${producto.Descripcion}</td>
-                        <td>${producto.Precio_Valor}</td>
-                        <td>${producto.Cantidad}</td>
-                        <td>${producto.Categoria}</td>
-                    </tr>
-                `;
-                tablaProductos.insertAdjacentHTML('beforeend', fila);
-            });
+            // Procesar cada producto encontrado
+            data.productos.forEach(producto => verificarProducto(producto));
         } catch (error) {
             console.error(error);
             alert('Ocurrió un error al buscar los productos.');

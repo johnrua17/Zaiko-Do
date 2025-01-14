@@ -59,7 +59,7 @@ def buscar_producto():
 
         # Consulta que busca por código de barras o por nombre del producto (usando LIKE para búsqueda parcial)
         query = """
-            SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Cantidad, Categoria
+            SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor,Precio_Costo, Cantidad, Categoria
             FROM productos
             WHERE (Codigo_de_barras = %s OR Nombre LIKE %s) AND id_usuario = %s
         """
@@ -78,6 +78,7 @@ def buscar_producto():
                 "Nombre": prod["Nombre"],
                 "Descripcion": prod["Descripcion"],
                 "Precio_Valor": prod["Precio_Valor"],
+                "Precio_Costo": prod["Precio_Costo"],
                 "Cantidad": prod["Cantidad"],
                 "Categoria": prod["Categoria"]
             }
@@ -766,3 +767,110 @@ def registrar_historial_plan(idusuario, nombre_plan, transaction_amount_in_cents
     finally:
         cur.close()
 
+
+@routes_blueprint.route('/ventas/registrar', methods=["POST"])
+def registrar_venta():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return redirect(url_for('login'))
+
+    id_usuario_actual = session.get('idusuario')
+
+    try:
+        # Obtener datos enviados desde el cliente
+        datos_productos = request.json.get('productos', [])  # Lista de productos con cantidad y precio
+        if not datos_productos:
+            return jsonify({'error': 'No se enviaron productos para registrar la venta.'}), 400
+
+        # Calcular el total de la venta
+        total_venta = sum(int(p['Cantidad']) * float(p['Precio_Valor']) for p in datos_productos)
+
+        # Fecha y hora de Bogotá
+        timezone = pytz.timezone('America/Bogota')
+        fecha_actual = datetime.now(timezone)
+        fecha = fecha_actual.date()
+        hora = fecha_actual.time()
+
+        # Valores predeterminados
+        metodo_pago = "efectivo"
+        devuelto = 0
+        cliente = "Consumidor Final"
+        idcliente = "222222222222"
+        credito = 0
+        fecha_servidor = fecha
+        cur = mysql.connection.cursor()
+
+        cur.execute('SELECT MAX(idventausuario) AS max_id FROM ventas WHERE idusuario = %s', (id_usuario_actual,))
+        result = cur.fetchone()
+        max_id = result['max_id']
+
+        # Si es None, establecer en 1, de lo contrario, incrementar en 1
+        idventausuario = 1 if max_id is None else max_id + 1
+
+        # Insertar en la tabla `ventas`
+        
+        query = """
+        INSERT INTO ventas (
+            idusuario, totalventa, pagocon, fecha, hora, metodo_pago,
+            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cur.execute(query, (
+            id_usuario_actual, total_venta, 0.00, fecha, hora, metodo_pago,
+            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
+        ))
+        mysql.connection.commit()
+        cur.close()
+
+        return jsonify({
+            'success': 'Venta registrada correctamente.',
+            'idventa': idventausuario,
+            'fecha': str(fecha)  # Convertir fecha a string para JSON
+        }), 200
+
+    except Exception as e:
+        print(f"Error al registrar venta: {e}")
+        return jsonify({'error': 'Error al registrar la venta. Por favor, intente nuevamente.'}), 500
+
+@routes_blueprint.route('/ventas/agregar_productos', methods=["POST"])
+def agregar_productos():
+    try:
+        datos = request.json
+        id_venta = datos.get('idventa')
+        productos = datos.get('productos', [])
+        print(productos)
+        fecha = datos.get('fecha')
+
+        if not id_venta or not productos:
+            return jsonify({'error': 'Datos incompletos para agregar productos.'}), 400
+
+        cur = mysql.connection.cursor()
+        for producto in productos:
+            query = """
+            INSERT INTO detalleventas (
+                idventa, codigo_de_barras, nombre, descripcion, valor,
+                costo, cantidad, categoria, idusuario, fecha
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            cur.execute(query, (
+                id_venta,
+                producto.get('Codigo_de_barras'),
+                producto.get('Nombre'),
+                producto.get('Descripcion', ''),
+                producto.get('Precio_Valor'),
+                producto.get('Precio_Costo'),
+                producto.get('Cantidad'),
+                producto.get('Categoria', ''),
+                session.get('idusuario'),
+                fecha
+            ))
+        mysql.connection.commit()
+        cur.close()
+
+        return jsonify({'success': 'Productos agregados correctamente.'}), 200
+
+    except Exception as e:
+        print(f"Error al agregar productos: {e}")
+        return jsonify({'error': 'Error al agregar productos. Por favor, intente nuevamente.'}), 500
