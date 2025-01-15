@@ -784,7 +784,10 @@ def registrar_venta():
 
         # Calcular el total de la venta
         total_venta = sum(int(p['Cantidad']) * float(p['Precio_Valor']) for p in datos_productos)
+        metodo_pago= request.json.get('metodo_pago')
 
+        pagocon = request.json.get('pagocon')
+        # print(pagocon)
         # Fecha y hora de Bogotá
         timezone = pytz.timezone('America/Bogota')
         fecha_actual = datetime.now(timezone)
@@ -792,7 +795,7 @@ def registrar_venta():
         hora = fecha_actual.time()
 
         # Valores predeterminados
-        metodo_pago = "efectivo"
+        # metodo_pago = "efectivo"
         devuelto = 0
         cliente = "Consumidor Final"
         idcliente = "222222222222"
@@ -817,7 +820,7 @@ def registrar_venta():
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cur.execute(query, (
-            id_usuario_actual, total_venta, 0.00, fecha, hora, metodo_pago,
+            id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
             idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
         ))
         mysql.connection.commit()
@@ -839,22 +842,23 @@ def agregar_productos():
         datos = request.json
         id_venta = datos.get('idventa')
         productos = datos.get('productos', [])
-        print(productos)
         fecha = datos.get('fecha')
 
         if not id_venta or not productos:
             return jsonify({'error': 'Datos incompletos para agregar productos.'}), 400
 
         cur = mysql.connection.cursor()
+
         for producto in productos:
-            query = """
+            # Insertar el producto en la tabla detalleventas
+            query_detalleventas = """
             INSERT INTO detalleventas (
                 idventa, codigo_de_barras, nombre, descripcion, valor,
                 costo, cantidad, categoria, idusuario, fecha
             )
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cur.execute(query, (
+            cur.execute(query_detalleventas, (
                 id_venta,
                 producto.get('Codigo_de_barras'),
                 producto.get('Nombre'),
@@ -866,6 +870,27 @@ def agregar_productos():
                 session.get('idusuario'),
                 fecha
             ))
+
+            # Reducir la cantidad en la tabla productos
+            query_actualizar_productos = """
+            UPDATE productos
+            SET Cantidad = Cantidad - %s
+            WHERE Codigo_de_barras = %s AND id_usuario = %s AND Cantidad >= %s
+            """
+            cantidad = producto.get('Cantidad')
+            cur.execute(query_actualizar_productos, (
+                cantidad,
+                producto.get('Codigo_de_barras'),
+                session.get('idusuario'),
+                cantidad
+            ))
+
+            # Verificar si la cantidad disponible es insuficiente
+            if cur.rowcount == 0:
+                mysql.connection.rollback()
+                return jsonify({'error': f'No hay suficiente stock para el producto {producto.get("Nombre")}.'}), 400
+
+        # Confirmar los cambios
         mysql.connection.commit()
         cur.close()
 
@@ -873,4 +898,6 @@ def agregar_productos():
 
     except Exception as e:
         print(f"Error al agregar productos: {e}")
+        mysql.connection.rollback()
         return jsonify({'error': 'Error al agregar productos. Por favor, intente nuevamente.'}), 500
+

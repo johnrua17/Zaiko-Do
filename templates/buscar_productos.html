@@ -9,6 +9,11 @@
 
     // Función para verificar productos y manejar la tabla
     function verificarProducto(producto) {
+        // Validar si el producto tiene cantidad mayor a 0
+        if (producto.Cantidad <= 0) {
+            alert(`El producto "${producto.Nombre}" está sin inventario.`);
+            return; // No agregar a la tabla
+        }
         // Buscar si el producto ya existe en la tabla
         const productoExistente = productosAgregados.find(item => item.Codigo_de_barras === producto.Codigo_de_barras);
 
@@ -22,8 +27,12 @@
             celdaCantidad.textContent = productoExistente.Cantidad;
         } else {
             // Si no existe, agregarlo al almacén y a la tabla
-            producto.Cantidad = 1; // Inicializar la cantidad
-            productosAgregados.push(producto);
+            // producto.Cantidad = 1; // Inicializar la cantidad
+            // Si no existe, agregarlo al almacén y a la tabla
+        productosAgregados.push({
+            ...producto, // Copia las propiedades del producto
+            Cantidad: 1  // Inicializa la cantidad para la venta en 1
+        });
 
             // Agregar fila a la tabla
             const fila = `
@@ -34,7 +43,7 @@
                     <td>${producto.Precio_Valor}</td>
                     <td>${producto.Cantidad}</td>
                     <td>${producto.Categoria}</td>
-                    <td class="cantidad">${producto.Cantidad}</td>
+                    <td class="cantidad">${1}</td> <!-- Inicializar la cantidad para la venta en 1 -->
                 </tr>
             `;
             document.getElementById('tabla_productos').insertAdjacentHTML('beforeend', fila);
