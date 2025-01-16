@@ -48,7 +48,7 @@ def buscar_producto():
         return jsonify({"error": "Usuario no autenticado"}), 401
 
     data = request.get_json()
-    termino_busqueda = data.get('termino_busqueda')  # Recibe el término de búsqueda desde el cliente.
+    termino_busqueda = data.get('termino_busqueda')  # Recibe el término de búsqueda (Codigo de Barras) desde el cliente.
     id_usuario_actual = session.get('idusuario')
 
     if not termino_busqueda:
@@ -61,7 +61,7 @@ def buscar_producto():
         query = """
             SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor,Precio_Costo, Cantidad, Categoria
             FROM productos
-            WHERE (Codigo_de_barras = %s OR Nombre LIKE %s) AND id_usuario = %s
+            WHERE (Codigo_de_barras = %s) AND id_usuario = %s
         """
         # Agregar comodines para búsqueda parcial en el nombre
         like_term = f"%{termino_busqueda}%"
@@ -91,6 +91,59 @@ def buscar_producto():
         return jsonify({"error": "Error al buscar productos"}), 500
     finally:
         cur.close()
+
+
+@routes_blueprint.route('/buscar_productoss', methods=["POST"])
+def buscar_productos():
+    if not session.get('idusuario'):
+        return jsonify({"error": "Usuario no autenticado"}), 401
+
+    data = request.get_json()
+    termino_busqueda = data.get('termino_busqueda')  # Recibe el término de búsqueda desde el cliente.
+    id_usuario_actual = session.get('idusuario')
+
+    if not termino_busqueda:
+        return jsonify({"error": "No se proporcionó un término de búsqueda"}), 400
+
+    try:
+        cur = mysql.connection.cursor()
+
+        # Consulta que busca por múltiples columnas usando LIKE
+        query = """
+            SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Precio_Costo, Cantidad, Categoria
+            FROM productos
+            WHERE (Nombre LIKE %s OR Descripcion LIKE %s OR Categoria LIKE %s)
+              AND id_usuario = %s
+        """
+        # Agregar comodines para búsqueda parcial
+        like_term = f"%{termino_busqueda}%"
+        cur.execute(query, (like_term, like_term, like_term, id_usuario_actual))
+        productos = cur.fetchall()
+
+        if not productos:
+            return jsonify({"error": "No se encontraron productos"}), 200
+
+        # Convertir los resultados a un formato JSON
+        productos_json = [
+            {
+                "Codigo_de_barras": prod["Codigo_de_barras"],
+                "Nombre": prod["Nombre"],
+                "Descripcion": prod["Descripcion"],
+                "Precio_Valor": prod["Precio_Valor"],
+                "Precio_Costo": prod["Precio_Costo"],
+                "Cantidad": prod["Cantidad"],
+                "Categoria": prod["Categoria"]
+            }
+            for prod in productos
+        ]
+
+        return jsonify({"productos": productos_json})
+    except Exception as e:
+        print(f"Error al buscar productos: {e}")
+        return jsonify({"error": "Error al buscar productos"}), 500
+    finally:
+        cur.close()
+
 
 @routes_blueprint.route('/productos/listar', methods=["GET"])
 def listar_productos():
@@ -557,7 +610,7 @@ def detalle_plan(token):
         return 'Token inválido o expirado.', 404
 
     # Debes tener tu secreto de integridad configurado
-    secreto_integridad = "test_integrity_kS7jQ33KmdsQEB7zam1tl80nrNpzZduK"
+    secreto_integridad = "prod_integrity_HuFn5nkn0F1LVkpJWZuIU1m3fUdznjCK"
 
     # Convertir el precio a centavos
     precio_centavos = int(suscripcion['precio'] * 100)
@@ -617,7 +670,7 @@ def validar_firma(signature, event_data, secreto_eventos, timestamp):
 @routes_blueprint.route('/pagos_wompi', methods=['POST'])
 def actualizar_estado():
     data = request.get_json()
-    secreto_eventos = "test_events_NWojPkGMpQ4P6omT0E2fM7wCIreHAQ1y"
+    secreto_eventos = "prod_events_cLkaC4Xb6f7iEiResaBK7FmKWxFDa1g3"
 
     # Verificar si la solicitud contiene datos suficientes
     if 'data' not in data or 'transaction' not in data['data']:
@@ -901,3 +954,48 @@ def agregar_productos():
         mysql.connection.rollback()
         return jsonify({'error': 'Error al agregar productos. Por favor, intente nuevamente.'}), 500
 
+
+@routes_blueprint.route('/buscar_producto_codigo', methods=["POST"]) # Para la barra de admin.html
+def buscar_producto_codigo():
+    if not session.get('idusuario'):
+        return jsonify({"error": "Usuario no autenticado"}), 401
+
+    data = request.get_json()
+    codigo_barras = data.get('codigo_barras')  # Recibe el código de barras desde el cliente.
+    id_usuario_actual = session.get('idusuario')
+
+    if not codigo_barras:
+        return jsonify({"error": "No se proporcionó un código de barras"}), 400
+
+    try:
+        cur = mysql.connection.cursor()
+
+        # Consulta específica para buscar solo por código de barras
+        query = """
+            SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor,Precio_Costo, Cantidad, Categoria
+            FROM productos
+            WHERE Codigo_de_barras = %s AND id_usuario = %s
+        """
+        cur.execute(query, (codigo_barras, id_usuario_actual))
+        producto = cur.fetchone()
+
+        if not producto:
+            return jsonify({"error": "No se encontró el producto"}), 200
+
+        # Convertir el resultado a formato JSON
+        producto_json = {
+            "Codigo_de_barras": producto["Codigo_de_barras"],
+            "Nombre": producto["Nombre"],
+            "Descripcion": producto["Descripcion"],
+            "Precio_Valor": producto["Precio_Valor"],
+            "Precio_Costo": producto["Precio_Costo"],
+            "Cantidad": producto["Cantidad"],
+            "Categoria": producto["Categoria"]
+        }
+
+        return jsonify({"producto": producto_json})
+    except Exception as e:
+        print(f"Error al buscar producto: {e}")
+        return jsonify({"error": "Error al buscar producto"}), 500
+    finally:
+        cur.close()

@@ -8,102 +8,116 @@
         <link rel="stylesheet" href="/static/styles.css">
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <style>
-           
+           /* Estilo general para los botones del modal */
+#downloadModal .btn-download {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#downloadModal .btn-download .icon {
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+/* Botón Excel */
+#downloadModal .btn-download.excel {
+    background-color: #28a745;
+    color: white;
+}
+#downloadModal .btn-download.excel:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* Botón PDF */
+#downloadModal .btn-download.pdf {
+    background-color: #28a745;
+    color: white;
+}
+#downloadModal .btn-download.pdf:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* Botón Cancelar */
+#downloadModal .btn-download.cancel {
+    background-color: #6c757d;
+    color: white;
+}
+#downloadModal .btn-download.cancel:hover {
+    background-color: #5a6268;
+    transform: scale(1.05);
+}
+
+/* Sombra en los botones al hacer clic */
+#downloadModal .btn-download:active {
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
         </style>
         <style>
-            /* Contenedor principal para el campo de entrada */
-   
+            /* Espaciado y alineación para los elementos de la barra de búsqueda */
+
+
+
+
             .barcode-entry {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        border-radius: 8px;
-        width: 100%;
-        max-width: 4000px;
-        margin: 0 auto;
-    }
-   
-    /* Estilo de la etiqueta */
-    .barcode-entry label {
-        font-size: 20px;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 8px;
-        text-align: left;
-        width: 100%;
-    }
-   
-    /* Estilo del campo de entrada */
-    .barcode-entry input[type="text"] {
-        padding: 10px;
-        font-size: 14px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        width: 100%;
-        margin-bottom: 16px;
-        outline: none;
-        transition: border-color 0.3s ease;
-    }
-   
-    /* Cambiar color del borde cuando el campo tiene foco */
-    .barcode-entry input[type="text"]:focus {
-        border-color: #007bff;
-    }
-   
-    /* Estilo del botón de búsqueda */
-    .barcode-entry button {
-        padding: 10px 15px;
-        font-size: 16px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-   
-    /* Efecto de hover para el botón */
-    .barcode-entry button:hover {
-        background-color: #0056b3;
-    }
-   
-    /* Agregar espacio entre el campo de entrada y el botón */
-    .barcode-entry button {
-        margin-top: 10px;
-    }
-   
-    .barcode-entry button:focus {
-        outline: none;
-    }
-
-    .data-table button {
-        padding: 10px 15px;
-        font-size: 14px;
-        background-color: #4caf83;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .download-btn {
-        position: relative;
-    }
-
-    #downloadModal {
-        display: none;
-    position: absolute; /* Para que el modal se posicione relativo al botón */
-    top: calc(100% + 5px); /* Aseguramos que el modal esté justo debajo con un pequeño margen */
-    left: 50%; /* Movemos hacia la derecha, ajustaremos más en JS */
-    transform: translateX(-50%); /* Centra horizontalmente respecto al botón */
-    background: white;
-    border: 1px solid #ccc;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    }
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 15px; /* Espaciado entre el input y el botón */
+                margin: 20px; /* Espaciado general alrededor del contenedor */
+                padding: 10px; /* Espaciado interno dentro del contenedor */
+                background-color: #f9f9f9; /* Fondo claro para mayor claridad visual */
+                border-radius: 8px; /* Bordes redondeados */
+            }
+        
+            /* Contenedor principal para asegurar márgenes */
+            .main-content {
+                padding: 10px; /* Espaciado interno para evitar bordes pegados */
+            }
+        
+            /* Botón verde */
+            .data-table button,
+            .barcode-entry .buscar-btn,
+            .download-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+                background-color: #4caf83 !important; /* Verde */
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+                width: auto; /* Asegura que el ancho sea ajustado automáticamente */
+            }
+        
+            .data-table button:hover,
+            .barcode-entry .buscar-btn:hover,
+            .download-btn:hover {
+                background-color: #388e3c !important; /* Un tono más oscuro del verde */
+            }
+        
+            /* Ajuste de espaciado vertical entre botones */
+            .data-table .btn-edit {
+                margin-bottom: 10px; /* Espacio inferior para separar del siguiente botón */
+            }
+        
+            /* Elimina estilos redundantes del botón de descarga */
+            .download-btn {
+                position: static; /* Ajustamos para evitar conflictos */
+                display: inline-block; /* Evita comportamientos inesperados */
+            }
         </style>
     </head>
     <body>
@@ -117,17 +131,24 @@
                 {% include 'buscar_productos.html' %}
                 <div class="barcode-entry">
                     <!-- Botón para mostrar la ventana modal -->
-                    <button type="button" class="download-btn" title="Descargar Productos" onclick="openDownloadModal()">
+                    <button type="button" class="data-table download-btn" title="Descargar Productos" onclick="openDownloadModal()">
                         <i class="fas fa-download"></i> Descargar productos
-                    </button>
+                    </button>
                 
                     <!-- Ventana modal -->
-                    <div id="downloadModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1);">
-                        <p style="font-weight: normal;">Seleccione el formato de descarga</p>
-                        <button onclick="submitDownload('xlsx')">Descargar como Excel</button>
-                        <button onclick="submitDownload('pdf')">Descargar como PDF</button>
-                        <button onclick="closeDownloadModal()">Cancelar</button>
-                    </div>                    
+                    <div id="downloadModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); width:300px; text-align:center;">
+                        <p style="font-weight: normal; font-size:16px; margin-bottom:20px;">Seleccione el formato de descarga</p>
+                        <button class="btn-download excel" onclick="submitDownload('xlsx')">
+                            <span class="icon">📊</span> Descargar como Excel
+                        </button>
+                        <button class="btn-download pdf" onclick="submitDownload('pdf')">
+                            <span class="icon">📄</span> Descargar como PDF
+                        </button>
+                        <button class="btn-download cancel" onclick="closeDownloadModal()">
+                            <span class="icon">❌</span> Cancelar
+                        </button>
+                    </div>
+                    
                 </div>          
                 <div class="table-header"> 
                     <h2>Productos</h2>
@@ -155,10 +176,10 @@
                             <td>{{ producto.Categoria }}</td>
                             <td>
                                 <a href="/productos/editar/{{ producto.Codigo_de_barras }}">
-                                    <button>Editar</button>
+                                    <button class="data-table btn-edit">Editar</button>
                                 </a>
                                 <form id="deleteForm" action="/productos/eliminar/{{ producto.Codigo_de_barras }}" method="get" class="delete-form">
-                                    <button type="button" class="btn-delete" id="btnDelete">Eliminar Producto</button>
+                                    <button type="button" class="data-table btn-delete" id="btnDelete">Eliminar Producto</button>
                                 </form>
                                 
                                 <script>

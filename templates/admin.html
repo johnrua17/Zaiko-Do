@@ -7,6 +7,35 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
     <style>
+        /* Botones de administración */
+        .admin-buttons {
+            display: flex;
+            justify-content: flex-start; /* Cambia 'flex-start' a 'center' o 'flex-end' si prefieres centrar o alinear a la derecha */
+            gap: 15px;
+            margin: 20px 0; /* Espaciado superior e inferior */
+            margin-left: 50px; /* Ajusta este valor según cuánto los quieras mover hacia la derecha */
+        }
+
+
+        .data-table button,
+        .barcode-entry .buscar-btn,
+        .admin-buttons button {
+            padding: 10px 15px;
+            font-size: 14px;
+            background-color: #4caf83; /* Verde */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: auto; /* Ajusta el ancho al contenido */
+        }
+    
+        .data-table button:hover,
+        .barcode-entry .buscar-btn:hover,
+        .admin-buttons button:hover {
+            background-color: #388e3c; /* Verde más oscuro */
+        }
         /* Estilos para el botón de enviar */
 .btn-submit {
     display: inline-block;
@@ -170,7 +199,20 @@
         </div>
         
         <div class="table-container">
-            {% include 'buscar_productos.html' %}                               
+            <div class="table-header"> 
+                <h2>Registrar ventas</h2>
+            </div>
+            {% include 'buscar_productos.html' %}
+            <div class="barcode-entry">
+                <label for="buscar_codigo_barras">Buscar producto por código de barras:</label>
+                <input type="text" id="buscar_codigo_barras" name="buscar_codigo_barras" placeholder="Ingresa el código de barras">
+                <button id="buscar_producto_codigo" class="data-table buscar-btn">Registrar producto</button>
+            </div>
+            <div class="admin-buttons">
+                <button id="eliminar_producto" class="data-table btn-delete">Eliminar producto</button>
+                <button id="buscar_productos" class="data-table">Buscar producto</button>
+                <button id="modificar_valor" class="data-table">Modificar valor unitario</button>
+            </div>                               
             <div class="table-header">
                 <h2>Productos</h2>
             </div>
@@ -192,6 +234,20 @@
             </table>
             <button class="btn-submit" id="cobrar">Cobrar</button>
         </div>
+        <div id="buscador_contenedor" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; width: 80%; max-width: 500px;">
+                <input 
+                    id="buscador_input" 
+                    type="text" 
+                    placeholder="Busca productos por su nombre, descripción o categoría" 
+                    style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;"
+                />
+                <div id="resultados_busqueda" style="margin-top: 10px; max-height: 200px; overflow-y: auto;"></div>
+                <button id="cerrar_buscador" style="margin-top: 10px; padding: 10px; background: red; color: white; border: none; border-radius: 5px;">Cerrar</button>
+            </div>
+        </div>
+        <!-- Contenedor para la barra de búsqueda -->
+
         
         <div>
            
@@ -226,6 +282,141 @@
         </div>
         
     </div>
+    <script>
+        // Buscar producto por código de barras
+        async function buscarProductoCodigo() {
+            const codigoBarras = document.getElementById('buscar_codigo_barras').value;
+    
+            if (!codigoBarras) {
+                alert('Por favor, ingresa un código de barras.');
+                return;
+            }
+    
+            try {
+                const response = await fetch('/buscar_producto_codigo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ codigo_barras: codigoBarras }),
+                });
+    
+                if (!response.ok) throw new Error('Error al buscar producto por código de barras.');
+    
+                const data = await response.json();
+    
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+    
+                const producto = data.producto;
+
+                verificarProducto(data.producto)
+    
+                // Verifica si el producto ya está en la tabla
+                // const filaExistente = document.querySelector(`tr[data-codigo="${producto.Codigo_de_barras}"]`);
+                // if (filaExistente) {
+                //     alert('El producto ya está en la tabla.');
+                //     return;
+                // }
+    
+                // // Crear una nueva fila en la tabla con los datos del producto
+                // const fila = `
+                //     <tr data-codigo="${producto.Codigo_de_barras}">
+                //         <td>${producto.Codigo_de_barras}</td>
+                //         <td>${producto.Nombre}</td>
+                //         <td>${producto.Descripcion}</td>
+                //         <td>${producto.Precio_Valor}</td>
+                //         <td>${producto.Cantidad}</td>
+                //         <td>${producto.Categoria}</td>
+                //         <td>1</td> <!-- Cantidad inicial -->
+                //     </tr>
+                // `;
+                // document.getElementById('tabla_productos').insertAdjacentHTML('beforeend', fila);
+            } catch (error) {
+                console.error(error);
+                alert('Ocurrió un error al buscar el producto.');
+            }
+        }
+
+        function Boton(){
+            alert("Pronto podrás disfrutar de esta funcionalidad...")
+        }
+        // Asignar el evento de clic al botón de búsqueda
+        document.getElementById('buscar_producto_codigo').addEventListener('click', buscarProductoCodigo);
+        document.getElementById('modificar_valor').addEventListener('click',Boton);
+        
+        document.getElementById('eliminar_producto').addEventListener('click',Boton);
+    </script>
+    <script>
+        document.getElementById('buscar_productos').addEventListener('click', () => {
+        document.getElementById('buscador_contenedor').style.display = 'block';
+        console.log("holaaa")
+});
+
+document.getElementById('cerrar_buscador').addEventListener('click', () => {
+    document.getElementById('buscador_contenedor').style.display = 'none';
+});
+
+// Buscar productos dinámicamente al escribir en el input
+document.getElementById('buscador_input').addEventListener('input', async (e) => {
+    const terminoBusqueda = e.target.value.trim();
+
+    if (!terminoBusqueda) {
+        document.getElementById('resultados_busqueda').innerHTML = '';
+        return;
+    }
+
+    try {
+        const response = await fetch('/buscar_productoss', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ termino_busqueda: terminoBusqueda }),
+        });
+
+        if (!response.ok) throw new Error('Error al buscar productos');
+
+        const data = await response.json();
+
+        if (data.error) {
+            document.getElementById('resultados_busqueda').innerHTML = `<p>${data.error}</p>`;
+            return;
+        }
+
+        // Mostrar resultados con botón "Agregar a la venta"
+        const resultadosHtml = data.productos.map(prod => `
+            <div style="padding: 10px; border-bottom: 1px solid #ccc;">
+                <strong>${prod.Nombre}</strong> (${prod.Codigo_de_barras})<br>
+                <small>${prod.Descripcion}</small><br>
+                Precio: $${prod.Precio_Valor}<br>
+                Cantidad disponible: ${prod.Cantidad}<br>
+                <button 
+                    class="agregar-venta-btn" 
+                    data-producto='${JSON.stringify(prod)}'
+                >
+                    Agregar a la venta
+                </button>
+            </div>
+        `).join('');
+        document.getElementById('resultados_busqueda').innerHTML = resultadosHtml;
+
+        // Agregar evento a los botones de "Agregar a la venta"
+        document.querySelectorAll('.agregar-venta-btn').forEach(btn => {
+            btn.addEventListener('click', (event) => {
+                const producto = JSON.parse(event.target.getAttribute('data-producto'));
+                verificarProducto(producto);
+            });
+        });
+    } catch (error) {
+        console.error(error);
+        document.getElementById('resultados_busqueda').innerHTML = '<p>Ocurrió un error al buscar productos.</p>';
+    }
+});
+
+    </script>
     <script>
         document.getElementById('cobrar').addEventListener('click', () => {
     // Calcular el total a pagar
