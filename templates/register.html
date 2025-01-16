@@ -61,6 +61,13 @@
             </div>
             {% endif %}
             <!-- <button type="submit">Registrarse</button> -->
+            <div class="form-group form-check">
+                <input type="checkbox" id="termsCheckbox" class="form-check-input">
+                <label for="termsCheckbox" class="form-check-label">
+                    Acepto los <a href="terminos_condiciones" target="_blank">términos y condiciones</a>.
+                </label>
+            </div>
+            
             <button id="registerButton" type="submit" >Registrarse</button>
         </form>
         <p>¿Ya tienes una cuenta? <a href="{{ url_for('auth.login') }}">¡Iniciar sesión!</a></p>
@@ -99,6 +106,22 @@
             document.addEventListener('click', enableButton);
         });
     </script> -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const termsCheckbox = document.getElementById('termsCheckbox');
+            const registerButton = document.getElementById('registerButton');
+    
+            // Configurar el estado inicial del botón
+            registerButton.disabled = !termsCheckbox.checked;
+    
+            // Escuchar cambios en el checkbox
+            termsCheckbox.addEventListener('change', function () {
+                registerButton.disabled = !this.checked;
+            });
+        });
+    </script>
+    
+    
     <script>
         function turnstileCallback() {
             // Si la validación del CAPTCHA fue exitosa, habilitar el botón
