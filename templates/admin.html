@@ -7,6 +7,30 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
     <style>
+        /* Botón Agregar a la Venta */
+.agregar-venta-btn {
+    background-color: #f0f0f0; /* Color de fondo suave */
+    color: #333; /* Texto oscuro para contraste */
+    border: 1px solid #ccc; /* Borde sutil */
+    border-radius: 4px; /* Bordes redondeados */
+    padding: 8px 12px; /* Espaciado interno */
+    font-size: 14px; /* Tamaño de texto cómodo */
+    cursor: pointer; /* Indicador de clic */
+    transition: background-color 0.3s, border-color 0.3s, transform 0.2s; /* Transiciones suaves */
+}
+
+.agregar-venta-btn:hover {
+    background-color: #e0e0e0; /* Cambio de fondo al pasar el mouse */
+    border-color: #bbb; /* Borde más oscuro al pasar el mouse */
+    transform: scale(1.02); /* Efecto de aumento leve */
+}
+
+.agregar-venta-btn:active {
+    background-color: #d6d6d6; /* Fondo más oscuro al hacer clic */
+    border-color: #aaa; /* Borde más definido al hacer clic */
+    transform: scale(0.98); /* Efecto de reducción leve */
+}
+
         /* Botones de administración */
         .admin-buttons {
             display: flex;
