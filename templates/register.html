@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="static/css/register.css">
+    <link rel="stylesheet" href="../static/css/register.css">
 </head>
 
 <body>
@@ -71,9 +71,6 @@
             <button id="registerButton" type="submit" >Registrarse</button>
         </form>
         <p>¿Ya tienes una cuenta? <a href="{{ url_for('auth.login') }}">¡Iniciar sesión!</a></p>
-    </div>
-    <div class="footer">
-        <a href="terminos_condiciones">Términos y condiciones</a>
     </div>
     <!-- Turnstile Script -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>

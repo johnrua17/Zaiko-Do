@@ -131,6 +131,23 @@ a:hover {
     margin: 2rem;
     text-align: center;
 }
+.form-group.form-check {
+
+    margin-top: 20px; 
+    margin-bottom : 0px;
+}
+
+.form-check-label {
+    margin-left: 8px; /* Espaciado entre el checkbox y el texto */
+    font-size: 1rem; /* Ajustar tamaño del texto */
+    color: #333; /* Color del texto */
+}
+
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer; /* Cambiar cursor al pasar por el checkbox */
+}
     
 .cf-turnstile {
     margin: 1rem 0;
