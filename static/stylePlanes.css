@@ -215,12 +215,14 @@
 .main-content {
     display: flex;
     justify-content: center;
+    
 }
 
 .new-plans-section-container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    
 }
 
 @media (max-width: 992px) {
@@ -275,13 +277,15 @@
 }
 
 .new-plans-section-grid {
+    
     display: flex;
     align-items: normal;
     justify-content: flex-start;
     width: 100%;
     margin: 40px 0;
     padding: 0;
-    list-style: none
+    list-style: none;
+    
 }
 
 .new-plans-section-grid h3,.new-plans-section-grid p {
@@ -423,13 +427,21 @@
     font-family: DM Sans,sans-serif;
     font-size: 12px;
     line-height: 16px;
-    color: #656565
+    color: #ddecdb9b
 }
 
 .new-plans-section-grid__old-price {
     font-family: DM Sans,sans-serif;
     font-size: 14px;
-    text-decoration: line-through
+    text-decoration: line-through;   
+     
+    display: block;
+    padding: 2px 4px;
+    background-color: #1d976c;
+    color: #ffff;
+    font-family: DM Sans,sans-serif;
+    font-size: 14px
+   
 }
 
 .new-plans-section-grid__price {
@@ -737,7 +749,8 @@ background-color: #388e3c;
     color: #1c1c1c;
     display: flex;
     flex: auto;
-    align-items: center
+    align-items: center;
+    
 }
 
 .new-plans-promotion.card {

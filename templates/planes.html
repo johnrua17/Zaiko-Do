@@ -7,7 +7,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/stylePlanes.css">
     <link rel="stylesheet" href="/static/styles.css">
-    <link rel="icon" href="{{ url_for('static', filename='images/icono/icono.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
         
 </head>
 <body>
@@ -61,7 +62,7 @@
                                         <b>{{ plan.nombre }}</b>
                                     </h3>
                                     {% if plan.nombre == 'Plan Gratuito' %}
-                                        <p class="new-plans-section-grid__description">Gestiona con <b>Zaiko Do</b> tu inventario tus productos</p>
+                                        <p class="new-plans-section-grid__description">Gestiona con <b>Zaiko Do</b> el inventario de tu negocio</p>
                                     {% elif plan.nombre == 'Plan Año' %}
                                         <p class="new-plans-section-grid__description">Disfruta de lo mejor de <b>Zaiko Do</b> con el máximo nivel de funciones</p>
                                     {% else %}
@@ -82,8 +83,8 @@
                                     <li>
                                         <span class="feature-text">Hasta 150 productos en el inventario</span>
                                     </li>
-                                    <li style="min-height: 50px;">
-                                        <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                     <li>
+                                        <span class="feature-text">Hasta 150 productos en el inventario</span>
                                     </li>
                                     <li style="min-height: 50px;">
                                         <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
@@ -91,17 +92,25 @@
                                     <li style="min-height: 50px;">
                                         <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
                                     </li>
+                                    
+                                    
                                 </ul>
                                 {% else %}
                                 <ul class="new-plans-section-grid__benefits">
                                     <li style="min-height: 50px;">
-                                        <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                        <span>
+                                            <i class="fa-solid fa-infinity"></i>
+                                        </span>
                                     </li>
                                     <li style="min-height: 50px;">
-                                        <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                        <span>
+                                            <i class="fa-solid fa-infinity"></i>
+                                        </span>
                                     </li>
                                     <li style="min-height: 50px;">
-                                        <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                        <span>
+                                            <i class="fa-solid fa-infinity"></i>
+                                        </span>
                                     </li>
                                     <li style="min-height: 50px;">
                                         <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
@@ -111,19 +120,25 @@
                                     </li>
                                 </ul>
                                 {% endif %}
-
-                               
                                 <div class="new-plans-section-grid__footer">
-                                    <p class="new-plans-section-grid__old-price" style="text-decoration: none">
-                                        DESDE
-                                    </p>
+                                    {% if plan.nombre == 'Plan Semestre' %}
+                                        <p class="new-plans-section-grid__old-price" style="text-decoration: none">
+                                            Ahorra $19.900 COP
+                                        </p>
+                                    {% elif plan.nombre == 'Plan Año' %}
+                                        <p class="new-plans-section-grid__old-price" style="text-decoration: none">
+                                            Ahorra $39.800 COP
+                                        </p>
+                                    {% endif %}
+                                
                                     <div class="new-plans-section-grid__price">
                                         {% if plan.nombre == 'Plan Gratuito' %}
-                                            $0 COP 
+                                            $0 COP
                                         {% else %}
-                                            ${{ '{:,.0f}'.format(plan.precio)|replace(',','.') }} COP 
+                                            ${{ '{:,.0f}'.format(plan.precio)|replace(',', '.') }} COP
                                         {% endif %}
                                     </div>
+                                
                                     {% if plan.idplan == plan_actual %}
                                         <span class="current-plan">Plan Actual</span>
                                     {% else %}
@@ -132,9 +147,7 @@
                                         </a>
                                     {% endif %}
                                 </div>
-                            </li>
-                            {% endfor %}
-                    </ul>
+                                {% endfor %} 
                 </section>
         </div>
     </div>
