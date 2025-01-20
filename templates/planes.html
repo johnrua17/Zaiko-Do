@@ -47,11 +47,7 @@
                                     <p>Seguridad Avanzada</p>
                                 </li>
                             </ul>
-                            <div class="new-plans-section-grid__footer">
-                                <p class="new-plans-promotion">
-                                    <b>Valores promocionales</b>
-                                </p>
-                            </div>
+
                         </li>
     
                         <!-- Planes -->
@@ -127,7 +123,7 @@
                                         </p>
                                     {% elif plan.nombre == 'Plan Año' %}
                                         <p class="new-plans-section-grid__old-price" style="text-decoration: none">
-                                            Ahorra $39.800 COP
+                                            Ahorra $38.900 COP
                                         </p>
                                     {% endif %}
                                 
@@ -138,16 +134,15 @@
                                             ${{ '{:,.0f}'.format(plan.precio)|replace(',', '.') }} COP
                                         {% endif %}
                                     </div>
-                                
                                     {% if plan.idplan == plan_actual %}
                                         <span class="current-plan">Plan Actual</span>
-                                    {% else %}
+                                    {% elif plan.nombre != 'Plan Gratuito' %}
                                         <a href="/suscribir/{{ plan.idplan }}" class="new-home-v4-btn" title="¡Inscríbete ya!">
                                             <button class="plans-button">Seleccionar</button>
                                         </a>
                                     {% endif %}
-                                </div>
-                                {% endfor %} 
+                                    </div>
+                            {% endfor %}
                 </section>
         </div>
     </div>
