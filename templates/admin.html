@@ -41,47 +41,28 @@
             margin-left: 50px; /* Ajusta este valor según cuánto los quieras mover hacia la derecha */
         }
 
-
         .data-table button,
-        .barcode-entry .buscar-btn,
-        .admin-buttons button {
-            padding: 10px 15px;
-            font-size: 14px;
-            background-color: #4caf83; /* Verde */
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: auto; /* Ajusta el ancho al contenido */
-        }
-    
-        .data-table button:hover,
-        .barcode-entry .buscar-btn:hover,
-        .admin-buttons button:hover {
-            background-color: #388e3c; /* Verde más oscuro */
-        }
-        /* Estilos para el botón de enviar */
-.btn-submit {
-    display: inline-block;
-    background: var(--primary-gradient);
-    color: #ffffff;
+.barcode-entry .buscar-btn,
+.admin-buttons button,
+.data-table.admin-buttons {
+    padding: 10px 15px;
+    font-size: 14px;
+    background-color: #4caf83; /* Verde */
+    color: white;
     border: none;
-    border-radius: 5px;
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
-    font-weight: bold;
+    border-radius: 4px;
     cursor: pointer;
-    text-align: center;
-    transition: background 0.3s ease;
-}
-.btn-submit:hover {
-    background: #1d976c;
+    transition: background-color 0.3s ease;
+    width: auto; /* Ajusta el ancho al contenido */
 }
 
-        
-    </style>
-    <style>
+.data-table button:hover,
+.barcode-entry .buscar-btn:hover,
+.admin-buttons button:hover,
+.data-table.admin-buttons:hover {
+    background-color: #388e3c; /* Verde más oscuro */
+}
+
         /* Contenedor principal para el campo de entrada */
 
         .barcode-entry {
@@ -142,14 +123,6 @@
 .barcode-entry button {
     margin-top: 10px;
 }
-
-.barcode-entry button:focus {
-    outline: none;
-}
-
-    </style>
-
-    <style>
         /* Botones */
 .btn-submit {
     background-color: #007bff;
@@ -208,7 +181,6 @@
     display: block;
     margin-bottom: 10px;
 }
-
     </style>
 </head>
 <body>
@@ -257,7 +229,7 @@
                     <!-- Productos se añadirán aquí dinámicamente -->
                 </tbody>
             </table>
-            <button class="btn-submit" id="cobrar">Cobrar</button>
+            <button class="data-table admin-buttons" id="cobrar">Cobrar</button>
         </div>
         <div id="buscador_contenedor" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; width: 80%; max-width: 500px;">
@@ -298,14 +270,13 @@
                             <p><strong>Su Cambio:</strong> $<span id="su-cambio">0.00</span></p>
                         </div>
                         <div>
-                            <button class="btn-submit" id="registrar_venta">Registrar Venta</button>
+                            <button class="data-table admin-buttons" id="registrar_venta">Registrar venta</button>
                         </div>
                         <button class="btn-close" id="cerrar-modal">Cerrar</button>
                     </div>
                 </div>
             </div>
         </div>
-        
     </div>
     <script>
         // Buscar producto por código de barras
@@ -537,8 +508,6 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
         botonRegistrar.disabled = false;
     }
 });
-
     </script>    
-   
 </body>
 </html>
