@@ -282,12 +282,12 @@
         // Buscar producto por código de barras
         async function buscarProductoCodigo() {
             const codigoBarras = document.getElementById('buscar_codigo_barras').value;
-    
+
             if (!codigoBarras) {
                 alert('Por favor, ingresa un código de barras.');
                 return;
             }
-    
+
             try {
                 const response = await fetch('/buscar_producto_codigo', {
                     method: 'POST',
@@ -296,40 +296,38 @@
                     },
                     body: JSON.stringify({ codigo_barras: codigoBarras }),
                 });
-    
+
                 if (!response.ok) throw new Error('Error al buscar producto por código de barras.');
-    
+
                 const data = await response.json();
-    
+
                 if (data.error) {
                     alert(data.error);
                     return;
                 }
-    
+
                 const producto = data.producto;
 
-                verificarProducto(data.producto)
-    
                 // Verifica si el producto ya está en la tabla
-                // const filaExistente = document.querySelector(`tr[data-codigo="${producto.Codigo_de_barras}"]`);
-                // if (filaExistente) {
-                //     alert('El producto ya está en la tabla.');
-                //     return;
-                // }
-    
-                // // Crear una nueva fila en la tabla con los datos del producto
-                // const fila = `
-                //     <tr data-codigo="${producto.Codigo_de_barras}">
-                //         <td>${producto.Codigo_de_barras}</td>
-                //         <td>${producto.Nombre}</td>
-                //         <td>${producto.Descripcion}</td>
-                //         <td>${producto.Precio_Valor}</td>
-                //         <td>${producto.Cantidad}</td>
-                //         <td>${producto.Categoria}</td>
-                //         <td>1</td> <!-- Cantidad inicial -->
-                //     </tr>
-                // `;
-                // document.getElementById('tabla_productos').insertAdjacentHTML('beforeend', fila);
+                const filaExistente = document.querySelector(`tr[data-codigo="${producto.Codigo_de_barras}"]`);
+                if (filaExistente) {
+                    alert('El producto ya está en la tabla.');
+                    return;
+                }
+
+                // Crear una nueva fila en la tabla con los datos del producto
+                const fila = `
+                    <tr data-codigo="${producto.Codigo_de_barras}">
+                        <td>${producto.Codigo_de_barras}</td>
+                        <td>${producto.Nombre}</td>
+                        <td>${producto.Descripcion}</td>
+                        <td>${producto.Precio_Valor}</td>
+                        <td>${producto.Cantidad}</td>
+                        <td>${producto.Categoria}</td>
+                        <td>1</td> <!-- Cantidad inicial -->
+                    </tr>
+                `;
+                document.getElementById('tabla_productos').insertAdjacentHTML('beforeend', fila);
             } catch (error) {
                 console.error(error);
                 alert('Ocurrió un error al buscar el producto.');

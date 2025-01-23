@@ -955,7 +955,7 @@ def agregar_productos():
         return jsonify({'error': 'Error al agregar productos. Por favor, intente nuevamente.'}), 500
 
 
-@routes_blueprint.route('/buscar_producto_codigo', methods=["POST"]) # Para la barra de admin.html
+@routes_blueprint.route('/buscar_producto_codigo', methods=["POST"])  # Para la barra de admin.html
 def buscar_producto_codigo():
     if not session.get('idusuario'):
         return jsonify({"error": "Usuario no autenticado"}), 401
@@ -972,7 +972,7 @@ def buscar_producto_codigo():
 
         # Consulta específica para buscar solo por código de barras
         query = """
-            SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor,Precio_Costo, Cantidad, Categoria
+            SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Precio_Costo, Cantidad, Categoria
             FROM productos
             WHERE Codigo_de_barras = %s AND id_usuario = %s
         """
@@ -981,6 +981,10 @@ def buscar_producto_codigo():
 
         if not producto:
             return jsonify({"error": "No se encontró el producto"}), 200
+
+        # Verificar si hay existencias disponibles
+        if producto["Cantidad"] <= 0:
+            return jsonify({"error": f"El producto '{producto['Nombre']}' no tiene existencias disponibles."}), 200
 
         # Convertir el resultado a formato JSON
         producto_json = {
