@@ -24,7 +24,7 @@
 .logo {
     font-size: 1.8rem;
     font-weight: 700;
-    background: linear-gradient(to right, #1d976c, #93f9b9);
+    background: linear-gradient(to right, #1d976c, #58C793);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -58,7 +58,7 @@
 
 .nav-item.active {
     color: #ffffff;
-    background: linear-gradient(to right, #1d976c, #93f9b9);
+    background: linear-gradient(to right, #1d976c, #58C793);
 }
 
 .nav-item i {
@@ -141,14 +141,10 @@
     width: 20px;
 }
 
-
-
-
-
 /* Contenedor principal */
 :root {
     --primary-color: #1d976c;
-    --primary-gradient: linear-gradient(to right, #1d976c, #93f9b9);
+    --primary-gradient: linear-gradient(to right, #1d976c, #58C793);
     --sidebar-bg: #1a1a1a;
     --text-light: #ffffff;
     --text-muted: #a0aec0;
