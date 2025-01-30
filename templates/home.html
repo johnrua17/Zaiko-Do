@@ -10,11 +10,14 @@
 </head>
 
 <body>
-    <nav class = "navbar">
+    <nav class="navbar">
         <a href="#home">
             <img src="static/images/Imagotipo.png" alt="Logo" class="logo">
         </a>
-        <ul>
+        <button class="menu-toggle" id="mobile-menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-list">
             <li><a href="#home" id="inicio-btn">Inicio </a></li>
             <li><a href="#about" id="conocenos-btn">Conócenos </a></li>
             <li><a href="#plans" id="planes-btn">Planes </a></li>
@@ -24,6 +27,109 @@
             <a href="/register" class="button2">Registrarse</a>
         </div>
     </nav>
+    <!-- Actualización de la sección de inicio -->
+    <div class="hero-section">
+        <div class="hero-content">
+          <h1>Gestiona tu negocio de manera inteligente con Zaiko Do</h1>
+          <p class="hero-subtitle">Sistema POS en la nube diseñado para pequeños y medianos comerciantes</p>
+          <div class="hero-features">
+            <div class="feature-item">
+              <i class="fas fa-store"></i>
+              <span>Control de inventario</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-chart-line"></i>
+              <span>Reportes en tiempo real</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-mobile-alt"></i>
+              <span>Acceso desde cualquier dispositivo</span>
+            </div>
+          </div>
+          <div class="hero-cta">
+            <a href="/register" class="cta-button">Comienza gratis</a>
+          </div>
+        </div>
+        <div class="hero-icon">
+          <i class="fas fa-laptop-code"></i>
+        </div>
+      </div>
+  
+<!-- Nueva sección de beneficios -->
+<div class="benefits-section">
+    <h2>¿Por qué elegir Zaiko Do?</h2>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <i class="fas fa-cloud"></i>
+        <h3>100% en la nube</h3>
+        <p>Accede a tu negocio desde cualquier lugar y dispositivo, sin necesidad de instalaciones complejas.</p>
+      </div>
+      <div class="benefit-card">
+        <i class="fas fa-shield-alt"></i>
+        <h3>Seguridad garantizada</h3>
+        <p>Tus datos están protegidos con los más altos estándares de seguridad y respaldados automáticamente.</p>
+      </div>
+      <div class="benefit-card">
+        <i class="fas fa-sync"></i>
+        <h3>Actualizaciones continuas</h3>
+        <p>Mejoras y nuevas funcionalidades constantemente sin costos adicionales.</p>
+      </div>
+      <div class="benefit-card">
+        <i class="fas fa-headset"></i>
+        <h3>Soporte personalizado</h3>
+        <p>Equipo de soporte dedicado para ayudarte en cada paso del camino.</p>
+      </div>
+    </div>
+  </div>
+<!-- Actualización de la sección Conócenos -->
+<div class="about-section" id="about">
+    <div class="about-header">
+      <h2>Transformando negocios en Colombia</h2>
+      <p>Más de 500 comerciantes ya confían en Zaiko Do para gestionar sus negocios</p>
+    </div>
+    
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="about-stat">500+</div>
+        <div class="about-label">Comerciantes activos</div>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="about-stat">1M+</div>
+        <div class="about-label">Ventas procesadas</div>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="about-stat">100K+</div>
+        <div class="about-label">Productos gestionados</div>
+      </div>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card">
+         
+          <i class="" aria-hidden="true"></i>
+          <h3>Control de Inventario</h3>
+          <p>Gestiona tu inventario en tiempo real, con alertas de stock bajo y reportes detallados.</p>
+        </div>
+        <div class="feature-card">
+          <!-- <i class="fas fa-shopping-cart feature-icon" aria-hidden="true"></i> -->
+          <h3>Gestión de Ventas</h3>
+          <p>Procesa ventas rápidamente y mantén un registro detallado de todas las transacciones.</p>
+        </div>
+        <div class="feature-card">
+          <!-- <i class="fas fa-chart-line feature-icon" aria-hidden="true"></i> -->
+          <h3>Reportes y Análisis</h3>
+          <p>Obtén insights valiosos con reportes personalizados y análisis detallados.</p>
+        </div>
+      </div>  
+  
     <div class="content-box primary" id="intro-message">
         <h2 class="title_style" style="font-size: 20px;">
             Gestione el inventario de su comercio minorista con una plataforma accesible
@@ -41,9 +147,7 @@
                     <p class="justify-text">Facilitar la gestión de inventario de los pequeños y medianos comerciantes, ejecutando estas tareas a través de una plataforma web accesible, para promover la eficiencia operativa, el crecimiento empresarial y el fortalecimiento de la economía local.</p>
                 </div>
             </div>
-            <div class="image-col">
-                <img src="static/images/paperbag.png" alt="Paper Bag" class="side-image">
-            </div>
+            
         </div>
 
         <div class="faq" id="faq">
@@ -306,4 +410,14 @@
     document.getElementById('intro-message').style.display = 'block'; // Asegurar que la valla publ. se muestre
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenu = document.getElementById('mobile-menu');
+  const navList = document.querySelector('.nav-list');
+  const navButtons = document.querySelector('.navbar-buttons');
+
+  mobileMenu.addEventListener('click', function() {
+    navList.classList.toggle('active');
+    navButtons.classList.toggle('active');
+  });
+});
 </script>
