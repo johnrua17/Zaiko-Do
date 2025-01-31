@@ -149,7 +149,7 @@ def buscar_productos():
 def listar_productos():
     # Verificar si el usuario está autenticado
     if not session.get('idusuario'):
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
 
 
     id_usuario_actual = session.get('idusuario')
