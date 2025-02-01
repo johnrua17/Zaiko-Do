@@ -15,7 +15,7 @@ import pdfkit  # Para convertir a PDF (requiere wkhtmltopdf instalado)
 ''' para Windows:
     Descarga el instalador desde wkhtmltopdf.org.
     Durante la instalación, marca la opción para agregar wkhtmltopdf al PATH del sistema.'''
-
+from . import forms
 # Crear un Blueprint para las rutas
 routes_blueprint = Blueprint('routes', __name__)
 
@@ -410,14 +410,21 @@ def descargar_productos():
 
 @routes_blueprint.route('/admin', methods=["GET", "POST"])
 def admin():
+    from app import mysql
+    VentasCreditoForm = forms.VentasCreditoForm(request.form)
     saludo = session.get('saludo')
     username = session.get('username')
     idplan = session.get('idplan')
 
     if request.method == 'POST':
-        codigo_barras = request.form.get('codigo_barras')
-
-    return render_template('admin.html', saludo=saludo, username=username, idplan=idplan)
+        print("--------------------------POST--------------------------")
+        print(VentasCreditoForm.nombre.data)
+        print(VentasCreditoForm.id.data)
+        print(VentasCreditoForm.contacto.data)
+        print(VentasCreditoForm.nota.data)
+        return redirect(url_for('routes.admin'))
+    
+    return render_template('admin.html', saludo=saludo, username=username, idplan=idplan, VentasCreditoForm = VentasCreditoForm)
 
 @routes_blueprint.route('/productos/agregar', methods=["GET", "POST"])
 def agregar_producto():
