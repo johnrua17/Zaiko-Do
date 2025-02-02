@@ -488,7 +488,19 @@ def terminos_condiciones():
 @routes_blueprint.route('/inventario', methods=['GET'], endpoint='inventario')
 def inventario():
     """Página para gestionar el inventario."""
-    return render_template('inventario.html')
+    if not session.get('idusuario'):
+        return redirect(url_for('routes.login'))  # O el mecanismo que uses para autenticación
+    id_usuario = session.get('idusuario')
+    cur = mysql.connection.cursor()
+    query = """
+        SELECT Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Cantidad, Categoria
+        FROM productos
+        WHERE id_usuario = %s
+    """
+    cur.execute(query, (id_usuario,))
+    productos = cur.fetchall()
+    cur.close()
+    return render_template('inventario.html', productos=productos)
 
 @routes_blueprint.route('/clientes', methods=['GET'], endpoint='clientes')
 def clientes():
@@ -827,74 +839,129 @@ def registrar_historial_plan(idusuario, nombre_plan, transaction_amount_in_cents
     finally:
         cur.close()
 
-
 @routes_blueprint.route('/ventas/registrar', methods=["POST"])
 def registrar_venta():
     # Verificar si el usuario está autenticado
     if not session.get('idusuario'):
-        return redirect(url_for('login'))
+        return jsonify({"error": "Usuario no autenticado"}), 401
 
+    # Obtener datos de la solicitud
+    data = request.get_json()
+    productos = data.get("productos", [])
+    metodo_pago = data.get("metodo_pago", "efectivo")
+    pagocon = data.get("pagocon", 0)
     id_usuario_actual = session.get('idusuario')
 
+    # Validar que se envíen productos en la venta
+    if not productos:
+        return jsonify({"error": "No hay productos en la venta"}), 400
+
     try:
-        # Obtener datos enviados desde el cliente
-        datos_productos = request.json.get('productos', [])  # Lista de productos con cantidad y precio
-        if not datos_productos:
-            return jsonify({'error': 'No se enviaron productos para registrar la venta.'}), 400
+        cur = mysql.connection.cursor()
+        total_venta = 0
+        
+        # Verificar stock y calcular el total de la venta
+        for producto in productos:
+            codigo_barras = producto["Codigo_de_barras"]
+            cantidad_solicitada = int(producto["Cantidad"])
+            precio_unitario = float(producto["Precio_Valor"])
 
-        # Calcular el total de la venta
-        total_venta = sum(int(p['Cantidad']) * float(p['Precio_Valor']) for p in datos_productos)
-        metodo_pago= request.json.get('metodo_pago')
+            # Obtener el stock actual del producto
+            cur.execute("SELECT Cantidad FROM productos WHERE Codigo_de_barras = %s AND id_usuario = %s", 
+                        (codigo_barras, id_usuario_actual))
+            producto_db = cur.fetchone()
 
-        pagocon = request.json.get('pagocon')
-        # print(pagocon)
+            if not producto_db:
+                return jsonify({"error": f"Producto con código {codigo_barras} no encontrado"}), 400
+
+            stock_disponible = producto_db["Cantidad"]
+
+            # Verificar que haya suficiente stock
+            if cantidad_solicitada > stock_disponible:
+                return jsonify({"error": f"No hay suficiente stock para el producto {codigo_barras}. Stock disponible: {stock_disponible}"}), 400
+
+            # Acumular el total de la venta
+            total_venta += cantidad_solicitada * precio_unitario
+
         # Fecha y hora de Bogotá
         timezone = pytz.timezone('America/Bogota')
         fecha_actual = datetime.now(timezone)
         fecha = fecha_actual.date()
         hora = fecha_actual.time()
-
-        # Valores predeterminados
-        # metodo_pago = "efectivo"
-        devuelto = 0
+        
+        # Valores predeterminados para la venta
+        devuelto = float(pagocon) - total_venta if float(pagocon) >= total_venta else 0
         cliente = "Consumidor Final"
         idcliente = "222222222222"
         credito = 0
         fecha_servidor = fecha
-        cur = mysql.connection.cursor()
 
+        # Obtener el último idventausuario
         cur.execute('SELECT MAX(idventausuario) AS max_id FROM ventas WHERE idusuario = %s', (id_usuario_actual,))
         result = cur.fetchone()
-        max_id = result['max_id']
+        idventausuario = 1 if result['max_id'] is None else result['max_id'] + 1
 
-        # Si es None, establecer en 1, de lo contrario, incrementar en 1
-        idventausuario = 1 if max_id is None else max_id + 1
-
-        # Insertar en la tabla `ventas`
-        
-        query = """
+        # Insertar la venta en la tabla ventas
+        query_venta = """
         INSERT INTO ventas (
             idusuario, totalventa, pagocon, fecha, hora, metodo_pago,
             idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
         )
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        cur.execute(query, (
+        cur.execute(query_venta, (
             id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
             idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
         ))
+
+        # Registrar cada producto vendido: insertar el detalle y actualizar el stock
+        for producto in productos:
+            codigo_barras = producto["Codigo_de_barras"]
+            cantidad_solicitada = int(producto["Cantidad"])
+            precio_unitario = float(producto["Precio_Valor"])
+            
+            # Insertar en la tabla detalle de venta
+            query_detalle = """
+            INSERT INTO detalle_ventas (
+                idventausuario, idusuario, Codigo_de_barras, Cantidad, Precio_Unitario
+            ) VALUES (%s, %s, %s, %s, %s)
+            """
+            cur.execute(query_detalle, (idventausuario, id_usuario_actual, codigo_barras, cantidad_solicitada, precio_unitario))
+
+            # Actualizar el stock del producto
+            query_update_stock = """
+            UPDATE productos 
+            SET Cantidad = Cantidad - %s 
+            WHERE Codigo_de_barras = %s AND id_usuario = %s AND Cantidad >= %s
+            """
+            cur.execute(query_update_stock, (cantidad_solicitada, codigo_barras, id_usuario_actual, cantidad_solicitada))
+
+            # Verificar que el stock se haya actualizado correctamente
+            if cur.rowcount == 0:
+                mysql.connection.rollback()
+                return jsonify({
+                    "error": f"No se pudo actualizar el stock para el producto {codigo_barras}. Puede que no haya suficiente stock."
+                }), 400
+
+        # Confirmar los cambios en la base de datos
         mysql.connection.commit()
         cur.close()
 
         return jsonify({
             'success': 'Venta registrada correctamente.',
             'idventa': idventausuario,
-            'fecha': str(fecha)  # Convertir fecha a string para JSON
+            'total_venta': total_venta,
+            'fecha': str(fecha),
+            'devuelto': devuelto
         }), 200
 
     except Exception as e:
         print(f"Error al registrar venta: {e}")
-        return jsonify({'error': 'Error al registrar la venta. Por favor, intente nuevamente.'}), 500
+        mysql.connection.rollback()
+        return jsonify({"error": "Error al registrar la venta. Por favor, intente nuevamente."}), 500
+    finally:
+        if cur:
+            cur.close()
 
 @routes_blueprint.route('/ventas/agregar_productos', methods=["POST"])
 def agregar_productos():
@@ -960,7 +1027,6 @@ def agregar_productos():
         print(f"Error al agregar productos: {e}")
         mysql.connection.rollback()
         return jsonify({'error': 'Error al agregar productos. Por favor, intente nuevamente.'}), 500
-
 
 @routes_blueprint.route('/buscar_producto_codigo', methods=["POST"])  # Para la barra de admin.html
 def buscar_producto_codigo():
