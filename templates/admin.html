@@ -280,14 +280,13 @@
         </div>
         <!-- Contenedor para la barra de búsqueda -->
 
-        
         <div>
            
             <div class="modal-overlay" id="modal-overlay">
                 <div class="modal-container">
-                    <h2>Cobrar Venta</h2>
+                    <h2>Cobrar venta</h2>
                     <div class="modal-content">
-                        <label for="metodo-pago" style="display: block;">Método de Pago:</label>
+                        <label for="metodo-pago" style="display: block;">Método de pago:</label>
                         <div style="display: inline-block; margin-top: 10px;">
                             <div style="display: inline-block; margin: 0 10px;">
                                 <input type="radio" id="efectivo" name="metodo-pagoo" value="efectivo" checked onclick="mostrarSeccion('efectivo')">
@@ -300,11 +299,11 @@
                         </div>
                         <!-- Sección para Efectivo -->
                         <div id="seccion-efectivo">
-                            <p><strong>Total a Pagar:</strong> $<span id="total-pagar"></span></p>
-                            <label for="pago-con">Pago Con:</label>
+                            <p><strong>Total a pagar:</strong> $<span id="total-pagar"></span></p>
+                            <label for="pago-con">Pago con:</label>
                             <input type="number" id="pago-con" min="0" step="0.01">
-                            <p><strong>Su Cambio:</strong> $<span id="su-cambio">0.00</span></p>
-                            <button type="submit" class="btn-submit" id="registrar-venta">Registrar Venta</button>
+                            <p><strong>Su cambio:</strong> $<span id="su-cambio">0.00</span></p>
+                            <button type="submit" class="btn-submit" id="registrar-venta">Registrar venta</button>
                             <button class="btn-close" id="cerrar-modal">Cerrar</button>
                         </div>
                         <!-- Sección para Crédito -->
@@ -349,14 +348,18 @@
             }
         }
     </script>
-
     <script>
         // Buscar producto por código de barras
         async function buscarProductoCodigo() {
             const codigoBarras = document.getElementById('buscar_codigo_barras').value;
 
             if (!codigoBarras) {
-                alert('Por favor, ingresa un código de barras.');
+                Swal.fire({
+                    title: 'Advertencia',
+                    text: 'Por favor, ingresa un código de barras.',
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
                 return;
             }
 
@@ -374,35 +377,28 @@
                 const data = await response.json();
 
                 if (data.error) {
-                    alert(data.error);
+                    // Usamos SweetAlert2 para mostrar la advertencia
+                    Swal.fire({
+                        title: 'Advertencia',
+                        text: data.error,
+                        icon: 'warning',
+                        confirmButtonText: 'Entendido'
+                    });
                     return;
                 }
 
                 const producto = data.producto;
+                // Llamamos a la función de verificación que ya se encargará de mostrar advertencias si corresponde
+                verificarProducto(producto);
 
-                // Verifica si el producto ya está en la tabla
-                const filaExistente = document.querySelector(`tr[data-codigo="${producto.Codigo_de_barras}"]`);
-                if (filaExistente) {
-                    alert('El producto ya está en la tabla.');
-                    return;
-                }
-
-                // Crear una nueva fila en la tabla con los datos del producto
-                const fila = `
-                    <tr data-codigo="${producto.Codigo_de_barras}">
-                        <td>${producto.Codigo_de_barras}</td>
-                        <td>${producto.Nombre}</td>
-                        <td>${producto.Descripcion}</td>
-                        <td>${producto.Precio_Valor}</td>
-                        <td>${producto.Cantidad}</td>
-                        <td>${producto.Categoria}</td>
-                        <td>1</td> <!-- Cantidad inicial -->
-                    </tr>
-                `;
-                document.getElementById('tabla_productos').insertAdjacentHTML('beforeend', fila);
             } catch (error) {
                 console.error(error);
-                alert('Ocurrió un error al buscar el producto.');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Ocurrió un error al buscar el producto.',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
             }
         }
 
@@ -411,77 +407,76 @@
         }
         // Asignar el evento de clic al botón de búsqueda
         document.getElementById('buscar_producto_codigo').addEventListener('click', buscarProductoCodigo);
-        document.getElementById('modificar_valor').addEventListener('click',Boton);
-        
-        document.getElementById('eliminar_producto').addEventListener('click',Boton);
+        document.getElementById('modificar_valor').addEventListener('click', Boton);
+        document.getElementById('eliminar_producto').addEventListener('click', Boton);
     </script>
     <script>
         document.getElementById('buscar_productos').addEventListener('click', () => {
-        document.getElementById('buscador_contenedor').style.display = 'block';
-        console.log("holaaa")
-});
-
-document.getElementById('cerrar_buscador').addEventListener('click', () => {
-    document.getElementById('buscador_contenedor').style.display = 'none';
-});
-
-// Buscar productos dinámicamente al escribir en el input
-document.getElementById('buscador_input').addEventListener('input', async (e) => {
-    const terminoBusqueda = e.target.value.trim();
-
-    if (!terminoBusqueda) {
-        document.getElementById('resultados_busqueda').innerHTML = '';
-        return;
-    }
-
-    try {
-        const response = await fetch('/buscar_productoss', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ termino_busqueda: terminoBusqueda }),
+            document.getElementById('buscador_contenedor').style.display = 'block';
+            console.log("holaaa")
         });
 
-        if (!response.ok) throw new Error('Error al buscar productos');
-
-        const data = await response.json();
-
-        if (data.error) {
-            document.getElementById('resultados_busqueda').innerHTML = `<p>${data.error}</p>`;
-            return;
-        }
-
-        // Mostrar resultados con botón "Agregar a la venta"
-        const resultadosHtml = data.productos.map(prod => `
-            <div style="padding: 10px; border-bottom: 1px solid #ccc;">
-                <strong>${prod.Nombre}</strong> (${prod.Codigo_de_barras})<br>
-                <small>${prod.Descripcion}</small><br>
-                Precio: $${prod.Precio_Valor}<br>
-                Cantidad disponible: ${prod.Cantidad}<br>
-                <button 
-                    class="agregar-venta-btn" 
-                    data-producto='${JSON.stringify(prod)}'
-                >
-                    Agregar a la venta
-                </button>
-            </div>
-        `).join('');
-        document.getElementById('resultados_busqueda').innerHTML = resultadosHtml;
-
-        // Agregar evento a los botones de "Agregar a la venta"
-        document.querySelectorAll('.agregar-venta-btn').forEach(btn => {
-            btn.addEventListener('click', (event) => {
-                const producto = JSON.parse(event.target.getAttribute('data-producto'));
-                verificarProducto(producto);
-            });
+        document.getElementById('cerrar_buscador').addEventListener('click', () => {
+            document.getElementById('buscador_contenedor').style.display = 'none';
         });
-    } catch (error) {
-        console.error(error);
-        document.getElementById('resultados_busqueda').innerHTML = '<p>Ocurrió un error al buscar productos.</p>';
-    }
-});
 
+        // Buscar productos dinámicamente al escribir en el input
+        document.getElementById('buscador_input').addEventListener('input', async (e) => {
+            const terminoBusqueda = e.target.value.trim();
+
+            if (!terminoBusqueda) {
+                document.getElementById('resultados_busqueda').innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch('/buscar_productoss', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ termino_busqueda: terminoBusqueda }),
+                });
+
+                if (!response.ok) throw new Error('Error al buscar productos');
+
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('resultados_busqueda').innerHTML = `<p>${data.error}</p>`;
+                    return;
+                }
+
+                // Mostrar resultados con botón "Agregar a la venta"
+                const resultadosHtml = data.productos.map(prod => `
+                    <div style="padding: 10px; border-bottom: 1px solid #ccc;">
+                        <strong>${prod.Nombre}</strong> (${prod.Codigo_de_barras})<br>
+                        <small>${prod.Descripcion}</small><br>
+                        Precio: $${prod.Precio_Valor}<br>
+                        Cantidad disponible: ${prod.Cantidad}<br>
+                        <button 
+                            class="agregar-venta-btn" 
+                            data-producto='${JSON.stringify(prod)}'
+                        >
+                            Agregar a la venta
+                        </button>
+                    </div>
+                `).join('');
+                document.getElementById('resultados_busqueda').innerHTML = resultadosHtml;
+
+                // Agregar evento a los botones de "Agregar a la venta"
+                document.querySelectorAll('.agregar-venta-btn').forEach(btn => {
+                    btn.addEventListener('click', (event) => {
+                        const producto = JSON.parse(event.target.getAttribute('data-producto'));
+                        // La función verificarProducto se encargará de mostrar la advertencia si no hay stock.
+                        verificarProducto(producto);
+                    });
+                });
+            } catch (error) {
+                console.error(error);
+                document.getElementById('resultados_busqueda').innerHTML = '<p>Ocurrió un error al buscar productos.</p>';
+            }
+        });
     </script>
     <script>
         document.getElementById('cobrar').addEventListener('click', () => {
@@ -511,7 +506,6 @@ document.getElementById('cerrar-modal-credito').addEventListener('click', () => 
     document.getElementById('modal-overlay').style.display = 'none';
 });
     </script>
-
     <script>
         // Manejar el registro de la venta
 document.getElementById('registrar_venta').addEventListener('click', async () => {
@@ -581,6 +575,67 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
         botonRegistrar.disabled = false;
     }
 });
-    </script>    
+    </script>
+    <script>
+// Evento que detecta cambios en la cantidad de productos agregados
+document.addEventListener("input", (event) => {
+    if (event.target.classList.contains("cantidad-producto")) {
+        const inputCantidad = event.target;
+        const fila = inputCantidad.closest("tr");
+        const stockDisponible = parseInt(fila.querySelector(".stock-producto").innerText, 10);
+        let cantidadIngresada = parseInt(inputCantidad.value, 10);
+
+        if (isNaN(cantidadIngresada) || cantidadIngresada < 1) {
+            inputCantidad.value = 1; // No permitir valores negativos o vacíos
+        } else if (cantidadIngresada > stockDisponible) {
+            inputCantidad.value = stockDisponible; // Limitar al stock disponible
+            alert("No puedes vender más unidades de las que hay en stock.");
+        }
+    }
+});
+function verificarProducto(producto) {
+    // Si el producto no tiene inventario disponible, se muestra la advertencia y no se continúa
+    if (producto.Cantidad <= 0) {
+        Swal.fire({
+            title: 'Advertencia',
+            text: `El producto "${producto.Nombre}" no tiene inventario disponible.`,
+            icon: 'warning',
+            confirmButtonText: 'Entendido'
+        });
+        return;
+    }
+    
+    // Si hay stock, se procede a agregar el producto a la tabla de ventas
+    // Aquí va la lógica que ya tienes para crear la fila en la tabla, por ejemplo:
+    const filaExistente = document.querySelector(`tr[data-codigo="${producto.Codigo_de_barras}"]`);
+    if (filaExistente) {
+        Swal.fire({
+            title: 'Información',
+            text: 'El producto ya está en la tabla.',
+            icon: 'info',
+            confirmButtonText: 'Aceptar'
+        });
+        return;
+    }
+    
+    const fila = `
+        <tr data-codigo="${producto.Codigo_de_barras}">
+            <td>${producto.Codigo_de_barras}</td>
+            <td>${producto.Nombre}</td>
+            <td>${producto.Descripcion}</td>
+            <td>${producto.Precio_Valor}</td>
+            <td class="stock-producto">${producto.Cantidad}</td>
+            <td>${producto.Categoria}</td>
+            <td>
+                <input type="number" class="cantidad-producto" value="1" min="1" max="${producto.Cantidad}">
+            </td>
+        </tr>
+    `;
+    document.getElementById('tabla_productos').insertAdjacentHTML('beforeend', fila);
+    
+    // Opcional: agregar el producto a un array global (por ejemplo, productosAgregados)
+    productosAgregados.push(producto);
+}
+</script>     
 </body>
 </html>
