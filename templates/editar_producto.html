@@ -8,9 +8,6 @@
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="icon" href="{{ url_for('static', filename='images/icono/icono.ico') }}" type="image/x-icon">
     <style>
-       
-    </style>
-    <style>
         /* Estilos generales para el formulario */
 .product-form {
     background-color: #ffffff;
@@ -22,16 +19,10 @@
     font-family: 'Arial', sans-serif;
 }
 
-
-
-
 /* Estilos para los grupos del formulario */
 .product-form .form-group {
     margin-bottom: 1.5rem;
 }
-
-
-
 
 .product-form label {
     display: block;
@@ -39,9 +30,6 @@
     margin-bottom: 0.5rem;
     color: var(--text-muted);
 }
-
-
-
 
 .product-form input,
 .product-form textarea,
@@ -55,9 +43,6 @@
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-
-
-
 .product-form input:focus,
 .product-form textarea:focus,
 .product-form select:focus {
@@ -66,52 +51,33 @@
     outline: none;
 }
 
-
-
-
 .product-form textarea {
     resize: vertical;
 }
 
-
-
-
 /* Estilos para el botón de enviar */
 .product-form .btn-submit {
-    display: inline-block;
-    background: var(--primary-gradient);
-    color: #ffffff;
+    padding: 10px 15px;
+    font-size: 14px;
+    background-color: #4caf83; /* Verde */
+    color: white;
     border: none;
-    border-radius: 5px;
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
-    font-weight: bold;
+    border-radius: 4px;
     cursor: pointer;
-    text-align: center;
-    transition: background 0.3s ease;
+    transition: background-color 0.3s ease;
+    width: auto; /* Ajusta el ancho al contenido */
 }
-
-
-
 
 .product-form .btn-submit:hover {
-    background: #1d976c;
+    background-color: #388e3c; /* Verde más oscuro */
 }
-
-
-
 
 /* Responsive */
 @media (max-width: 768px) {
     .product-form {
         padding: 1.5rem;
     }
-}
-
-
-
-
-       
+}   
     </style>
 </head>
 <body>
@@ -120,11 +86,11 @@
     </button>
     {% include 'sidebar.html' %}
     <div class="main-content">
-        <h1>Editar Producto</h1>
+        <h1>Editar producto</h1>
         {{message}}
         <form action="/productos/editar/{{ producto.Codigo_de_barras }}" method="post" class="product-form">
             <div class="form-group">
-                <label for="codigo_barras">Código de Barras:</label>
+                <label for="codigo_barras">Código de barras:</label>
                 <input type="text" id="codigo_barras" name="codigo_barras" value="{{ producto.Codigo_de_barras }}" readonly>
             </div>
             <div class="form-group">
@@ -136,11 +102,11 @@
                 <textarea id="descripcion" name="descripcion" rows="4" value="holis" required>{{ producto.Descripcion }}</textarea>
             </div>
             <div class="form-group">
-                <label for="precio_valor">Precio de Venta:</label>
+                <label for="precio_valor">Precio de venta:</label>
                 <input type="number" id="precio_valor" name="precio_valor" step="0.01" value="{{ producto.Precio_Valor }}" required>
             </div>
             <div class="form-group">
-                <label for="precio_costo">Precio de Costo:</label>
+                <label for="precio_costo">Precio de costo:</label>
                 <input type="number" id="precio_costo" name="precio_costo" step="0.01" value="{{ producto.Precio_Valor }}" required>
             </div>
             <div class="form-group">
@@ -156,7 +122,7 @@
                     <option value="Alimentos" {% if producto.Categoria == 'Alimentos' %}selected{% endif %}>Alimentos</option>
                 </select>
             </div>
-            <button type="submit" class="btn-submit">Guardar Cambios</button>
+            <button type="submit" class="btn-submit">Guardar cambios</button>
         </form>
        
     </div>
