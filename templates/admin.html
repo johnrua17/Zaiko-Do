@@ -280,14 +280,13 @@
         </div>
         <!-- Contenedor para la barra de búsqueda -->
 
-        
         <div>
            
             <div class="modal-overlay" id="modal-overlay">
                 <div class="modal-container">
-                    <h2>Cobrar Venta</h2>
+                    <h2>Cobrar venta</h2>
                     <div class="modal-content">
-                        <label for="metodo-pago" style="display: block;">Método de Pago:</label>
+                        <label for="metodo-pago" style="display: block;">Método de pago:</label>
                         <div style="display: inline-block; margin-top: 10px;">
                             <div style="display: inline-block; margin: 0 10px;">
                                 <input type="radio" id="efectivo" name="metodo-pagoo" value="efectivo" checked onclick="mostrarSeccion('efectivo')">
@@ -300,11 +299,11 @@
                         </div>
                         <!-- Sección para Efectivo -->
                         <div id="seccion-efectivo">
-                            <p><strong>Total a Pagar:</strong> $<span id="total-pagar"></span></p>
-                            <label for="pago-con">Pago Con:</label>
+                            <p><strong>Total a pagar:</strong> $<span id="total-pagar"></span></p>
+                            <label for="pago-con">Pago con:</label>
                             <input type="number" id="pago-con" min="0" step="0.01">
-                            <p><strong>Su Cambio:</strong> $<span id="su-cambio">0.00</span></p>
-                            <button type="submit" class="btn-submit" id="registrar-venta">Registrar Venta</button>
+                            <p><strong>Su cambio:</strong> $<span id="su-cambio">0.00</span></p>
+                            <button type="submit" class="btn-submit" id="registrar-venta">Registrar venta</button>
                             <button class="btn-close" id="cerrar-modal">Cerrar</button>
                         </div>
                         <!-- Sección para Crédito -->
