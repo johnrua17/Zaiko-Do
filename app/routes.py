@@ -1010,3 +1010,87 @@ def buscar_producto_codigo():
         return jsonify({"error": "Error al buscar producto"}), 500
     finally:
         cur.close()
+
+@routes_blueprint.route('/ventas/realizadas', methods=["GET"])
+def ventas_realizadas():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return redirect(url_for('auth.login'))
+
+    id_usuario_actual = session.get('idusuario')
+
+    try:
+        cur = mysql.connection.cursor()
+        # Obtener las ventas realizadas por el usuario
+        query = """
+        SELECT * FROM ventas WHERE idusuario = %s
+        """
+        cur.execute(query, (id_usuario_actual,))
+        ventas = cur.fetchall()
+        cur.close()
+
+        # Renderizar la plantilla con las ventas
+        return render_template('ventas_realizadas.html', ventas=ventas)
+    except Exception as e:
+        print(f"Error al obtener las ventas: {e}")
+        return render_template('ventas_realizadas.html', error_message="Error al cargar las ventas.")
+
+
+@routes_blueprint.route('/detalles/<int:idventa>', methods=["GET"])
+def detalles_venta(idventa):
+    try:
+        idusuario = session["idusuario"]
+        cur = mysql.connection.cursor()
+        # Obtener los detalles de la venta
+        query = """
+        SELECT * FROM detalleventas WHERE idventa = %s and idusuario=%s
+        """
+        cur.execute(query, (idventa,idusuario,))
+        detalles = cur.fetchall()
+        cur.close()
+
+        return jsonify(detalles)  # Devolver los detalles como JSON
+    except Exception as e:
+        print(f"Error al obtener los detalles de la venta: {e}")
+        return jsonify({"error": "Error al cargar los detalles."}), 500
+
+
+@routes_blueprint.route('/devolucion/<int:idventa>', methods=["POST"])
+def aplicar_devolucion(idventa):
+    try:
+        id_usuario = session.get('idusuario')  # Obtener el id_usuario de la sesión
+        cursor = mysql.connection.cursor()
+        
+        # 1. Obtener el código de barras y la cantidad de los productos vendidos
+        cursor.execute(
+            "SELECT codigo_de_barras, cantidad FROM detalleventas WHERE idventa = %s AND idusuario = %s",
+            (idventa, id_usuario)
+        )
+        productos_vendidos = cursor.fetchall()
+
+        # 2. Actualizar la cantidad en la tabla 'productos'
+        for producto in productos_vendidos:
+            cursor.execute(
+                'UPDATE productos SET cantidad = cantidad + %s WHERE codigo_de_barras = %s AND id_usuario = %s',
+                (producto['cantidad'], producto['codigo_de_barras'], id_usuario)
+            )
+
+
+        # 3. Poner en cero el total de la venta y marcarla como devuelta
+        cursor.execute(
+            "UPDATE ventas SET totalventa = 0, devuelto = TRUE WHERE idventausuario = %s AND idusuario = %s",
+            (idventa, id_usuario)
+        )
+
+        # 4. Poner en cero el precio_valor y precio_costo en detalleventas
+        cursor.execute(
+            "UPDATE detalleventas SET valor = 0, costo = 0 WHERE idventa = %s AND idusuario = %s",
+            (idventa, id_usuario)
+        )
+
+        mysql.connection.commit()
+        cursor.close()
+        return jsonify({"success": "Devolución aplicada correctamente."}), 200
+    except Exception as e:
+        print(f"Error al aplicar la devolución: {e}")  # Asegúrate de que 'e' esté definido
+        return jsonify({"error": "Error al aplicar la devolución."}), 500

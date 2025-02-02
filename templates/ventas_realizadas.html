@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    
+    <!-- Otras etiquetas meta y enlaces -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   
+</head>
+<style>
+    /* Estilos para la tabla de ventas realizadas */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border-radius: 8px; /* Bordes redondeados */
+    overflow: hidden; /* Para que los bordes redondeados se apliquen */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+.table th, .table td {
+    padding: 12px 15px; /* Espaciado más amplio */
+    text-align: left;
+}
+
+.table th {
+    background-color: #4CAF50; /* Color de fondo moderno */
+    color: white; /* Color del texto */
+    font-weight: bold; /* Negrita */
+    text-transform: uppercase; /* Texto en mayúsculas */
+}
+
+.table tr {
+    transition: background-color 0.3s; /* Transición suave al pasar el mouse */
+}
+
+.table tr:nth-child(even) {
+    background-color: #f2f2f2; /* Color de fondo para filas pares */
+}
+
+.table tr:hover {
+    background-color: #e0e0e0; /* Color de fondo al pasar el mouse */
+}
+
+.btn-details {
+    background-color: #007bff; /* Color del botón */
+    color: white;
+    border: none;
+    padding: 10px 15px; /* Espaciado del botón */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 5px; /* Bordes redondeados para el botón */
+    cursor: pointer;
+    transition: background-color 0.3s; /* Transición suave para el botón */
+}
+
+.btn-details:hover {
+    background-color: #0056b3; /* Color al pasar el mouse */
+}
+
+/* Estilos para el div de detalles de la venta */
+.detalle-venta {
+    position: fixed; /* Fijar el div en la pantalla */
+    top: 50%; /* Centrar verticalmente */
+    left: 50%; /* Centrar horizontalmente */
+    transform: translate(-50%, -50%); /* Ajustar el centro */
+    width: 80%; /* Ancho del div */
+    max-width: 600px; /* Ancho máximo */
+    background-color: #fff; /* Fondo blanco */
+    border: 1px solid #ccc; /* Borde gris */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra suave */
+    z-index: 1000; /* Asegurarse de que esté encima de otros elementos */
+    padding: 20px; /* Espaciado interno */
+    display: none; /* Ocultar por defecto */
+}
+
+/* Estilo para el fondo oscuro al mostrar el div */
+.overlay {
+    position: fixed; /* Fijar el fondo */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro con opacidad */
+    z-index: 999; /* Asegurarse de que esté debajo del div de detalles */
+    display: none; /* Ocultar por defecto */
+}
+
+/* Estilos para la tabla de detalles de la venta */
+.detalle-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.detalle-table th, .detalle-table td {
+    padding: 12px 15px; /* Espaciado más amplio */
+    text-align: left;
+    border: 1px solid #ddd; /* Borde suave */
+}
+
+.detalle-table th {
+    background-color: #4CAF50; /* Color de fondo moderno */
+    color: white; /* Color del texto */
+    font-weight: bold; /* Negrita */
+    text-transform: uppercase; /* Texto en mayúsculas */
+    border-bottom: 2px solid #388E3C; /* Borde inferior más oscuro */
+}
+
+.detalle-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Color de fondo para filas pares */
+}
+
+.detalle-table tr:hover {
+    background-color: #e0f7fa; /* Color de fondo al pasar el mouse */
+}
+
+.detalle-table td {
+    border-radius: 5px; /* Bordes redondeados para las celdas */
+}
+
+/* Estilo para el botón de cerrar */
+.btn-close {
+    background-color: #f44336; /* Color del botón de cerrar */
+    color: white;
+    border: none;
+    padding: 10px 15px; /* Espaciado del botón */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 5px; /* Bordes redondeados para el botón */
+    cursor: pointer;
+    transition: background-color 0.3s; /* Transición suave para el botón */
+    margin-top: 15px; /* Margen superior */
+}
+
+.btn-close:hover {
+    background-color: #d32f2f; /* Color al pasar el mouse */
+}
+
+.btn-return {
+    background-color: #28a745; /* Color verde */
+    color: white; /* Color del texto */
+    border: none;
+    padding: 10px 15px; /* Espaciado del botón */
+    text-align: center;
+    text-decoration: none;
+    display: inline-flex; /* Usar flex para alinear el ícono y el texto */
+    align-items: center; /* Centrar verticalmente */
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer;
+    transition: background-color 0.3s; /* Transición suave para el botón */
+}
+
+.btn-return:hover {
+    background-color: #218838; /* Color más oscuro al pasar el mouse */
+}
+
+.btn-return i {
+    margin-right: 5px; /* Espacio entre el ícono y el texto */
+}
+</style>
+
+{% include 'sidebar.html' %}
+<!-- <div class="overlay" id="overlay" style="display: none;"></div> Div para la superposición -->
+<div class="main-content">
+    <h1>Ventas Realizadas</h1>
+    <div id="detalle-venta" class="detalle-venta">
+        <h2>Detalles de la Venta</h2>
+        <div id="detalle-contenido"></div> <!-- Contenido de los detalles -->
+        <button onclick="ocultarDetalles()" class="btn btn-close">Cerrar</button> <!-- Botón para cerrar -->
+        <button onclick="aplicarDevolucion()" class="btn btn-return">
+            <i class="fas fa-undo"></i> Aplicar Devolución
+        </button> <!-- Botón para aplicar devolución -->
+    </div>
+    {% if ventas %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID Venta</th>
+                    <th>Total Venta</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Método de Pago</th>
+                    <th>Cliente</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ventas %}
+                <tr>
+                    <td>{{ venta.idventausuario }}</td>
+                    <td>${{ venta.totalventa }}</td>
+                    <td>{{ venta.fecha }}</td>
+                    <td>{{ venta.hora }}</td>
+                    <td>{{ venta.metodo_pago }}</td>
+                    <td>{{ venta.cliente }}</td>
+                    <td>
+                        <button onclick="mostrarDetalles({{ venta.idventausuario }})" class="btn btn-details">Detalles</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No se han realizado ventas.</p>
+    {% endif %}
+</div>
+<script>
+    let idVentaActual; // Variable global para almacenar el idventa actual
+
+    function mostrarDetalles(idventa) {
+        idVentaActual = idventa; // Guardar el idventa actual
+
+        fetch(`/detalles/${idventa}`)
+            .then(response => response.json())
+            .then(data => {
+                const detalleDiv = document.getElementById('detalle-venta');
+                const contenidoDiv = document.getElementById('detalle-contenido');
+                const overlay = document.getElementById('overlay');
+                contenidoDiv.innerHTML = ''; // Limpiar contenido anterior
+
+                if (data.error) {
+                    contenidoDiv.innerHTML = `<p>${data.error}</p>`;
+                } else {
+                    let html = '<table class="detalle-table"><thead><tr><th>Nombre</th><th>Valor</th><th>Cantidad</th><th>Categoría</th></tr></thead><tbody>';
+                    data.forEach(detalle => {
+                        html += `<tr>
+                                    <td>${detalle.nombre}</td>
+                                    <td>$${detalle.valor}</td>
+                                    <td>${detalle.cantidad}</td>
+                                    <td>${detalle.categoria || 'N/A'}</td>
+                                 </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    contenidoDiv.innerHTML = html;
+                }
+
+                detalleDiv.style.display = 'block'; // Mostrar el div
+                overlay.style.display = 'block'; // Mostrar la superposición
+            })
+            .catch(error => {
+                console.error('Error al obtener los detalles:', error);
+            });
+    }
+
+    function ocultarDetalles() {
+        const detalleDiv = document.getElementById('detalle-venta');
+        detalleDiv.style.display = 'none'; // Ocultar el div
+    }
+
+    function aplicarDevolucion() {
+        if (!idVentaActual) {
+            alert("No se ha seleccionado ninguna venta para devolver.");
+            return;
+        }
+
+        fetch(`/devolucion/${idVentaActual}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.success);
+                ocultarDetalles(); // Ocultar el div de detalles después de aplicar la devolución
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error al aplicar la devolución:', error);
+        });
+    }
+</script>
