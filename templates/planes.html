@@ -8,10 +8,27 @@
     <link rel="stylesheet" href="/static/stylePlanes.css">
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* Ocultar la sección de tarjetas en pantallas grandes */
+        .new-plans-section-cards {
+            display: none;
+        }
 
-        
+        /* Mostrar la sección de tarjetas en pantallas pequeñas */
+        @media (max-width: 767.98px) {
+            .new-plans-section-grid {
+                display: none;
+            }
+            .new-plans-section-cards {
+                display: block;
+            }
+        }
+    </style>
 </head>
 <body>
+    <button class="toggle-sidebar" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
     <div class="main-content">
         <div class="container">
             {% include 'sidebar.html' %}
@@ -47,106 +64,210 @@
                                     <p>Seguridad Avanzada</p>
                                 </li>
                             </ul>
-
                         </li>
     
                         <!-- Planes -->
-                            {% for plan in planes %}
-                            <li class="new-plans-section-grid__col {% if plan.idplan == plan_actual %}new-plans-section-grid__col--feature{% endif %}">
-                                <div class="new-plans-section-grid__header">
-                                    <h3 class="new-plans-section-grid__title">
-                                        <b>{{ plan.nombre }}</b>
-                                    </h3>
+                        {% for plan in planes %}
+                        <li class="new-plans-section-grid__col {% if plan.idplan == plan_actual %}new-plans-section-grid__col--feature{% endif %}">
+                            <div class="new-plans-section-grid__header">
+                                <h3 class="new-plans-section-grid__title">
+                                    <b>{{ plan.nombre }}</b>
+                                </h3>
+                                {% if plan.nombre == 'Plan Gratuito' %}
+                                    <p class="new-plans-section-grid__description">Gestiona con <b>Zaiko Do</b> el inventario de tu negocio</p>
+                                {% elif plan.nombre == 'Plan Año' %}
+                                    <p class="new-plans-section-grid__description">Disfruta de lo mejor de <b>Zaiko Do</b> con el máximo nivel de funciones</p>
+                                {% else %}
+                                    <p class="new-plans-section-grid__description"><b>-----</b></p>
+                                {% endif %}
+                                
+                                {% if plan.idplan == plan_actual %}
+                                    <span class="new-plans-section-grid__flag">Plan <b>Actual</b></span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Beneficios por plan -->
+                            {% if plan.nombre == 'Plan Gratuito' %}
+                            <ul class="new-plans-section-grid__benefits">
+                                <li>
+                                    <span class="feature-text">100 ventas mensuales</span>
+                                </li>
+                                <li>
+                                    <span class="feature-text">Hasta 150 productos en el inventario</span>
+                                </li>
+                                 <li>
+                                    <span class="feature-text">Hasta 150 productos en el inventario</span>
+                                </li>
+                                <li style="min-height: 50px;">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                </li>
+                                <li style="min-height: 50px;">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                </li>
+                            </ul>
+                            {% else %}
+                            <ul class="new-plans-section-grid__benefits">
+                                <li style="min-height: 50px;">
+                                    <span>
+                                        <i class="fa-solid fa-infinity"></i>
+                                    </span>
+                                </li>
+                                <li style="min-height: 50px;">
+                                    <span>
+                                        <i class="fa-solid fa-infinity"></i>
+                                    </span>
+                                </li>
+                                <li style="min-height: 50px;">
+                                    <span>
+                                        <i class="fa-solid fa-infinity"></i>
+                                    </span>
+                                </li>
+                                <li style="min-height: 50px;">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                </li>
+                                <li style="min-height: 50px;">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                </li>
+                            </ul>
+                            {% endif %}
+                            <div class="new-plans-section-grid__footer">
+                                {% if plan.nombre == 'Plan Semestre' %}
+                                    <p class="new-plans-section-grid__old-price" style="text-decoration: none">
+                                        Ahorra $19.900 COP
+                                    </p>
+                                {% elif plan.nombre == 'Plan Año' %}
+                                    <p class="new-plans-section-grid__old-price" style="text-decoration: none">
+                                        Ahorra $38.900 COP
+                                    </p>
+                                {% endif %}
+                            
+                                <div class="new-plans-section-grid__price">
                                     {% if plan.nombre == 'Plan Gratuito' %}
-                                        <p class="new-plans-section-grid__description">Gestiona con <b>Zaiko Do</b> el inventario de tu negocio</p>
-                                    {% elif plan.nombre == 'Plan Año' %}
-                                        <p class="new-plans-section-grid__description">Disfruta de lo mejor de <b>Zaiko Do</b> con el máximo nivel de funciones</p>
+                                        $0 COP
                                     {% else %}
-                                        <p class="new-plans-section-grid__description"><b>-----</b></p>
-                                    {% endif %}
-                                    
-                                    {% if plan.idplan == plan_actual %}
-                                        <span class="new-plans-section-grid__flag">Plan <b>Actual</b></span>
+                                        ${{ '{:,.0f}'.format(plan.precio)|replace(',', '.') }} COP
                                     {% endif %}
                                 </div>
-                                
-                                <!-- Beneficios por plan -->
-                                {% if plan.nombre == 'Plan Gratuito' %}
-                                <ul class="new-plans-section-grid__benefits">
-                                    <li>
-                                        <span class="feature-text">100 ventas mensuales</span>
-                                    </li>
-                                    <li>
-                                        <span class="feature-text">Hasta 150 productos en el inventario</span>
-                                    </li>
-                                     <li>
-                                        <span class="feature-text">Hasta 150 productos en el inventario</span>
-                                    </li>
-                                    <li style="min-height: 50px;">
-                                        <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
-                                    </li>
-                                    <li style="min-height: 50px;">
-                                        <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
-                                    </li>
-                                    
-                                    
-                                </ul>
-                                {% else %}
-                                <ul class="new-plans-section-grid__benefits">
-                                    <li style="min-height: 50px;">
-                                        <span>
-                                            <i class="fa-solid fa-infinity"></i>
-                                        </span>
-                                    </li>
-                                    <li style="min-height: 50px;">
-                                        <span>
-                                            <i class="fa-solid fa-infinity"></i>
-                                        </span>
-                                    </li>
-                                    <li style="min-height: 50px;">
-                                        <span>
-                                            <i class="fa-solid fa-infinity"></i>
-                                        </span>
-                                    </li>
-                                    <li style="min-height: 50px;">
-                                        <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
-                                    </li>
-                                    <li style="min-height: 50px;">
-                                        <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
-                                    </li>
-                                </ul>
+                                {% if plan.idplan == plan_actual %}
+                                    <span class="current-plan">Plan Actual</span>
+                                {% elif plan.nombre != 'Plan Gratuito' %}
+                                    <a href="/suscribir/{{ plan.idplan }}" class="new-home-v4-btn" title="¡Inscríbete ya!">
+                                        <button class="plans-button">Seleccionar</button>
+                                    </a>
                                 {% endif %}
-                                <div class="new-plans-section-grid__footer">
-                                    {% if plan.nombre == 'Plan Semestre' %}
-                                        <p class="new-plans-section-grid__old-price" style="text-decoration: none">
-                                            Ahorra $19.900 COP
-                                        </p>
-                                    {% elif plan.nombre == 'Plan Año' %}
-                                        <p class="new-plans-section-grid__old-price" style="text-decoration: none">
-                                            Ahorra $38.900 COP
-                                        </p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Nueva sección de tarjetas para móviles -->
+                    <div class="new-plans-section-cards">
+                        {% for plan in planes %}
+                        <div class="new-plans-section-card {% if plan.idplan == plan_actual %}new-plans-section-card--feature{% endif %}">
+                            <!-- Bandera del plan actual -->
+                            {% if plan.idplan == plan_actual %}
+                            <span class="new-plans-section-card__flag">Plan <b>Actual</b></span>
+                            {% endif %}
+
+                            <!-- Título del plan -->
+                            <h2 class="new-plans-section-card__title">
+                                <b>{{ plan.nombre }}</b>
+                            </h2>
+
+                            <!-- Descripción del plan -->
+                            <p class="new-plans-section-card__description">
+                                {% if plan.nombre == 'Plan Gratuito' %}
+                                Gestiona con <b>Zaiko Do</b> el inventario de tu negocio
+                                {% elif plan.nombre == 'Plan Año' %}
+                                Disfruta de lo mejor de <b>Zaiko Do</b> con el máximo nivel de funciones
+                                {% else %}
+                                <b>-----</b>
+                                {% endif %}
+                            </p>
+
+                            <!-- Precios del plan -->
+                            <div class="new-plans-section-card__prices">
+                                <small class="new-plans-section-grid__new-price" style="text-decoration: none">DESDE</small>
+                                <strong class="new-plans-section-card__current-price">
+                                    {% if plan.nombre == 'Plan Gratuito' %}
+                                    $0 COP
+                                    {% else %}
+                                    ${{ '{:,.0f}'.format(plan.precio)|replace(',', '.') }} COP
                                     {% endif %}
-                                
-                                    <div class="new-plans-section-grid__price">
-                                        {% if plan.nombre == 'Plan Gratuito' %}
-                                            $0 COP
-                                        {% else %}
-                                            ${{ '{:,.0f}'.format(plan.precio)|replace(',', '.') }} COP
-                                        {% endif %}
-                                    </div>
-                                    {% if plan.idplan == plan_actual %}
-                                        <span class="current-plan">Plan Actual</span>
-                                    {% elif plan.nombre != 'Plan Gratuito' %}
-                                        <a href="/suscribir/{{ plan.idplan }}" class="new-home-v4-btn" title="¡Inscríbete ya!">
-                                            <button class="plans-button">Seleccionar</button>
-                                        </a>
-                                    {% endif %}
-                                    </div>
-                            {% endfor %}
+                                </strong>
+                                {% if plan.nombre == 'Plan Semestre' %}
+                                <p class="new-plans-section-grid__disclaimers">
+                                    <b>mensual por 3 meses</b>, después $ 109.900/mes
+                                </p>
+                                {% elif plan.nombre == 'Plan Año' %}
+                                <p class="new-plans-section-grid__disclaimers">
+                                    <b>mensual por 3 meses</b>, después $ 89.900/mes
+                                </p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Botón de suscripción -->
+                            {% if plan.idplan == plan_actual %}
+                            <span class="current-plan">Plan Actual</span>
+                            {% elif plan.nombre != 'Plan Gratuito' %}
+                            <a href="/suscribir/{{ plan.idplan }}" class="new-home-v4-btn new-home-v4-btn--primary" title="¡Inscríbete ya!">
+                                Seleccionar
+                            </a>
+                            {% endif %}
+
+                            <!-- Beneficios del plan (visible por defecto) -->
+                            <ul class="new-plans-section-card__benefits">
+                                {% if plan.nombre == 'Plan Gratuito' %}
+                                <li class="new-plans-section-card__benefit">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                    <p>100 ventas mensuales</p>
+                                </li>
+                                <li class="new-plans-section-card__benefit">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                    <p>Hasta 150 productos en el inventario</p>
+                                </li>
+                                <li class="new-plans-section-card__benefit">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                    <p>Actualizaciones</p>
+                                </li>
+                                <li class="new-plans-section-card__benefit">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                    <p>Soporte</p>
+                                </li>
+                                <li class="new-plans-section-card__benefit">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                    <p>Seguridad Avanzada</p>
+                                </li>
+                                {% else %}
+                                <li class="new-plans-section-card__benefit">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                    <p>Ventas ilimitadas</p>
+                                </li>
+                                <li class="new-plans-section-card__benefit">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                    <p>Productos ilimitados en el inventario</p>
+                                </li>
+                                <li class="new-plans-section-card__benefit">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                    <p>Actualizaciones</p>
+                                </li>
+                                <li class="new-plans-section-card__benefit">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                    <p>Soporte</p>
+                                </li>
+                                <li class="new-plans-section-card__benefit">
+                                    <span class="new-plans-section__icon new-plans-section__icon--checked"></span>
+                                    <p>Seguridad Avanzada</p>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    </div>
                 </section>
         </div>
     </div>
-    
     
     <script>
         function toggleSubmenu(submenuId) {
