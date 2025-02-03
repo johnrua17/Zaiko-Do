@@ -542,16 +542,16 @@ def planes():
 
 @routes_blueprint.route('/suscribir/<int:idplan>', methods=['GET'])
 def suscribir(idplan):
+    
     id_usuario = session.get('idusuario')
     # correo_usuario = session.get('correo')
-
+    if not id_usuario or not correo_usuario:
+            return redirect(url_for('auth.login')) # Redirigir al login si el usuario no está autenticado
 
     cur = mysql.connection.cursor()
     cur.execute('SELECT correo FROM usuario WHERE idusuario= %s', [id_usuario])
     correo_usuario=  cur.fetchone()['correo']
-    if not id_usuario or not correo_usuario:
-        return render_template('index.html')  # Redirigir al login si el usuario no está autenticado
-
+    
     # Obtener la hora actual en Bogotá
     bogota_tz = pytz.timezone('America/Bogota')
     fecha_actual = datetime.now(bogota_tz)
