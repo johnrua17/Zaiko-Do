@@ -269,33 +269,7 @@
         </div>
     </div>
     
-    <script>
-        function toggleSubmenu(submenuId) {
-            const submenu = document.getElementById(submenuId);
-            const parentItem = submenu.previousElementSibling;
-            document.querySelectorAll('.submenu').forEach(menu => {
-                if (menu.id !== submenuId) {
-                    menu.classList.remove('active');
-                    menu.previousElementSibling.classList.remove('expanded');
-                }
-            });
-            submenu.classList.toggle('active');
-            parentItem.classList.toggle('expanded');
-        }
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            document.querySelectorAll('.nav-items a').forEach(link => {
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
-                    if (link.classList.contains('submenu-item')) {
-                        const submenu = link.parentElement;
-                        submenu.classList.add('active');
-                        submenu.previousElementSibling.classList.add('expanded');
-                    }
-                }
-            });
-        });
-    </script>
+    
 
 </body>
 </html>
