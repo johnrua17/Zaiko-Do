@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css"> 
+    <title>Document</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Contenido principal */
+        .main-content {
+            margin-left: 270px; /* Margen igual al ancho del sidebar + espacio */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Tablas */
+        h2 {
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .ventas-dia {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    {% include 'sidebar.html' %}
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <h1>Reporte de Ventas</h1>
+
+        <!-- Tabla de Categorías Más Vendidas -->
+        <h2>Categorías Más Vendidas</h2>
+        <table id="categoriasVendidas">
+            <thead>
+                <tr>
+                    <th>Categoría</th>
+                    <th>Total de Ventas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if categorias_vendidas %}
+                    {% for categoria in categorias_vendidas|sort(attribute='total_ventas', reverse=True) %}
+                        <tr>
+                            <td>{{ categoria.categoria }}</td>
+                            <td>{{ categoria.total_ventas }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="2">No hay datos disponibles</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Tabla de Ganancias por Categoría -->
+        <h2>Ganancias por Categoría</h2>
+        <table id="gananciasCategoria">
+            <thead>
+                <tr>
+                    <th>Categoría</th>
+                    <th>Ganancia</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if ganancias_categoria %}
+                    {% for ganancia in ganancias_categoria %}
+                        <tr>
+                            <td>{{ ganancia.categoria }}</td>
+                            <td>{{ ganancia.ganancia }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="2">No hay datos disponibles</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Tabla de Ventas por Método de Pago -->
+        <h2>Ventas por Método de Pago</h2>
+        <table id="metodoPago">
+            <thead>
+                <tr>
+                    <th>Método de Pago</th>
+                    <th>Ganancias</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if ventas_metodo_pago %}
+                    {% for metodo in ventas_metodo_pago %}
+                        <tr>
+                            <td>{{ metodo.metodo_pago }}</td>
+                            <td>{{ metodo.ganancia }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="2">No hay datos disponibles</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Ventas por Día -->
+        <h2>Ventas por Día</h2>
+        <div class="ventas-dia">
+            <p><strong>Total de Ventas:</strong> <span id="totalVentas">PENDIENTE</span></p>
+            <p><strong>Ganancias Totales:</strong> <span id="gananciasTotales">PENDIENTE</span></p>
+        </div>
+    </div>
+</body>
+</html>

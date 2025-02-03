@@ -319,7 +319,7 @@
                             <input type="number" id="pago-con" min="0" step="0.01">
                             <p><strong>Su cambio:</strong> $<span id="su-cambio">0.00</span></p>
                             <button type="submit" class="btn-submit" id="registrar-venta">Registrar venta</button>
-                            <button class="btn-close" id="cerrar-modal">Cerrar</button>
+                            <button class="btn-close cerrar-modal">Cerrar</button>
                         </div>
                         <!-- Sección para Crédito -->
                         <div id="seccion-credito" style="display: none;">
@@ -340,7 +340,7 @@
                                     </tr>
                                 </table>
                                 <button type="submit" class="btn-submit" id="registrar-venta-credito">Registrar venta</button>
-                                <button class="btn-close" id="cerrar-modal">Cerrar</button>
+                                <button type="button" class="btn-close cerrar-modal">Cerrar</button>
                             </form>
                         </div>
                     </div>
@@ -517,10 +517,13 @@ document.getElementById('pago-con').addEventListener('input', (event) => {
     document.getElementById('su-cambio').innerText = cambio >= 0 ? cambio.toFixed(2) : '0.00';
 });
 
-// Cerrar el modal
-document.getElementById('cerrar-modal').addEventListener('click', () => {
-    document.getElementById('modal-overlay').style.display = 'none';
+// Cerrar el modal usando una clase común
+document.querySelectorAll('.cerrar-modal').forEach(button => {
+    button.addEventListener('click', () => {
+        document.getElementById('modal-overlay').style.display = 'none';
+    });
 });
+
     </script>
     <script>
     // Manejar el registro de la venta

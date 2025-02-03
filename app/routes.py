@@ -832,6 +832,63 @@ def registrar_historial_plan(idusuario, nombre_plan, transaction_amount_in_cents
     finally:
         cur.close()
 
+@routes_blueprint.route('/ventas/reporte', methods=["GET"])
+def reporte_ventas():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return redirect(url_for('auth.login'))
+
+    id_usuario_actual = session.get('idusuario')
+    print(f"el id del usuario es {id_usuario_actual}")
+
+    try:
+        cur = mysql.connection.cursor()
+
+        query_categorias_vendidas = """
+        SELECT 
+            dv.categoria, 
+            SUM(dv.valor * dv.cantidad) AS total_ventas
+        FROM detalleventas dv
+        JOIN ventas v ON dv.idventa = v.idventas
+        WHERE dv.idusuario = %s
+        GROUP BY dv.categoria;
+        """
+        cur.execute(query_categorias_vendidas, (id_usuario_actual,))
+        categorias_vendidas = cur.fetchall()
+
+        query_ganancias_categoria = """
+        SELECT 
+            dv.categoria, 
+            SUM((CAST(dv.valor AS DECIMAL(10,2)) - CAST(dv.costo AS DECIMAL(10,2))) * CAST(dv.cantidad AS UNSIGNED)) AS ganancia
+        FROM detalleventas dv
+        JOIN ventas v ON dv.idventa = v.idventas
+        WHERE dv.idusuario = %s
+        GROUP BY dv.categoria;
+        """
+        cur.execute(query_ganancias_categoria, (id_usuario_actual,))
+        ganancias_categoria = cur.fetchall()
+
+
+        query_ventas_metodo_pago = """
+        SELECT 
+            v.metodo_pago, 
+            COALESCE(SUM((CAST(dv.valor AS DECIMAL(10,2)) - CAST(dv.costo AS DECIMAL(10,2))) * CAST(dv.cantidad AS UNSIGNED)), 0) AS ganancia
+        FROM ventas v
+        LEFT JOIN detalleventas dv ON v.idventas = dv.idventa
+        WHERE v.idusuario = %s
+        GROUP BY v.metodo_pago;
+        """
+        cur.execute(query_ventas_metodo_pago, (id_usuario_actual,))
+        ventas_metodo_pago = cur.fetchall()
+
+        cur.close()
+
+        # Renderizar la plantilla con las ventas
+        return render_template('reporte_ventas.html', categorias_vendidas=categorias_vendidas, ganancias_categoria=ganancias_categoria, ventas_metodo_pago=ventas_metodo_pago )
+    except Exception as e:
+        print(f"Error al obtener las ventas: {e}")
+        return render_template('reporte_ventas.html', error_message="Error al cargar las ventas.")
+
 @routes_blueprint.route('/ventas/registrar', methods=["POST"])
 def registrar_venta():
     # Verificar si el usuario está autenticado
