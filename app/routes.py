@@ -5,6 +5,7 @@ from flask_mysqldb import MySQL
 from io import BytesIO
 from openpyxl import Workbook
 from flask import send_file
+from flask import make_response
 import bleach
 import pytz
 import uuid
@@ -1142,7 +1143,6 @@ def aplicar_devolucion(idventa):
                 (producto['cantidad'], producto['codigo_de_barras'], id_usuario)
             )
 
-
         # 3. Poner en cero el total de la venta y marcarla como devuelta
         cursor.execute(
             "UPDATE ventas SET totalventa = 0, devuelto = TRUE WHERE idventausuario = %s AND idusuario = %s",
@@ -1161,3 +1161,47 @@ def aplicar_devolucion(idventa):
     except Exception as e:
         print(f"Error al aplicar la devolución: {e}")  # Asegúrate de que 'e' esté definido
         return jsonify({"error": "Error al aplicar la devolución."}), 500
+    
+@routes_blueprint.route('/factura/<int:idventa>', methods=["GET"])
+def generar_factura(idventa):
+    # Verificar que el usuario esté autenticado
+    if not session.get('idusuario'):
+        return redirect(url_for('routes.login'))
+
+    idusuario = session.get('idusuario')
+    try:
+        cur = mysql.connection.cursor()
+
+        # Obtener la venta de la tabla ventas
+        query_venta = """
+            SELECT * FROM ventas 
+            WHERE idventausuario = %s AND idusuario = %s
+        """
+        cur.execute(query_venta, (idventa, idusuario))
+        venta = cur.fetchone()
+        if not venta:
+            return "Venta no encontrada", 404
+
+        # Obtener el detalle de la venta (productos)
+        query_detalle = """
+            SELECT * FROM detalleventas 
+            WHERE idventa = %s AND idusuario = %s
+        """
+        cur.execute(query_detalle, (idventa, idusuario))
+        detalles = cur.fetchall()
+        cur.close()
+
+        # Renderizar la plantilla HTML de la factura
+        html = render_template('factura.html', venta=venta, detalles=detalles)
+        # Generar PDF a partir del HTML (pdfkit.from_string devuelve bytes si se pasa False)
+        pdf = pdfkit.from_string(html, False)
+
+        # Preparar la respuesta con el PDF
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename=factura_{idventa}.pdf'
+        return response
+
+    except Exception as e:
+        print("Error generando factura:", e)
+        return "Error generando factura", 500
