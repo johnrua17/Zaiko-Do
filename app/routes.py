@@ -839,6 +839,8 @@ def registrar_venta():
 
     # Obtener datos de la solicitud
     data = request.get_json()
+    cliente = data.get("cliente", "Consumidor Final")
+    idcliente = data.get("idcliente", "222222222222")
     productos = data.get("productos", [])
     metodo_pago = data.get("metodo_pago", "efectivo")
     pagocon = data.get("pagocon", 0)
@@ -886,8 +888,9 @@ def registrar_venta():
         
         # Valores predeterminados para la venta
         devuelto = float(pagocon) - total_venta if float(pagocon) >= total_venta else 0
-        cliente = "Consumidor Final"
-        idcliente = "222222222222"
+        # Leer los datos del cliente enviados desde el cliente
+        cliente = data.get("cliente", "Consumidor Final")
+        idcliente = data.get("idcliente", "222222222222")
         credito = 0
         fecha_servidor = fecha
 
@@ -905,9 +908,9 @@ def registrar_venta():
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cur.execute(query_venta, (
-            id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
-            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
-        ))
+        id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
+        idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
+    ))
 
         if metodo_pago == "credito":
             pass
