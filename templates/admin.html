@@ -286,14 +286,14 @@
                 <div class="modal-container">
                     <h2>Cobrar venta</h2>
                     <div class="modal-content">
-                        <label for="metodo-pago" style="display: block;">Método de pago:</label>
+                        <label style="display: block;">Método de pago:</label>
                         <div style="display: inline-block; margin-top: 10px;">
                             <div style="display: inline-block; margin: 0 10px;">
-                                <input type="radio" id="efectivo" name="metodo-pagoo" value="efectivo" checked onclick="mostrarSeccion('efectivo')">
+                                <input type="radio" id="efectivo" name="metodo-pago" value="efectivo" checked onclick="mostrarSeccion('efectivo')">
                                 <label for="efectivo">Efectivo</label>
                             </div>
                             <div style="display: inline-block; margin: 0 10px;">
-                                <input type="radio" id="credito" name="metodo-pagoo" value="credito" onclick="mostrarSeccion('credito')">
+                                <input type="radio" id="credito" name="metodo-pago" value="credito" onclick="mostrarSeccion('credito')">
                                 <label for="credito">Crédito</label>
                             </div>
                         </div>
@@ -309,7 +309,7 @@
                         <!-- Sección para Crédito -->
                         <div id="seccion-credito" style="display: none;">
                             {% from "_macro.html" import render_field %}
-                            <form class="formulario-credito" method='POST' action="{{ url_for('routes.admin') }}">
+                            <form class="formulario-credito" method='POST' action="{{ url_for('routes.registrar_venta') }}">
                                 <table class="tabla-formulario">
                                     <tr>
                                         <td>{{ render_field(VentasCreditoForm.nombre) }}</td>
@@ -324,9 +324,8 @@
                                         <td>{{ render_field(VentasCreditoForm.nota) }}</td>
                                     </tr>
                                 </table>
-                        
-                                <button type="submit" class="btn-submit">Registrar Venta</button>
-                                <button class="btn-close" id="cerrar-modal-credito">Cerrar</button>
+                                <button type="submit" class="btn-submit" id="registrar-venta-credito">Registrar venta</button>
+                                <button class="btn-close" id="cerrar-modal">Cerrar</button>
                             </form>
                         </div>
                     </div>
@@ -413,7 +412,7 @@
     <script>
         document.getElementById('buscar_productos').addEventListener('click', () => {
             document.getElementById('buscador_contenedor').style.display = 'block';
-            console.log("holaaa")
+            // console.log("holaaa")
         });
 
         document.getElementById('cerrar_buscador').addEventListener('click', () => {
@@ -479,12 +478,17 @@
         });
     </script>
     <script>
-        document.getElementById('cobrar').addEventListener('click', () => {
+    document.getElementById('cobrar').addEventListener('click', () => {
     // Calcular el total a pagar
-    const total = productosAgregados.reduce((acc, producto) => acc + (producto.Cantidad * producto.Precio_Valor), 0);
+    console.log("productos agregados")
+    console.log(productosAgregados)
+    const total = productosAgregados.reduce((acc, producto) => acc + (producto.Stock * producto.Precio_Valor), 0);
     document.getElementById('total-pagar').innerText = total.toFixed(2);
     document.getElementById('pago-con').value = total.toFixed(2); // Por defecto, igual al total
     document.getElementById('su-cambio').innerText = '0.00';
+
+    console.log("TOTAL");
+    console.log(total);
 
     // Mostrar el modal
     document.getElementById('modal-overlay').style.display = 'flex';
@@ -502,14 +506,11 @@ document.getElementById('pago-con').addEventListener('input', (event) => {
 document.getElementById('cerrar-modal').addEventListener('click', () => {
     document.getElementById('modal-overlay').style.display = 'none';
 });
-document.getElementById('cerrar-modal-credito').addEventListener('click', () => {
-    document.getElementById('modal-overlay').style.display = 'none';
-});
     </script>
     <script>
-        // Manejar el registro de la venta
-document.getElementById('registrar_venta').addEventListener('click', async () => {
-    const botonRegistrar = document.getElementById('registrar_venta');
+    // Manejar el registro de la venta
+    document.getElementById('registrar-venta').addEventListener('click', async () => {
+    const botonRegistrar = document.getElementById('registrar-venta');
     if (productosAgregados.length === 0) {
         alert('No hay productos agregados para registrar la venta.');
         return;
@@ -523,19 +524,19 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
     // console.log(metodoPago)
 
     try {
-        const response = await fetch('/ventas/registrar', {
+        const response = await fetch('/ventas/registrar', { //se envian los datos al backend en formato JSON, al endopoint /ventas/registrar
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ 
-                productos: productosAgregados, 
-                metodo_pago: metodoPago,
-                pagocon: pagoCon
+                productos: productosAgregados, //Se envía el array productosAgregados, que contiene los productos que el usuario ha agregado a la venta.
+                metodo_pago: metodoPago, //Se envía el valor del método de pago (ya sea "efectivo" o "credito").
+                pagocon: pagoCon //lo mismo pero con cuanto paga
             }),
         });
 
-        if (!response.ok) throw new Error('Error al registrar la venta.');
+        if (!response.ok) throw new Error('Error al registrar la venta, el response dio error entonces el error es en la respuesta del backend.');
 
         const data = await response.json();
 
@@ -575,6 +576,7 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
         botonRegistrar.disabled = false;
     }
 });
+
     </script>
     <script>
 // Evento que detecta cambios en la cantidad de productos agregados
@@ -595,7 +597,7 @@ document.addEventListener("input", (event) => {
 });
 function verificarProducto(producto) {
     // Si el producto no tiene inventario disponible, se muestra la advertencia y no se continúa
-    if (producto.Cantidad <= 0) {
+    if (producto.Stock <= 0) {
         Swal.fire({
             title: 'Advertencia',
             text: `El producto "${producto.Nombre}" no tiene inventario disponible.`,
@@ -624,10 +626,10 @@ function verificarProducto(producto) {
             <td>${producto.Nombre}</td>
             <td>${producto.Descripcion}</td>
             <td>${producto.Precio_Valor}</td>
-            <td class="stock-producto">${producto.Cantidad}</td>
+            <td class="stock-producto">${producto.Stock}</td>
             <td>${producto.Categoria}</td>
             <td>
-                <input type="number" class="cantidad-producto" value="1" min="1" max="${producto.Cantidad}">
+                <input type="number" class="cantidad-producto" value="1" min="1" max="${producto.Stock}">
             </td>
         </tr>
     `;

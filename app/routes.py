@@ -415,14 +415,6 @@ def admin():
     saludo = session.get('saludo')
     username = session.get('username')
     idplan = session.get('idplan')
-
-    if request.method == 'POST':
-        print("--------------------------POST--------------------------")
-        print(VentasCreditoForm.nombre.data)
-        print(VentasCreditoForm.id.data)
-        print(VentasCreditoForm.contacto.data)
-        print(VentasCreditoForm.nota.data)
-        return redirect(url_for('routes.admin'))
     
     return render_template('admin.html', saludo=saludo, username=username, idplan=idplan, VentasCreditoForm = VentasCreditoForm)
 
@@ -851,6 +843,8 @@ def registrar_venta():
     metodo_pago = data.get("metodo_pago", "efectivo")
     pagocon = data.get("pagocon", 0)
     id_usuario_actual = session.get('idusuario')
+    print(f"el data es {data}")
+    print(f"el metodo de pago es {metodo_pago}")
 
     # Validar que se envíen productos en la venta
     if not productos:
@@ -863,7 +857,7 @@ def registrar_venta():
         # Verificar stock y calcular el total de la venta
         for producto in productos:
             codigo_barras = producto["Codigo_de_barras"]
-            cantidad_solicitada = int(producto["Cantidad"])
+            cantidad_solicitada = int(producto["Stock"])
             precio_unitario = float(producto["Precio_Valor"])
 
             # Obtener el stock actual del producto
@@ -878,6 +872,7 @@ def registrar_venta():
 
             # Verificar que haya suficiente stock
             if cantidad_solicitada > stock_disponible:
+                print("no hay stock")
                 return jsonify({"error": f"No hay suficiente stock para el producto {codigo_barras}. Stock disponible: {stock_disponible}"}), 400
 
             # Acumular el total de la venta
@@ -914,34 +909,37 @@ def registrar_venta():
             idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
         ))
 
+        if metodo_pago == "credito":
+            pass
+
         # Registrar cada producto vendido: insertar el detalle y actualizar el stock
-        for producto in productos:
-            codigo_barras = producto["Codigo_de_barras"]
-            cantidad_solicitada = int(producto["Cantidad"])
-            precio_unitario = float(producto["Precio_Valor"])
+        # for producto in productos:
+        #     codigo_barras = producto["Codigo_de_barras"]
+        #     cantidad_solicitada = int(producto["Stock"])
+        #     precio_unitario = float(producto["Precio_Valor"])
             
-            # Insertar en la tabla detalle de venta
-            query_detalle = """
-            INSERT INTO detalle_ventas (
-                idventausuario, idusuario, Codigo_de_barras, Cantidad, Precio_Unitario
-            ) VALUES (%s, %s, %s, %s, %s)
-            """
-            cur.execute(query_detalle, (idventausuario, id_usuario_actual, codigo_barras, cantidad_solicitada, precio_unitario))
+            # # Insertar en la tabla detalle de venta
+            # query_detalle = """
+            # INSERT INTO detalleventas (
+            #      idusuario, Codigo_de_barras, Cantidad, Precio_Unitario
+            # ) VALUES (%s, %s, %s, %s, %s)
+            # """
+            # cur.execute(query_detalle, (, id_usuario_actual, codigo_barras, cantidad_solicitada, precio_unitario))
 
-            # Actualizar el stock del producto
-            query_update_stock = """
-            UPDATE productos 
-            SET Cantidad = Cantidad - %s 
-            WHERE Codigo_de_barras = %s AND id_usuario = %s AND Cantidad >= %s
-            """
-            cur.execute(query_update_stock, (cantidad_solicitada, codigo_barras, id_usuario_actual, cantidad_solicitada))
+            # # Actualizar el stock del producto
+            # query_update_stock = """
+            # UPDATE productos 
+            # SET Cantidad = Cantidad - %s 
+            # WHERE Codigo_de_barras = %s AND id_usuario = %s AND Cantidad >= %s
+            # """
+            # cur.execute(query_update_stock, (cantidad_solicitada, codigo_barras, id_usuario_actual, cantidad_solicitada))
 
-            # Verificar que el stock se haya actualizado correctamente
-            if cur.rowcount == 0:
-                mysql.connection.rollback()
-                return jsonify({
-                    "error": f"No se pudo actualizar el stock para el producto {codigo_barras}. Puede que no haya suficiente stock."
-                }), 400
+            # # Verificar que el stock se haya actualizado correctamente
+            # if cur.rowcount == 0:
+            #     mysql.connection.rollback()
+            #     return jsonify({
+            #         "error": f"No se pudo actualizar el stock para el producto {codigo_barras}. Puede que no haya suficiente stock."
+            #     }), 400
 
         # Confirmar los cambios en la base de datos
         mysql.connection.commit()
@@ -992,7 +990,7 @@ def agregar_productos():
                 producto.get('Descripcion', ''),
                 producto.get('Precio_Valor'),
                 producto.get('Precio_Costo'),
-                producto.get('Cantidad'),
+                producto.get('Stock'),
                 producto.get('Categoria', ''),
                 session.get('idusuario'),
                 fecha
@@ -1004,7 +1002,7 @@ def agregar_productos():
             SET Cantidad = Cantidad - %s
             WHERE Codigo_de_barras = %s AND id_usuario = %s AND Cantidad >= %s
             """
-            cantidad = producto.get('Cantidad')
+            cantidad = producto.get('Stock')
             cur.execute(query_actualizar_productos, (
                 cantidad,
                 producto.get('Codigo_de_barras'),
@@ -1066,7 +1064,7 @@ def buscar_producto_codigo():
             "Descripcion": producto["Descripcion"],
             "Precio_Valor": producto["Precio_Valor"],
             "Precio_Costo": producto["Precio_Costo"],
-            "Cantidad": producto["Cantidad"],
+            "Stock": producto["Cantidad"],
             "Categoria": producto["Categoria"]
         }
 
