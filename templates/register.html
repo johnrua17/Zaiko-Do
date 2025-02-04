@@ -13,8 +13,8 @@
     <div class="header">
         <a href="/home">
             <img src="static/images/Imagotipo.png" alt="Logo" width="248" height="85">
-        </a>        
-    </div>      
+        </a>
+    </div>
 
     <div class="login-container">
         <h2>Registrarse</h2>
@@ -53,10 +53,10 @@
 
                 </div>
             </div>
-            <!-- Turnstile Cloudflare
+            <!-- Turnstile Cloudflare -->
             <div class="form-group">
                 <div id="turnstile-container" class="cf-turnstile"></div>
-            </div> -->
+            </div>
             {% if message %}
             <div class="error-box" role="alert">
                 {{ message }}
@@ -69,58 +69,15 @@
                     Acepto los <a href="terminos_condiciones" target="_blank">términos y condiciones</a>.
                 </label>
             </div>
-            
+
             <button id="registerButton" type="submit" >Registrarse</button>
         </form>
         <p>¿Ya tienes una cuenta? <a href="{{ url_for('auth.login') }}">¡Iniciar sesión!</a></p>
     </div>
     <!-- Turnstile Script -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
-    <!-- <script>
-        function onClick(e) {
-          e.preventDefault();
-          grecaptcha.enterprise.ready(async () => {
-            const token = await grecaptcha.enterprise.execute('6LeZgt8pAAAAANTHyYyTJmIqg2AVRqXutjC2ucMy', {action: 'LOGIN'});
-          });
-        }
-    </script>
-    <script>
-        $(document).ready(function(){
-            $('[data-toggle="tooltip"]').tooltip();
-        });
-    </script> -->
-    <!-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let registerButton = document.getElementById('registerButton');
-            let interacted = false;
 
-            function enableButton() {
-                if (!interacted) {
-                    registerButton.disabled = false;
-                    interacted = true;
-                    document.removeEventListener('click', enableButton);
-                }
-            }
 
-            document.addEventListener('click', enableButton);
-        });
-    </script> -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const termsCheckbox = document.getElementById('termsCheckbox');
-            const registerButton = document.getElementById('registerButton');
-    
-            // Configurar el estado inicial del botón
-            registerButton.disabled = !termsCheckbox.checked;
-    
-            // Escuchar cambios en el checkbox
-            termsCheckbox.addEventListener('change', function () {
-                registerButton.disabled = !this.checked;
-            });
-        });
-    </script>
-    
-    
     <script>
         function turnstileCallback() {
             // Si la validación del CAPTCHA fue exitosa, habilitar el botón
@@ -131,7 +88,7 @@
             // Renderizar solo una vez el turnstile usando el ID específico
             if (document.getElementById('turnstile-container')) {
                 turnstile.render('#turnstile-container', {
-                    sitekey: '0x4AAAAAAAj_2LTIMCC3wnX8', // Reemplaza con tu sitio key
+                    sitekey: '0x4AAAAAAA7ZBwDHftrMRQfe', // Reemplaza con tu sitio key
                     callback: turnstileCallback // Llamar a la función cuando el CAPTCHA sea validado
                 });
             }
@@ -140,7 +97,5 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- <script src="https://www.google.com/recaptcha/enterprise.js?render=6LeZgt8pAAAAANTHyYyTJmIqg2AVRqXutjC2ucMy"></script> -->
-    <script src="{{ url_for('static', filename='js/hora.js') }}"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from app.config import Config
 from app.database import get_connection
 import bleach
+import requests
 
 # Crear un Blueprint para las rutas de autenticación
 auth_blueprint = Blueprint('auth', __name__)
@@ -20,15 +21,15 @@ def gestionar_intentos(correo, exito=False):
     if exito:
         # Restablecer intentos fallidos en caso de éxito
         cur.execute("""
-            UPDATE usuario 
-            SET intentos_fallidos = 0, bloqueado_hasta = NULL, ultimo_intento = %s 
+            UPDATE usuario
+            SET intentos_fallidos = 0, bloqueado_hasta = NULL, ultimo_intento = %s
             WHERE correo = %s
         """, (obtener_hora_actual_bogota(), correo))
     else:
         # Incrementar intentos fallidos
         cur.execute("""
-            UPDATE usuario 
-            SET intentos_fallidos = intentos_fallidos + 1, ultimo_intento = %s 
+            UPDATE usuario
+            SET intentos_fallidos = intentos_fallidos + 1, ultimo_intento = %s
             WHERE correo = %s
         """, (obtener_hora_actual_bogota(), correo))
 
@@ -39,18 +40,52 @@ def gestionar_intentos(correo, exito=False):
         if result and result['intentos_fallidos'] >= Config.MAX_INTENTOS:
             # Bloquear al usuario por el tiempo definido
             cur.execute("""
-                UPDATE usuario 
-                SET bloqueado_hasta = %s 
+                UPDATE usuario
+                SET bloqueado_hasta = %s
                 WHERE correo = %s
             """, (obtener_hora_actual_bogota() + timedelta(minutes=Config.TIEMPO_BLOQUEO_MINUTOS), correo))
 
     conn.commit()
     cur.close()
 
+
+CLOUDFLARE_SECRET_KEY = '0x4AAAAAAA7Y2N38H_aQLsbZAMpaIJcHhTY'
+
+def verify_turnstile_token(token):
+    """Envía el token de Turnstile a la API de Cloudflare para verificar su validez."""
+    if not token:
+        return False
+
+    url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+    data = {
+        'secret': CLOUDFLARE_SECRET_KEY,
+        'response': token
+    }
+
+    try:
+        # Envía el token a Cloudflare
+        response = requests.post(url, data=data)
+        result = response.json()
+
+        return result.get('success', False)  # Retorna True si el token es válido
+
+    except Exception as e:
+        # Maneja cualquier error en la solicitud
+        print(f"Error al verificar el token de Turnstile: {str(e)}")
+        return False
+
+
+
+
 @auth_blueprint.route('/login', methods=['GET', 'POST'], endpoint='login')
 def login_user():
     """Autentica a un usuario en el sistema."""
     if request.method == 'POST':
+        # Obtener y verificar el token de Turnstile
+        turnstile_token = request.form.get('cf-turnstile-response')
+        if not verify_turnstile_token(turnstile_token):
+            return render_template('index.html', error_message='Error en la verificación de seguridad. Inténtelo nuevamente.')
+
         correo = request.form['email']
         contraseña = request.form['password']
 
@@ -88,10 +123,44 @@ def login_user():
         return render_template('index.html', error_message="El usuario no existe.")
     return render_template('index.html')
 
+
+
+
+
+CLOUDFLARE_SECRET_KEY_REGISTER = '0x4AAAAAAA7ZB7u4Qaog9mifEKyPvj1lai4'
+
+def verify_turnstile_token_registro(token):
+    """Envía el token de Turnstile a la API de Cloudflare para verificar su validez."""
+    if not token:
+        return False
+
+    url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+    data = {
+        'secret': CLOUDFLARE_SECRET_KEY_REGISTER,
+        'response': token
+    }
+
+    try:
+        # Envía el token a Cloudflare
+        response = requests.post(url, data=data)
+        result = response.json()
+
+        return result.get('success', False)  # Retorna True si el token es válido
+
+    except Exception as e:
+        # Maneja cualquier error en la solicitud
+        print(f"Error al verificar el token de Turnstile: {str(e)}")
+        return False
+
 @auth_blueprint.route('/register', methods=['GET', 'POST'], endpoint='register')
 def register_user():
     """Registra un nuevo usuario en el sistema."""
     if request.method == 'POST':
+        # Obtener y verificar el token de Turnstile
+        turnstile_token = request.form.get('cf-turnstile-response')
+        if not verify_turnstile_token_registro(turnstile_token):
+            return render_template('register.html', message='Error en la verificación de seguridad. Inténtelo nuevamente.')
+            
         nombre = bleach.clean(request.form['name'])
         correo = bleach.clean(request.form['email'])
         contraseña = request.form['password']
@@ -111,7 +180,7 @@ def register_user():
             contraseña_hash = generate_password_hash(contraseña)
             fecha_creacion_plan = obtener_hora_actual_bogota()
             cur.execute("""
-                INSERT INTO usuario (nombre, correo, contraseña, role, idplan, fecha_creacion_plan) 
+                INSERT INTO usuario (nombre, correo, contraseña, role, idplan, fecha_creacion_plan)
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, (nombre, correo, contraseña_hash, 'usuario', 1, fecha_creacion_plan))
 

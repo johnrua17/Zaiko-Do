@@ -354,12 +354,8 @@
             const codigoBarras = document.getElementById('buscar_codigo_barras').value;
 
             if (!codigoBarras) {
-                Swal.fire({
-                    title: 'Advertencia',
-                    text: 'Por favor, ingresa un código de barras.',
-                    icon: 'warning',
-                    confirmButtonText: 'Aceptar'
-                });
+                alert('Por favor, ingresa un código de barras.')
+                
                 return;
             }
 
@@ -377,13 +373,14 @@
                 const data = await response.json();
 
                 if (data.error) {
+                    alert(data.error);
                     // Usamos SweetAlert2 para mostrar la advertencia
-                    Swal.fire({
-                        title: 'Advertencia',
-                        text: data.error,
-                        icon: 'warning',
-                        confirmButtonText: 'Entendido'
-                    });
+                    // Swal.fire({
+                    //     title: 'Advertencia',
+                    //     text: data.error,
+                    //     icon: 'warning',
+                    //     confirmButtonText: 'Entendido'
+                    // });
                     return;
                 }
 
@@ -393,12 +390,12 @@
 
             } catch (error) {
                 console.error(error);
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Ocurrió un error al buscar el producto.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
+                // Swal.fire({
+                //     title: 'Error',
+                //     text: 'Ocurrió un error al buscar el producto.',
+                //     icon: 'error',
+                //     confirmButtonText: 'Aceptar'
+                // });
             }
         }
 
@@ -596,12 +593,8 @@ document.addEventListener("input", (event) => {
 function verificarProducto(producto) {
     // Si el producto no tiene inventario disponible, se muestra la advertencia y no se continúa
     if (producto.Cantidad <= 0) {
-        Swal.fire({
-            title: 'Advertencia',
-            text: `El producto "${producto.Nombre}" no tiene inventario disponible.`,
-            icon: 'warning',
-            confirmButtonText: 'Entendido'
-        });
+        
+        alert(`El producto "${producto.Nombre}" no tiene inventario disponible.`)
         return;
     }
     
@@ -636,6 +629,7 @@ function verificarProducto(producto) {
     // Opcional: agregar el producto a un array global (por ejemplo, productosAgregados)
     productosAgregados.push(producto);
 }
-</script>     
+</script>
+<script src="{{ url_for('static', filename='js/ventas.js') }}"></script>  
 </body>
 </html>

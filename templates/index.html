@@ -16,8 +16,8 @@
     <div class="header">
         <a href="/home">
             <img src="static/images/Imagotipo.png" alt="Logo" width="248" height="85">
-        </a>        
-    </div>       
+        </a>
+    </div>
 
     <div class="login-container">
         <h2>Iniciar sesión</h2>
@@ -84,15 +84,15 @@
             // Si la validación del CAPTCHA fue exitosa, habilitar el botón
             document.getElementById('submitButton').disabled = false;
         }
-    
+
         function renderTurnstile() {
             if (document.getElementById('turnstile-container')) {
                 // Intenta renderizar el Turnstile
                 turnstile.render('#turnstile-container', {
-                    sitekey: '', // Reemplaza con tu sitio key
+                    sitekey: '0x4AAAAAAA7Y2KGLB1WKO0LC', // Reemplaza con tu sitio key
                     callback: turnstileCallback // Llamar a la función cuando el CAPTCHA sea validado
                 });
-    
+
                 // Verifica si se ha renderizado correctamente después de un tiempo
                 setTimeout(function() {
                     // Chequea si el contenedor del CAPTCHA tiene hijos (se ha renderizado)
@@ -103,7 +103,7 @@
                 }, 1000); // 1000ms = 1 segundos (ajusta este valor si es necesario)
             }
         }
-    
+
         document.addEventListener('DOMContentLoaded', function() {
             // Intenta renderizar el Turnstile cuando la página se cargue
             renderTurnstile();
@@ -113,7 +113,7 @@
         window.location.href = '/home'; // Redirige a la página de inicio
     });
     </script>
-    
+
 
 
 
