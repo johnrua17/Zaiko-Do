@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Factura #{{ venta.idventausuario }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+    header { text-align: center; margin-bottom: 20px; }
+    .datos-cliente, .datos-venta { margin-bottom: 20px; }
+    .datos-cliente h3, .datos-venta h3 { margin-bottom: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    table, th, td { border: 1px solid #ddd; }
+    th, td { padding: 8px; text-align: left; }
+    tfoot td { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Factura</h1>
+    <h2>#{{ venta.idventausuario }}</h2>
+    <p>Fecha: {{ venta.fecha }} - Hora: {{ venta.hora.strftime('%H:%M:%S') if venta.hora else '' }}</p>
+  </header>
+
+  <section class="datos-cliente">
+    <h3>Datos del cliente</h3>
+    <p><strong>Nombre:</strong> {{ venta.cliente }}</p>
+    <p><strong>Cédula (CC):</strong> {{ venta.idcliente }}</p>
+  </section>
+
+  <section class="datos-venta">
+    <h3>Datos de la Venta</h3>
+    <p><strong>Método de pago:</strong> {{ venta.metodo_pago }}</p>
+    <p><strong>Total:</strong> ${{ venta.totalventa }}</p>
+    <p><strong>Pago con:</strong> ${{ venta.pagocon }}</p>
+    <p><strong>Devuelto:</strong> ${{ venta.devuelto }}</p>
+  </section>
+
+  <section class="detalle-venta">
+    <h3>Detalle de productos</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Producto</th>
+          <th>Descripción</th>
+          <th>Cantidad</th>
+          <th>Precio unitario</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in detalles %}
+        <tr>
+          <td>{{ item.Codigo_de_barras }}</td>
+          <td>{{ item.nombre }}</td>
+          <td>{{ item.descripcion }}</td>
+          <td>{{ item.Cantidad }}</td>
+          <td>${{ item.Precio_Unitario }}</td>
+          <td>${{ (item.Cantidad * item.Precio_Unitario)|round(2) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5">Total a pagar</td>
+          <td>${{ venta.totalventa }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <footer>
+    <p>Gracias por su compra.</p>
+  </footer>
+</body>
+</html>

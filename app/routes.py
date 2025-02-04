@@ -5,6 +5,7 @@ from flask_mysqldb import MySQL
 from io import BytesIO
 from openpyxl import Workbook
 from flask import send_file
+from flask import make_response
 import bleach
 import pytz
 import uuid
@@ -415,14 +416,6 @@ def admin():
     saludo = session.get('saludo')
     username = session.get('username')
     idplan = session.get('idplan')
-
-    if request.method == 'POST':
-        print("--------------------------POST--------------------------")
-        print(VentasCreditoForm.nombre.data)
-        print(VentasCreditoForm.id.data)
-        print(VentasCreditoForm.contacto.data)
-        print(VentasCreditoForm.nota.data)
-        return redirect(url_for('routes.admin'))
     
     return render_template('admin.html', saludo=saludo, username=username, idplan=idplan, VentasCreditoForm = VentasCreditoForm)
 
@@ -549,16 +542,16 @@ def planes():
 
 @routes_blueprint.route('/suscribir/<int:idplan>', methods=['GET'])
 def suscribir(idplan):
+    
     id_usuario = session.get('idusuario')
     # correo_usuario = session.get('correo')
-
+    if not id_usuario or not correo_usuario:
+            return redirect(url_for('auth.login')) # Redirigir al login si el usuario no está autenticado
 
     cur = mysql.connection.cursor()
     cur.execute('SELECT correo FROM usuario WHERE idusuario= %s', [id_usuario])
     correo_usuario=  cur.fetchone()['correo']
-    if not id_usuario or not correo_usuario:
-        return render_template('index.html')  # Redirigir al login si el usuario no está autenticado
-
+    
     # Obtener la hora actual en Bogotá
     bogota_tz = pytz.timezone('America/Bogota')
     fecha_actual = datetime.now(bogota_tz)
@@ -839,6 +832,63 @@ def registrar_historial_plan(idusuario, nombre_plan, transaction_amount_in_cents
     finally:
         cur.close()
 
+@routes_blueprint.route('/ventas/reporte', methods=["GET"])
+def reporte_ventas():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return redirect(url_for('auth.login'))
+
+    id_usuario_actual = session.get('idusuario')
+    print(f"el id del usuario es {id_usuario_actual}")
+
+    try:
+        cur = mysql.connection.cursor()
+
+        query_categorias_vendidas = """
+        SELECT 
+            dv.categoria, 
+            SUM(dv.valor * dv.cantidad) AS total_ventas
+        FROM detalleventas dv
+        JOIN ventas v ON dv.idventa = v.idventas
+        WHERE dv.idusuario = %s
+        GROUP BY dv.categoria;
+        """
+        cur.execute(query_categorias_vendidas, (id_usuario_actual,))
+        categorias_vendidas = cur.fetchall()
+
+        query_ganancias_categoria = """
+        SELECT 
+            dv.categoria, 
+            SUM((CAST(dv.valor AS DECIMAL(10,2)) - CAST(dv.costo AS DECIMAL(10,2))) * CAST(dv.cantidad AS UNSIGNED)) AS ganancia
+        FROM detalleventas dv
+        JOIN ventas v ON dv.idventa = v.idventas
+        WHERE dv.idusuario = %s
+        GROUP BY dv.categoria;
+        """
+        cur.execute(query_ganancias_categoria, (id_usuario_actual,))
+        ganancias_categoria = cur.fetchall()
+
+
+        query_ventas_metodo_pago = """
+        SELECT 
+            v.metodo_pago, 
+            COALESCE(SUM((CAST(dv.valor AS DECIMAL(10,2)) - CAST(dv.costo AS DECIMAL(10,2))) * CAST(dv.cantidad AS UNSIGNED)), 0) AS ganancia
+        FROM ventas v
+        LEFT JOIN detalleventas dv ON v.idventas = dv.idventa
+        WHERE v.idusuario = %s
+        GROUP BY v.metodo_pago;
+        """
+        cur.execute(query_ventas_metodo_pago, (id_usuario_actual,))
+        ventas_metodo_pago = cur.fetchall()
+
+        cur.close()
+
+        # Renderizar la plantilla con las ventas
+        return render_template('reporte_ventas.html', categorias_vendidas=categorias_vendidas, ganancias_categoria=ganancias_categoria, ventas_metodo_pago=ventas_metodo_pago )
+    except Exception as e:
+        print(f"Error al obtener las ventas: {e}")
+        return render_template('reporte_ventas.html', error_message="Error al cargar las ventas.")
+
 @routes_blueprint.route('/ventas/registrar', methods=["POST"])
 def registrar_venta():
     # Verificar si el usuario está autenticado
@@ -847,10 +897,14 @@ def registrar_venta():
 
     # Obtener datos de la solicitud
     data = request.get_json()
+    cliente = data.get("cliente", "Consumidor Final")
+    idcliente = data.get("idcliente", "222222222222")
     productos = data.get("productos", [])
     metodo_pago = data.get("metodo_pago", "efectivo")
     pagocon = data.get("pagocon", 0)
     id_usuario_actual = session.get('idusuario')
+    print(f"el data es {data}")
+    print(f"el metodo de pago es {metodo_pago}")
 
     # Validar que se envíen productos en la venta
     if not productos:
@@ -863,7 +917,7 @@ def registrar_venta():
         # Verificar stock y calcular el total de la venta
         for producto in productos:
             codigo_barras = producto["Codigo_de_barras"]
-            cantidad_solicitada = int(producto["Cantidad"])
+            cantidad_solicitada = int(producto["Stock"])
             precio_unitario = float(producto["Precio_Valor"])
 
             # Obtener el stock actual del producto
@@ -878,6 +932,7 @@ def registrar_venta():
 
             # Verificar que haya suficiente stock
             if cantidad_solicitada > stock_disponible:
+                print("no hay stock")
                 return jsonify({"error": f"No hay suficiente stock para el producto {codigo_barras}. Stock disponible: {stock_disponible}"}), 400
 
             # Acumular el total de la venta
@@ -891,8 +946,9 @@ def registrar_venta():
         
         # Valores predeterminados para la venta
         devuelto = float(pagocon) - total_venta if float(pagocon) >= total_venta else 0
-        cliente = "Consumidor Final"
-        idcliente = "222222222222"
+        # Leer los datos del cliente enviados desde el cliente
+        cliente = data.get("cliente", "Consumidor Final")
+        idcliente = data.get("idcliente", "222222222222")
         credito = 0
         fecha_servidor = fecha
 
@@ -910,38 +966,41 @@ def registrar_venta():
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cur.execute(query_venta, (
-            id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
-            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
-        ))
+        id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
+        idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
+    ))
+
+        if metodo_pago == "credito":
+            pass
 
         # Registrar cada producto vendido: insertar el detalle y actualizar el stock
-        for producto in productos:
-            codigo_barras = producto["Codigo_de_barras"]
-            cantidad_solicitada = int(producto["Cantidad"])
-            precio_unitario = float(producto["Precio_Valor"])
+        # for producto in productos:
+        #     codigo_barras = producto["Codigo_de_barras"]
+        #     cantidad_solicitada = int(producto["Stock"])
+        #     precio_unitario = float(producto["Precio_Valor"])
             
-            # Insertar en la tabla detalle de venta
-            query_detalle = """
-            INSERT INTO detalle_ventas (
-                idventausuario, idusuario, Codigo_de_barras, Cantidad, Precio_Unitario
-            ) VALUES (%s, %s, %s, %s, %s)
-            """
-            cur.execute(query_detalle, (idventausuario, id_usuario_actual, codigo_barras, cantidad_solicitada, precio_unitario))
+            # # Insertar en la tabla detalle de venta
+            # query_detalle = """
+            # INSERT INTO detalleventas (
+            #      idusuario, Codigo_de_barras, Cantidad, Precio_Unitario
+            # ) VALUES (%s, %s, %s, %s, %s)
+            # """
+            # cur.execute(query_detalle, (, id_usuario_actual, codigo_barras, cantidad_solicitada, precio_unitario))
 
-            # Actualizar el stock del producto
-            query_update_stock = """
-            UPDATE productos 
-            SET Cantidad = Cantidad - %s 
-            WHERE Codigo_de_barras = %s AND id_usuario = %s AND Cantidad >= %s
-            """
-            cur.execute(query_update_stock, (cantidad_solicitada, codigo_barras, id_usuario_actual, cantidad_solicitada))
+            # # Actualizar el stock del producto
+            # query_update_stock = """
+            # UPDATE productos 
+            # SET Cantidad = Cantidad - %s 
+            # WHERE Codigo_de_barras = %s AND id_usuario = %s AND Cantidad >= %s
+            # """
+            # cur.execute(query_update_stock, (cantidad_solicitada, codigo_barras, id_usuario_actual, cantidad_solicitada))
 
-            # Verificar que el stock se haya actualizado correctamente
-            if cur.rowcount == 0:
-                mysql.connection.rollback()
-                return jsonify({
-                    "error": f"No se pudo actualizar el stock para el producto {codigo_barras}. Puede que no haya suficiente stock."
-                }), 400
+            # # Verificar que el stock se haya actualizado correctamente
+            # if cur.rowcount == 0:
+            #     mysql.connection.rollback()
+            #     return jsonify({
+            #         "error": f"No se pudo actualizar el stock para el producto {codigo_barras}. Puede que no haya suficiente stock."
+            #     }), 400
 
         # Confirmar los cambios en la base de datos
         mysql.connection.commit()
@@ -992,7 +1051,7 @@ def agregar_productos():
                 producto.get('Descripcion', ''),
                 producto.get('Precio_Valor'),
                 producto.get('Precio_Costo'),
-                producto.get('Cantidad'),
+                producto.get('Stock'),
                 producto.get('Categoria', ''),
                 session.get('idusuario'),
                 fecha
@@ -1004,7 +1063,7 @@ def agregar_productos():
             SET Cantidad = Cantidad - %s
             WHERE Codigo_de_barras = %s AND id_usuario = %s AND Cantidad >= %s
             """
-            cantidad = producto.get('Cantidad')
+            cantidad = producto.get('Stock')
             cur.execute(query_actualizar_productos, (
                 cantidad,
                 producto.get('Codigo_de_barras'),
@@ -1066,7 +1125,7 @@ def buscar_producto_codigo():
             "Descripcion": producto["Descripcion"],
             "Precio_Valor": producto["Precio_Valor"],
             "Precio_Costo": producto["Precio_Costo"],
-            "Cantidad": producto["Cantidad"],
+            "Stock": producto["Cantidad"],
             "Categoria": producto["Categoria"]
         }
 
@@ -1141,7 +1200,6 @@ def aplicar_devolucion(idventa):
                 (producto['cantidad'], producto['codigo_de_barras'], id_usuario)
             )
 
-
         # 3. Poner en cero el total de la venta y marcarla como devuelta
         cursor.execute(
             "UPDATE ventas SET totalventa = 0, devuelto = TRUE WHERE idventausuario = %s AND idusuario = %s",
@@ -1160,3 +1218,47 @@ def aplicar_devolucion(idventa):
     except Exception as e:
         print(f"Error al aplicar la devolución: {e}")  # Asegúrate de que 'e' esté definido
         return jsonify({"error": "Error al aplicar la devolución."}), 500
+    
+@routes_blueprint.route('/factura/<int:idventa>', methods=["GET"])
+def generar_factura(idventa):
+    # Verificar que el usuario esté autenticado
+    if not session.get('idusuario'):
+        return redirect(url_for('routes.login'))
+
+    idusuario = session.get('idusuario')
+    try:
+        cur = mysql.connection.cursor()
+
+        # Obtener la venta de la tabla ventas
+        query_venta = """
+            SELECT * FROM ventas 
+            WHERE idventausuario = %s AND idusuario = %s
+        """
+        cur.execute(query_venta, (idventa, idusuario))
+        venta = cur.fetchone()
+        if not venta:
+            return "Venta no encontrada", 404
+
+        # Obtener el detalle de la venta (productos)
+        query_detalle = """
+            SELECT * FROM detalleventas 
+            WHERE idventa = %s AND idusuario = %s
+        """
+        cur.execute(query_detalle, (idventa, idusuario))
+        detalles = cur.fetchall()
+        cur.close()
+
+        # Renderizar la plantilla HTML de la factura
+        html = render_template('factura.html', venta=venta, detalles=detalles)
+        # Generar PDF a partir del HTML (pdfkit.from_string devuelve bytes si se pasa False)
+        pdf = pdfkit.from_string(html, False)
+
+        # Preparar la respuesta con el PDF
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename=factura_{idventa}.pdf'
+        return response
+
+    except Exception as e:
+        print("Error generando factura:", e)
+        return "Error generando factura", 500
