@@ -53,9 +53,14 @@
           </div>
           <div class="submenu" id="configuracion-submenu"> 
             <a href="{{ url_for('routes.planes') }}" class="submenu-item">
-              <i class="fas fa-plus"></i> &nbsp;Gestionar planes
+                <i class="fas fa-plus"></i> &nbsp;Gestionar planes
             </a>
-          </div>
+            {% if session.get('role') == 'admin' %}
+            <a href="{{ url_for('routes.ventana_administracion') }}" class="submenu-item">
+                <i class="fas fa-user-cog"></i> &nbsp;Ventana de administración
+            </a>
+            {% endif %}
+        </div>
         
           
         

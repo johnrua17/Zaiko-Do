@@ -1270,3 +1270,145 @@ def generar_factura(idventa):
     except Exception as e:
         print("Error generando factura:", e)
         return "Error generando factura", 500
+@routes_blueprint.route('/ventana_administracion')
+def ventana_administracion():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return redirect(url_for('routes.login'))  # Redirigir al login si no está autenticado
+
+    rol_usuario_actual = session.get('role')  # Obtener el rol del usuario
+
+    # Verificar si el usuario es administrador
+    if rol_usuario_actual != 'admin':
+        return render_template('admin_usuarios.html', error_message="No tienes permisos para acceder a esta página.")
+
+    try:
+        # Conectar a la base de datos usando un cursor que retorna diccionarios
+        cursor = mysql.connection.cursor()
+   
+        # Consulta para obtener la información de los usuarios junto con sus planes, ventas e inactividad
+        query = """
+            SELECT 
+                u.idusuario,
+                u.nombre AS nombre_usuario,
+                u.correo,
+                u.role,
+                p.nombre AS plan_actual,
+                u.fecha_creacion_plan,
+                u.fecha_expiracion_plan,
+                COUNT(v.idventas) AS total_ventas,
+                MAX(v.fecha) AS ultima_venta,
+                DATEDIFF(NOW(), u.ultimo_intento) AS dias_inactivo
+            FROM 
+                usuario u
+            LEFT JOIN 
+                planes p ON u.idplan = p.idplan
+            LEFT JOIN 
+                ventas v ON u.idusuario = v.idusuario
+            GROUP BY 
+                u.idusuario
+        """
+        cursor.execute(query)
+        usuarios = cursor.fetchall()
+        cursor.close()
+
+        # Renderizar la plantilla 'admin.html' con la información de los usuarios
+        return render_template('ventana_administracion.html', usuarios=usuarios, rol_usuario_actual=rol_usuario_actual)
+
+    except Exception as e:
+        print(f"Error al listar usuarios: {e}")
+        # Renderizar la misma plantilla con un mensaje de error
+        return render_template('admin.html', error_message="Error al cargar la información de los usuarios.")
+    
+@routes_blueprint.route('/usuarios/eliminar/<int:id_usuario>', methods=['GET'])
+def eliminar_usuario(id_usuario):
+    id_usuario_actual = session.get('idusuario')  # Obtener ID del usuario actual
+    cur = mysql.connection.cursor()
+
+    try:
+        # Iniciar transacción
+        cur.execute('START TRANSACTION')
+
+        # Eliminar registros dependientes en las tablas relacionadas
+        cur.execute('DELETE FROM productos WHERE id_usuario = %s', (id_usuario,))
+        cur.execute('DELETE FROM suscripciones WHERE idusuario = %s', (id_usuario,))
+        cur.execute('DELETE FROM historial_planes_usuarios WHERE idusuario = %s', (id_usuario,))
+        cur.execute('DELETE FROM historial_planes WHERE idusuario = %s', (id_usuario,))
+        cur.execute('DELETE FROM ventas WHERE idusuario = %s', (id_usuario,))
+        cur.execute('DELETE FROM creditos WHERE idusuario = %s', (id_usuario,))
+
+        # Ahora eliminar el usuario de la tabla 'usuario'
+        cur.execute('DELETE FROM usuario WHERE idusuario = %s', (id_usuario,))
+
+        # Confirmar la eliminación
+        mysql.connection.commit()
+
+        return redirect(url_for('routes.ventana_administracion'))  # Redirigir a la ventana de administración
+
+    except Exception as e:
+        # Si ocurre un error, hacer rollback y mostrar mensaje
+        mysql.connection.rollback()
+        print(f"Error al eliminar el usuario: {e}")  # Depuración
+        return redirect(url_for('routes.ventana_administracion'))  # Redirigir en caso de error
+
+    finally:
+        cur.close()
+@routes_blueprint.route('/usuarios/editar/<int:id_usuario>', methods=['GET', 'POST'])
+def editar_usuario(id_usuario):
+    id_usuario_actual = session.get('idusuario')  # Obtener ID del usuario actual
+    if not id_usuario_actual:
+        return redirect(url_for('routes.login'))  # Redirigir si no está autenticado
+
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        nombre = request.form.get('nombre')
+        correo = request.form.get('correo')
+        fecha_expiracion_plan = request.form.get('fecha_expiracion_plan')  
+        role = request.form.get('role')
+        idplan = request.form.get('idplan')
+        # Crear cursor para consultas
+        cur = mysql.connection.cursor()
+        try:
+            # Iniciar transacción
+            cur.execute('START TRANSACTION')
+
+            # Consultar si el usuario existe
+            cur.execute("SELECT * FROM usuario WHERE idusuario = %s", (id_usuario,))
+            usuario = cur.fetchone()
+
+            if not usuario:
+             
+                return redirect(url_for('routes.ventana_administracion'))
+
+            # Actualizar el usuario
+            cur.execute(''' 
+                UPDATE usuario
+                SET nombre = %s, correo = %s, fecha_expiracion_plan = %s, role = %s, idplan = %s
+                WHERE idusuario = %s
+            ''', (nombre, correo, fecha_expiracion_plan if fecha_expiracion_plan else None, role, idplan, id_usuario))
+
+            # Confirmar la actualización
+            mysql.connection.commit()
+
+             
+            return redirect(url_for('routes.ventana_administracion'))
+
+        except Exception as e:
+            # Si ocurre un error, hacer rollback y mostrar mensaje
+            mysql.connection.rollback()
+            return redirect(url_for('routes.ventana_administracion'))
+
+        finally:
+            cur.close()
+
+    else:
+        # Si es un GET, traer los datos actuales del usuario
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM usuario WHERE idusuario = %s", (id_usuario,))
+        usuario = cur.fetchone()
+        cur.close()
+
+        if not usuario:
+             return redirect(url_for('routes.ventana_administracion'))
+
+        return render_template('editar_usuario.html', usuario=usuario)
