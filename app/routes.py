@@ -846,45 +846,85 @@ def reporte_ventas():
 
         query_categorias_vendidas = """
         SELECT 
-            dv.categoria, 
-            SUM(dv.valor * dv.cantidad) AS total_ventas
-        FROM detalleventas dv
-        JOIN ventas v ON dv.idventa = v.idventas
-        WHERE dv.idusuario = %s
-        GROUP BY dv.categoria;
+            categoria,
+            SUM(CAST(cantidad AS DECIMAL(10,2)) * CAST(valor AS DECIMAL(10,2))) AS ingresos_brutos
+        FROM 
+            detalleventas
+        WHERE 
+            idusuario = %s
+        GROUP BY 
+            categoria;
         """
         cur.execute(query_categorias_vendidas, (id_usuario_actual,))
         categorias_vendidas = cur.fetchall()
 
         query_ganancias_categoria = """
         SELECT 
-            dv.categoria, 
-            SUM((CAST(dv.valor AS DECIMAL(10,2)) - CAST(dv.costo AS DECIMAL(10,2))) * CAST(dv.cantidad AS UNSIGNED)) AS ganancia
-        FROM detalleventas dv
-        JOIN ventas v ON dv.idventa = v.idventas
-        WHERE dv.idusuario = %s
-        GROUP BY dv.categoria;
+            categoria,
+            SUM((CAST(valor AS DECIMAL(10,2)) - CAST(costo AS DECIMAL(10,2))) * CAST(cantidad AS DECIMAL(10,2))) AS ganancia_total
+        FROM 
+            detalleventas
+        WHERE 
+            idusuario = %s
+        GROUP BY 
+            categoria;
         """
         cur.execute(query_ganancias_categoria, (id_usuario_actual,))
         ganancias_categoria = cur.fetchall()
 
 
         query_ventas_metodo_pago = """
-        SELECT 
-            v.metodo_pago, 
-            COALESCE(SUM((CAST(dv.valor AS DECIMAL(10,2)) - CAST(dv.costo AS DECIMAL(10,2))) * CAST(dv.cantidad AS UNSIGNED)), 0) AS ganancia
-        FROM ventas v
-        LEFT JOIN detalleventas dv ON v.idventas = dv.idventa
-        WHERE v.idusuario = %s
-        GROUP BY v.metodo_pago;
+                SELECT 
+            v.metodo_pago,
+            SUM((CAST(dv.valor AS DECIMAL(10,2)) - CAST(dv.costo AS DECIMAL(10,2))) * CAST(dv.cantidad AS DECIMAL(10,2))) AS ganancia_total
+        FROM 
+            detalleventas dv
+        INNER JOIN 
+            ventas v ON dv.idventa = v.idventas
+        WHERE 
+            dv.idusuario = %s
+        GROUP BY 
+            v.metodo_pago;
         """
         cur.execute(query_ventas_metodo_pago, (id_usuario_actual,))
         ventas_metodo_pago = cur.fetchall()
 
+        query_ventas_dia = """
+        SELECT 
+            SUM(CAST(cantidad AS DECIMAL(10,2)) * CAST(valor AS DECIMAL(10,2))) AS ingresos_brutos_hoy
+        FROM 
+            detalleventas
+        WHERE 
+            idusuario = %s
+            AND fecha = CURDATE();
+        """
+        cur.execute(query_ventas_dia, (id_usuario_actual,))
+        ventas_dia_result = cur.fetchone()  # Usamos fetchone porque esperamos un solo resultado
+        ventas_dia = ventas_dia_result['ingresos_brutos_hoy'] if ventas_dia_result else 0  # Extraemos el valor
+
+        query_ganancias_dia = """
+        SELECT 
+            SUM((CAST(valor AS DECIMAL(10,2)) - CAST(costo AS DECIMAL(10,2))) * CAST(cantidad AS DECIMAL(10,2))) AS ganancia_total
+        FROM 
+            detalleventas
+        WHERE 
+            idusuario = %s
+            AND fecha = CURDATE();
+        """
+        cur.execute(query_ganancias_dia, (id_usuario_actual,))
+        ganancias_dia_result = cur.fetchone()
+        ganancias_dia = ganancias_dia_result['ganancia_total'] if ganancias_dia_result else 0
+
         cur.close()
 
         # Renderizar la plantilla con las ventas
-        return render_template('reporte_ventas.html', categorias_vendidas=categorias_vendidas, ganancias_categoria=ganancias_categoria, ventas_metodo_pago=ventas_metodo_pago )
+        return render_template('reporte_ventas.html', 
+                               categorias_vendidas=categorias_vendidas, 
+                               ganancias_categoria=ganancias_categoria, 
+                               ventas_metodo_pago=ventas_metodo_pago, 
+                               ventas_dia=ventas_dia, 
+                               ganancias_dia=ganancias_dia)
+    
     except Exception as e:
         print(f"Error al obtener las ventas: {e}")
         return render_template('reporte_ventas.html', error_message="Error al cargar las ventas.")
@@ -902,6 +942,8 @@ def registrar_venta():
     productos = data.get("productos", [])
     metodo_pago = data.get("metodo_pago", "efectivo")
     pagocon = data.get("pagocon", 0)
+    contacto = data.get("contacto", "")
+    nota = data.get("nota", "")
     id_usuario_actual = session.get('idusuario')
     print(f"el data es {data}")
     print(f"el metodo de pago es {metodo_pago}")
@@ -946,9 +988,6 @@ def registrar_venta():
         
         # Valores predeterminados para la venta
         devuelto = float(pagocon) - total_venta if float(pagocon) >= total_venta else 0
-        # Leer los datos del cliente enviados desde el cliente
-        cliente = data.get("cliente", "Consumidor Final")
-        idcliente = data.get("idcliente", "222222222222")
         credito = 0
         fecha_servidor = fecha
 
@@ -961,48 +1000,17 @@ def registrar_venta():
         query_venta = """
         INSERT INTO ventas (
             idusuario, totalventa, pagocon, fecha, hora, metodo_pago,
-            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
+            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor,
+            contacto, nota
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cur.execute(query_venta, (
-        id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
-        idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
-    ))
+            id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
+            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor,
+            contacto, nota
+        ))
 
-        if metodo_pago == "credito":
-            pass
-
-        # Registrar cada producto vendido: insertar el detalle y actualizar el stock
-        # for producto in productos:
-        #     codigo_barras = producto["Codigo_de_barras"]
-        #     cantidad_solicitada = int(producto["Stock"])
-        #     precio_unitario = float(producto["Precio_Valor"])
-            
-            # # Insertar en la tabla detalle de venta
-            # query_detalle = """
-            # INSERT INTO detalleventas (
-            #      idusuario, Codigo_de_barras, Cantidad, Precio_Unitario
-            # ) VALUES (%s, %s, %s, %s, %s)
-            # """
-            # cur.execute(query_detalle, (, id_usuario_actual, codigo_barras, cantidad_solicitada, precio_unitario))
-
-            # # Actualizar el stock del producto
-            # query_update_stock = """
-            # UPDATE productos 
-            # SET Cantidad = Cantidad - %s 
-            # WHERE Codigo_de_barras = %s AND id_usuario = %s AND Cantidad >= %s
-            # """
-            # cur.execute(query_update_stock, (cantidad_solicitada, codigo_barras, id_usuario_actual, cantidad_solicitada))
-
-            # # Verificar que el stock se haya actualizado correctamente
-            # if cur.rowcount == 0:
-            #     mysql.connection.rollback()
-            #     return jsonify({
-            #         "error": f"No se pudo actualizar el stock para el producto {codigo_barras}. Puede que no haya suficiente stock."
-            #     }), 400
-
-        # Confirmar los cambios en la base de datos
         mysql.connection.commit()
         cur.close()
 

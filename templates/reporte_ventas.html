@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/styles.css"> 
-    <title>Document</title>
+    <title>Reporte de Ventas</title>
+    <!-- Incluimos Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Estilos generales */
         body {
@@ -12,35 +14,44 @@
             margin: 0;
             padding: 0;
         }
-
         /* Contenido principal */
         .main-content {
             margin-left: 270px; /* Margen igual al ancho del sidebar + espacio */
             padding: 20px;
             box-sizing: border-box;
         }
-
+        /* Contenedores de tabla y gráfico */
+        .chart-container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .table-container {
+            flex: 1;
+        }
+        .graph-container {
+            flex: 1;
+            max-width: 400px;
+        }
         /* Tablas */
         h2 {
             margin-top: 30px;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: center;
         }
-
         th {
             background-color: #f4f4f4;
         }
-
         .ventas-dia {
             margin-top: 20px;
         }
@@ -53,32 +64,39 @@
     <div class="main-content">
         <h1>Reporte de Ventas</h1>
 
-        <!-- Tabla de Categorías Más Vendidas -->
+        <!-- Categorías Más Vendidas con Gráfico Circular -->
         <h2>Categorías Más Vendidas</h2>
-        <table id="categoriasVendidas">
-            <thead>
-                <tr>
-                    <th>Categoría</th>
-                    <th>Total de Ventas</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if categorias_vendidas %}
-                    {% for categoria in categorias_vendidas|sort(attribute='total_ventas', reverse=True) %}
+        <div class="chart-container">
+            <div class="table-container">
+                <table id="categoriasVendidas">
+                    <thead>
                         <tr>
-                            <td>{{ categoria.categoria }}</td>
-                            <td>{{ categoria.total_ventas }}</td>
+                            <th>Categoría</th>
+                            <th>Ingresos brutos</th>
                         </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="2">No hay datos disponibles</td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
+                    </thead>
+                    <tbody>
+                        {% if categorias_vendidas %}
+                            {% for categoria in categorias_vendidas|sort(attribute='ingresos_brutos', reverse=True) %}
+                                <tr>
+                                    <td>{{ categoria.categoria }}</td>
+                                    <td>{{ categoria.ingresos_brutos }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="2">No hay datos disponibles</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="graph-container">
+                <canvas id="categoriasChart"></canvas>
+            </div>
+        </div>
 
-        <!-- Tabla de Ganancias por Categoría -->
+        <!-- Ganancias por Categoría -->
         <h2>Ganancias por Categoría</h2>
         <table id="gananciasCategoria">
             <thead>
@@ -92,7 +110,7 @@
                     {% for ganancia in ganancias_categoria %}
                         <tr>
                             <td>{{ ganancia.categoria }}</td>
-                            <td>{{ ganancia.ganancia }}</td>
+                            <td>{{ ganancia.ganancia_total }}</td>
                         </tr>
                     {% endfor %}
                 {% else %}
@@ -103,7 +121,7 @@
             </tbody>
         </table>
 
-        <!-- Tabla de Ventas por Método de Pago -->
+        <!-- Ventas por Método de Pago -->
         <h2>Ventas por Método de Pago</h2>
         <table id="metodoPago">
             <thead>
@@ -117,7 +135,7 @@
                     {% for metodo in ventas_metodo_pago %}
                         <tr>
                             <td>{{ metodo.metodo_pago }}</td>
-                            <td>{{ metodo.ganancia }}</td>
+                            <td>{{ metodo.ganancia_total }}</td>
                         </tr>
                     {% endfor %}
                 {% else %}
@@ -128,12 +146,86 @@
             </tbody>
         </table>
 
-        <!-- Ventas por Día -->
+        <!-- Ventas por Día con Gráfico de Barras -->
         <h2>Ventas por Día</h2>
-        <div class="ventas-dia">
-            <p><strong>Total de Ventas:</strong> <span id="totalVentas">PENDIENTE</span></p>
-            <p><strong>Ganancias Totales:</strong> <span id="gananciasTotales">PENDIENTE</span></p>
+        <div class="chart-container">
+            <div class="table-container">
+                <div class="ventas-dia">
+                    <p><strong>Total de Ventas:</strong> <span id="totalVentas">{{ ventas_dia }}</span></p>
+                    <p><strong>Ganancias Totales:</strong> <span id="gananciasTotales">{{ ganancias_dia }}</span></p>
+                </div>
+            </div>
+            <div class="graph-container">
+                <canvas id="ventasDiaChart"></canvas>
+            </div>
         </div>
     </div>
+
+    <!-- Script para generar los gráficos -->
+    <script>
+        // Datos para el gráfico circular de categorías más vendidas
+        const categoriasData = {{ categorias_vendidas | tojson }};
+        const categoriasLabels = categoriasData.map(item => item.categoria);
+        const categoriasValues = categoriasData.map(item => item.ingresos_brutos);
+
+        const ctxCategorias = document.getElementById('categoriasChart').getContext('2d');
+        new Chart(ctxCategorias, {
+            type: 'pie',
+            data: {
+                labels: categoriasLabels,
+                datasets: [{
+                    label: 'Ingresos Brutos',
+                    data: categoriasValues,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Categorías Más Vendidas'
+                    }
+                }
+            }
+        });
+
+        // Datos para el gráfico de barras de ventas por día
+        const ventasDiaData = {
+            labels: ['Ingresos Brutos', 'Ganancias Totales'],
+            datasets: [{
+                label: 'Ventas por Día',
+                data: [{{ ventas_dia }}, {{ ganancias_dia }}],
+                backgroundColor: ['#36A2EB', '#FF6384']
+            }]
+        };
+
+        const ctxVentasDia = document.getElementById('ventasDiaChart').getContext('2d');
+        new Chart(ctxVentasDia, {
+            type: 'bar',
+            data: ventasDiaData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Ventas por Día'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
