@@ -1,6 +1,0 @@
-{% macro render_field(field) %}
-    <div class="campo-formulario">
-        <label for="{{ field.id }}" class="etiqueta-formulario">{{ field.label }}</label>
-        {{ field(**kwargs) | safe }}
-    </div>
-{% endmacro %}

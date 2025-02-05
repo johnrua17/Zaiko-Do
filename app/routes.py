@@ -16,7 +16,6 @@ import pdfkit  # Para convertir a PDF (requiere wkhtmltopdf instalado)
 ''' para Windows:
     Descarga el instalador desde wkhtmltopdf.org.
     Durante la instalación, marca la opción para agregar wkhtmltopdf al PATH del sistema.'''
-from . import forms
 # Crear un Blueprint para las rutas
 routes_blueprint = Blueprint('routes', __name__)
 
@@ -415,12 +414,11 @@ def admin():
     id_usuario_actual = session.get('idusuario')
     print("este es el id de usuario")
     print(id_usuario_actual)
-    VentasCreditoForm = forms.VentasCreditoForm(request.form)
     saludo = session.get('saludo')
     username = session.get('username')
     idplan = session.get('idplan')
     
-    return render_template('admin.html', saludo=saludo, username=username, idplan=idplan, VentasCreditoForm = VentasCreditoForm)
+    return render_template('admin.html', saludo=saludo, username=username, idplan=idplan)
 
 @routes_blueprint.route('/productos/agregar', methods=["GET", "POST"])
 def agregar_producto():

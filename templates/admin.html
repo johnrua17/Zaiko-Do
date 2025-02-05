@@ -189,7 +189,7 @@
 }
 
 /* General del formulario */ 
-.formulario-credito { 
+.formulario-datos-cliente { 
     max-width: 500px; 
     margin: 20px auto; 
     padding: 20px; 
@@ -212,7 +212,7 @@
 
 .input-formulario { 
     width: 100%; 
-    padding: 10px; 
+    padding: 5px; 
     border: 1px solid #ccc; 
     border-radius: 4px; 
     font-size: 14px; 
@@ -324,25 +324,27 @@
                             <button class="btn-close cerrar-modal">Cerrar</button>
                         </div>
                         <!-- Sección para Crédito -->
+                         <!-- De pronto no es tan buena idea usar un formulario para optener estos datos extra cuando es por credito -->
                         <div id="seccion-credito" style="display: none;">
-                            {% from "_macro.html" import render_field %}
-                            <form class="formulario-credito" method='POST' action="{{ url_for('routes.registrar_venta') }}">
-                                <table class="tabla-formulario">
-                                    <tr>
-                                        <td>{{ render_field(VentasCreditoForm.nombre) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>{{ render_field(VentasCreditoForm.id) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>{{ render_field(VentasCreditoForm.contacto) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>{{ render_field(VentasCreditoForm.nota) }}</td>
-                                    </tr>
-                                </table>
+                            <form action="{{ url_for('routes.registrar_venta') }}" method="POST" class="formulario-credito">
+                                <div class="campo-formulario">
+                                    <label for="nombre" class="etiqueta-formulario" >Nombre:</label>
+                                    <input type="text" id="nombres" name="nombre" class="input-formulario" required>
+                                </div>
+                                <div class="campo-formulario">
+                                    <label for="identificacion" class="etiqueta-formulario">Identificación:</label>
+                                    <input type="text" id="identificacion" name="identificacion" class="input-formulario" required>
+                                </div>
+                                <div class="campo-formulario">
+                                    <label for="contacto" class="etiqueta-formulario">Contacto:</label>
+                                    <input id="contacto" name="contacto" class="input-formulario" required>
+                                </div>
+                                <div class="campo-formulario">
+                                    <label for="nota" class="etiqueta-formulario">Nota:</label>
+                                    <input id="nota" name="nota" class="input-formulario" required>
+                                </div>
                                 <button type="submit" class="btn-submit" id="registrar_venta">Registrar venta</button>
-                                <button type="button" class="btn-close cerrar-modal">Cerrar</button>
+                                <button type="button" class="btn-close cerrar-modal">Cerrar</button>    
                             </form>
                         </div>
                     </div>
