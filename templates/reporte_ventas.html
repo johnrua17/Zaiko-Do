@@ -176,10 +176,13 @@
 </style>
 </head>
 <body>
+    <button class="toggle-sidebar" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
 <!-- Sidebar -->
 {% include 'sidebar.html' %}
 <!-- Contenido Principal -->
-<div class="main-content" style="margin-left: 250px;">
+<div class="main-content">
     <div class="reporte-header">
         <h1>Reporte de ventas</h1>
         <div class="date-selector">
@@ -308,6 +311,34 @@
 
 <!-- Script para generar los gráficos -->
 <script>
+    // Función para alternar el sidebar (similar a la utilizada en otras páginas)
+    function toggleSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const mainContent = document.querySelector('.main-content');
+      const toggleButton = document.querySelector('.toggle-sidebar');
+      
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('expanded');
+      toggleButton.classList.toggle('collapsed');
+    }
+    
+    // Manejo responsive del sidebar
+    function handleMobileView() {
+      const sidebar = document.querySelector('.sidebar');
+      const toggleButton = document.querySelector('.toggle-sidebar');
+      
+      if (window.innerWidth <= 768) {
+        sidebar.classList.add('collapsed');
+        toggleButton.classList.add('collapsed');
+      } else {
+        sidebar.classList.remove('collapsed');
+        toggleButton.classList.remove('collapsed');
+      }
+    }
+    
+    window.addEventListener('load', handleMobileView);
+    window.addEventListener('resize', handleMobileView);
+
     // Datos para el gráfico circular de categorías más vendidas
     const categoriasData = {{ categorias_vendidas | tojson }};
     const categoriasLabels = categoriasData.map(item => item.categoria);
