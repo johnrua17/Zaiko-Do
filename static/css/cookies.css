@@ -1,0 +1,40 @@
+:root{
+    --Verde_azulado_oscuro2:  #276f65;
+    --Verde_azulado: #4caf83;
+    --Verde: #7ad9b0;
+    --Verde_claro: #BBEBD6;
+    --Verde_2: #90d082;
+    --Blanco: #f7f9fc;
+    --Azul_grisaceo: #131A29;
+}
+
+body { 
+    background-image: linear-gradient(
+        to bottom,
+        var(--Blanco) 0%,
+        var(--Verde_claro) 25%, 
+        var(--Verde) 50%,
+        var(--Verde_azulado) 75%
+    );
+    background-size: 200% 200%;
+    animation: moveBackground 5s linear infinite alternate;
+}
+
+main {
+    margin: 20px auto;
+    max-width: 1000px;
+    min-height: 80vh;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: var(--Blanco);
+    box-shadow: gray 0px 0px 10px;
+}
+
+@keyframes moveBackground {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 100% 100%;
+    }
+}

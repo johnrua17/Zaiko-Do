@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <a href="#home">
             <img src="static/images/Imagotipo.png" alt="Logo" class="logo">
         </a>
@@ -19,14 +19,14 @@
         </button>
         <ul class="nav-list">
             <li><a href="#home" id="inicio-btn">Inicio </a></li>
-            <li><a href="#about" id="conocenos-btn">Conócenos </a></li>
-            <li><a href="#plans" id="planes-btn">Planes </a></li>
+            <li><a href="#about" id="conocenos-btn">Sobre nosotros</a></li>
         </ul>
         <div class="navbar-buttons">
-            <a href="/login" class="button1">Iniciar sesión</a>
-            <a href="/register" class="button2">Registrarse</a>
+            <button href="/login" class="button1">Iniciar sesión</button>
+            <button href="/register" class="button2">Registrarse</button>
         </div>
     </nav>
+    
     <!-- Actualización de la sección de inicio -->
     <div class="hero-section">
         <div class="hero-content">
@@ -55,281 +55,164 @@
         </div>
       </div>
   
-<!-- Nueva sección de beneficios -->
-<div class="benefits-section">
-    <h2>¿Por qué elegir Zaiko Do?</h2>
-    <div class="benefits-grid">
-      <div class="benefit-card">
-        <i class="fas fa-cloud"></i>
-        <h3>100% en la nube</h3>
-        <p>Accede a tu negocio desde cualquier lugar y dispositivo, sin necesidad de instalaciones complejas.</p>
-      </div>
-      <div class="benefit-card">
-        <i class="fas fa-shield-alt"></i>
-        <h3>Seguridad garantizada</h3>
-        <p>Tus datos están protegidos con los más altos estándares de seguridad y respaldados automáticamente.</p>
-      </div>
-      <div class="benefit-card">
-        <i class="fas fa-sync"></i>
-        <h3>Actualizaciones continuas</h3>
-        <p>Mejoras y nuevas funcionalidades constantemente sin costos adicionales.</p>
-      </div>
-      <div class="benefit-card">
-        <i class="fas fa-headset"></i>
-        <h3>Soporte personalizado</h3>
-        <p>Equipo de soporte dedicado para ayudarte en cada paso del camino.</p>
-      </div>
-    </div>
-  </div>
-<!-- Actualización de la sección Conócenos -->
-<div class="about-section" id="about">
-    <div class="about-header">
-      <h2>Transformando negocios en Colombia</h2>
-      <p>Más de 500 comerciantes ya confían en Zaiko Do para gestionar sus negocios</p>
-    </div>
-    
-    <div class="about-grid">
-      <div class="about-card">
-        <div class="about-icon">
-          <i class="fas fa-users"></i>
-        </div>
-        <div class="about-stat">500+</div>
-        <div class="about-label">Comerciantes activos</div>
-      </div>
-      <div class="about-card">
-        <div class="about-icon">
-          <i class="fas fa-shopping-cart"></i>
-        </div>
-        <div class="about-stat">1M+</div>
-        <div class="about-label">Ventas procesadas</div>
-      </div>
-      <div class="about-card">
-        <div class="about-icon">
-          <i class="fas fa-box"></i>
-        </div>
-        <div class="about-stat">100K+</div>
-        <div class="about-label">Productos gestionados</div>
-      </div>
-    </div>
-    <div class="features-grid">
-        <div class="feature-card">
-         
-          <i class="" aria-hidden="true"></i>
-          <h3>Control de Inventario</h3>
-          <p>Gestiona tu inventario en tiempo real, con alertas de stock bajo y reportes detallados.</p>
-        </div>
-        <div class="feature-card">
-          <!-- <i class="fas fa-shopping-cart feature-icon" aria-hidden="true"></i> -->
-          <h3>Gestión de Ventas</h3>
-          <p>Procesa ventas rápidamente y mantén un registro detallado de todas las transacciones.</p>
-        </div>
-        <div class="feature-card">
-          <!-- <i class="fas fa-chart-line feature-icon" aria-hidden="true"></i> -->
-          <h3>Reportes y Análisis</h3>
-          <p>Obtén insights valiosos con reportes personalizados y análisis detallados.</p>
-        </div>
-      </div>  
-  
-    <div class="content-box primary" id="intro-message">
-        <h2 class="title_style" style="font-size: 20px;">
-            Gestione el inventario de su comercio minorista con una plataforma accesible
-        </h2>
-    </div>             
-    <div class="main">
-        <div class="row" id="vision-mision">
-            <div class="col">
-                <div class="content-box">
-                    <h2 class="title_style">¿Cuál es nuestra visión?</h2>
-                    <p class="justify-text">Zaiko Do será la herramienta digital más accesible para la gestión digital de inventario de pequeños y medianos comerciantes para el 2030, permitiéndoles optimizar sus operaciones, tomar decisiones informadas y crecer de manera eficiente. Seremos reconocidos como líderes en soluciones tecnológicas que empoderan a los negocios locales, contribuyendo al desarrollo económico de las comunidades donde operamos.</p>    
-                </div>
-                <div class="content-box">
-                    <h2 class="title_style">¿Cúal es nuestra misión?</h2>
-                    <p class="justify-text">Facilitar la gestión de inventario de los pequeños y medianos comerciantes, ejecutando estas tareas a través de una plataforma web accesible, para promover la eficiencia operativa, el crecimiento empresarial y el fortalecimiento de la economía local.</p>
-                </div>
+    <!-- Nueva sección de beneficios -->
+    <div class="benefits-section">
+        <h2>¿Por qué elegir Zaiko Do?</h2>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <i class="fas fa-cloud"></i>
+                <h3>100% en la nube</h3>
+                <p>Accede a tu negocio desde cualquier lugar y dispositivo, sin necesidad de instalaciones complejas.</p>
             </div>
+
+            <div class="benefit-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Seguridad garantizada</h3>
+                <p>Tus datos están protegidos con los más altos estándares de seguridad y respaldados automáticamente.</p>
+            </div>
+
+        <div class="benefit-card">
+            <i class="fas fa-sync"></i>
+            <h3>Actualizaciones continuas</h3>
+            <p>Mejoras y nuevas funcionalidades constantemente sin costos adicionales.</p>
+        </div>
+        <div class="benefit-card">
+            <i class="fas fa-headset"></i>
+            <h3>Soporte personalizado</h3>
+            <p>Equipo de soporte dedicado para ayudarte en cada paso del camino.</p>
+        </div>
+        </div>
+    </div>
+
+    <!-- Actualización de la sección Conócenos -->
+    <div class="about-section" id="about">
+        <div class="about-header">
+        <h2>Transformando negocios en Colombia</h2>
+        <p>Más de 500 comerciantes ya confían en Zaiko Do para gestionar sus negocios</p>
+        </div>
+        
+        <div class="about-grid">
+        <div class="about-card">
+            <div class="about-icon">
+            <i class="fas fa-users"></i>
+            </div>
+            <div class="about-stat">500+</div>
+            <div class="about-label">Comerciantes activos</div>
+        </div>
+        <div class="about-card">
+            <div class="about-icon">
+            <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="about-stat">1M+</div>
+            <div class="about-label">Ventas procesadas</div>
+        </div>
+        <div class="about-card">
+            <div class="about-icon">
+            <i class="fas fa-box"></i>
+            </div>
+            <div class="about-stat">100K+</div>
+            <div class="about-label">Productos gestionados</div>
+        </div>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
             
-        </div>
+            <i class="" aria-hidden="true"></i>
+            <h3>Control de Inventario</h3>
+            <p>Gestiona tu inventario en tiempo real, con alertas de stock bajo y reportes detallados.</p>
+            </div>
+            <div class="feature-card">
+            <!-- <i class="fas fa-shopping-cart feature-icon" aria-hidden="true"></i> -->
+            <h3>Gestión de Ventas</h3>
+            <p>Procesa ventas rápidamente y mantén un registro detallado de todas las transacciones.</p>
+            </div>
+            <div class="feature-card">
+            <!-- <i class="fas fa-chart-line feature-icon" aria-hidden="true"></i> -->
+            <h3>Reportes y Análisis</h3>
+            <p>Obtén insights valiosos con reportes personalizados y análisis detallados.</p>
+            </div>
+        </div>  
+    
+        <div class="content-box primary" id="intro-message">
+            <h2 style="font-size: 30px;" color="white">
+                Gestione el inventario de su comercio minorista con una plataforma accesible
+            </h2>
+        </div> 
+        
+        <div class="main">
+            <div class="row" id="vision-mision">
+                <div class="col">
+                    <div class="content-box">
+                        <h2 class="title_style">¿Cuál es nuestra visión?</h2>
+                        <p class="justify-text">Zaiko Do será la herramienta digital más accesible para la gestión digital de inventario de pequeños y medianos comerciantes para el 2030, permitiéndoles optimizar sus operaciones, tomar decisiones informadas y crecer de manera eficiente. Seremos reconocidos como líderes en soluciones tecnológicas que empoderan a los negocios locales, contribuyendo al desarrollo económico de las comunidades donde operamos.</p>    
+                    </div>
+                    <div class="content-box">
+                        <h2 class="title_style">¿Cúal es nuestra misión?</h2>
+                        <p class="justify-text">Facilitar la gestión de inventario de los pequeños y medianos comerciantes, ejecutando estas tareas a través de una plataforma web accesible, para promover la eficiencia operativa, el crecimiento empresarial y el fortalecimiento de la economía local.</p>
+                    </div>
+                </div>
+                
+            </div>
 
-        <div class="faq" id="faq">
-            <div class="faq-container">
-                <div class="faq-title">Preguntas frecuentes</div>
-                <div class="faq-items">
-                    <div class="faq-question">
-                        ¿Qué es Zaiko Do y para quién está diseñado?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Zaiko Do es un sistema POS en línea diseñado para pequeños comerciantes que buscan una herramienta económica y fácil de usar para gestionar inventarios, ventas y clientes desde cualquier navegador.
-                    </div>
+            <div class="faq" id="faq">
+                <div class="faq-container">
+                    <div class="faq-title">Preguntas frecuentes</div>
+                    <div class="faq-items">
+                        <div class="faq-question">
+                            ¿Qué es Zaiko Do y para quién está diseñado?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Zaiko Do es un sistema POS en línea diseñado para pequeños comerciantes que buscan una herramienta económica y fácil de usar para gestionar inventarios, ventas y clientes desde cualquier navegador.
+                        </div>
 
-                    <div class="faq-question">
-                        ¿Cómo puedo empezar a usar Zaiko Do?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Puedes registrarte de forma gratuita creando una cuenta en nuestra página principal. Podrás usar las funciones básicas del plan gratuito para empezar a gestionar tu tienda.
-                    </div>
+                        <div class="faq-question">
+                            ¿Cómo puedo empezar a usar Zaiko Do?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Puedes registrarte de forma gratuita creando una cuenta en nuestra página principal. Podrás usar las funciones básicas del plan gratuito para empezar a gestionar tu tienda.
+                        </div>
 
-                    <div class="faq-question">
-                        ¿Qué beneficios tiene usar Zaiko Do en comparación con otros sistemas POS?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Zaiko Do es accesible, económico y fácil de usar. Ofrecemos todo lo esencial: gestión de inventarios, registro de ventas y generación de reportes; desde una plataforma web sin necesidad de instalaciones adicionales.
-                    </div>
+                        <div class="faq-question">
+                            ¿Qué beneficios tiene usar Zaiko Do en comparación con otros sistemas POS?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Zaiko Do es accesible, económico y fácil de usar. Ofrecemos todo lo esencial: gestión de inventarios, registro de ventas y generación de reportes; desde una plataforma web sin necesidad de instalaciones adicionales.
+                        </div>
 
-                    <div class="faq-question">
-                        ¿Qué sucede si necesito más funciones que las ofrecidas en el plan gratuito?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Puedes explorar nuestros planes de pago desde la sección de "Planes". Cada plan tiene características adicionales como límites mayores en productos y ventas, reportes avanzados y soporte prioritario.
-                    </div>
+                        <div class="faq-question">
+                            ¿Qué sucede si necesito más funciones que las ofrecidas en el plan gratuito?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Puedes explorar nuestros planes de pago desde la sección de "Planes". Cada plan tiene características adicionales como límites mayores en productos y ventas, reportes avanzados y soporte prioritario.
+                        </div>
 
-                    <div class="faq-question">
-                        ¿Cómo puedo obtener ayuda si tengo preguntas o problemas?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Puedes contactar a nuestro equipo de soporte a través del nuestras redes sociales, escribiendo al correo zaikodo.services@gmail.com o llamando a nuestra línea de atención al cliente.
+                        <div class="faq-question">
+                            ¿Cómo puedo obtener ayuda si tengo preguntas o problemas?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Puedes contactar a nuestro equipo de soporte a través del nuestras redes sociales, escribiendo al correo zaikodo.services@gmail.com o llamando a nuestra línea de atención al cliente.
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>  
 
-        <div class="team section-container" id="equipo">
-            <h2>Equipo de Desarrollo</h2>
-            <div class="team-container">
-                <div class="card">
-                    <img src="static/images/jruac.jpg" alt="John Rua" class="profile-pic">
-                    <h3>John Andrés Rua Cortés</h3>
-                    <p>Desarrollador Backend</p>
-                    <div class="social-icons">
-                        <a href="https://github.com/johnrua17" title="Github de John Rua" target="_blank">
-                            <img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
-                        <a href="https://www.linkedin.com/in/john-rua-5bb032231/" title="LinkedIn de John Rua" target="_blank">
-                            <img src="static/images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
-                    </div>
-                </div>
-                <div class="card">
-                    <img src="static/images/fmurciam.jpg" alt="Fabio Murcia" class="profile-pic">
-                    <h3>Fabio Esteban Murcia Martínez </h3>
-                    <p>Desarrollador Frontend</p>
-                    <div class="social-icons">
-                        <a href="https://github.com/Gorenpop" title="Gitgub de Fabio Murcia" target="_blank">
-                            <img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
-                        <a href="https://www.linkedin.com/in/fabio-murcia-6086a4317/" title="LinkedIn de Fabio Murcia" target="_blank">
-                            <img src="static/images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
-                    </div>
-                </div>
-                <div class="card">
-                    <img src="static/images/fnovoas.jpg" alt="Fernando Novoa" class="profile-pic">
-                    <h3>Fernando Novoa Salazar</h3>
-                    <p>Desarrollador Backend</p>
-                    <div class="social-icons">
-                        <a href="https://github.com/fnovoas/" title="Github de Fernando Novoa" target="_blank">
-                            <img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
-                        <a href="https://www.linkedin.com/in/fernando-novoa-salazar-b97457223/" title="LinkedIn de Fernando Novoa" target="-blank">
-                            <img src="static/images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
-                    </div>
-                </div>
-                <div class="card">
-                    <img src="static/images/bygiraldoc.jpg" alt="Byron Giraldo" class="profile-pic">
-                    <h3>Byron Daniel Giraldo Castro</h3>
-                    <p>Desarrollador Backend</p>
-                    <div class="social-icons">
-                        <a href="https://github.com/GiraldoB" title="Gitgub de Byron Giraldo" target="_blank">
-                            <img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
-                    </div>
-                </div>
-                <div class="card">
-                    <img src="static/images/croncancio.jpg" alt="Camilo Roncancio" class="profile-pic">
-                    <h3>Camilo Andrés Roncancio Toca</h3>
-                    <p>Desarrollador Frontend</p>
-                    <div class="social-icons">
-                        <a href="https://github.com/UnalKami" title="Github de Camilo Roncancio" target="_blank">
-                            <img src="static/images/github.png" alt="Github" class="social-icon github-icon"></a>
-                        <a href="https://www.linkedin.com/in/camilo-roncancio-toca-401310276/" title="LinkedIn de Camilo Roncancio" target="_blank">
-                            <img src="static/images/linkedin.png" alt="Linkedin" class="social-icon linkedin-icon"></a>
-                    </div>
-                </div>
-            </div>                  
-        </div>
+    <!-- Cookies--->
+    <div class="cookies-container" id="cookies-container">
+        <img class="cookies-image" src="static/images/icono/cookie.png" alt="Icono">
+        <h3 class="cookies-titule">Cookies</h3>
+        <p class="cookies-description">Utilizamos cookies propias y de terceros para mejorar nuestros servicios.</p>
+        <button class="btn-aceptar-cookies" id="btn-aceptar-cookies">Aceptar cookies</button>
+        <a class="hyper-cookies" href="/avisoPrivacidad">Aviso de Cookies</a>
+    </div>
 
-        <div class="plans" id="planes">
-            <div class="header-container">
-                <h1 class="header-title">Conoce nuestras membresías</h1>
-                <p class="header-description">Elige el plan que mejor se ajuste a tu negocio y empieza a disfrutar de todas las ventajas de Zaiko Do.</p>
-            </div>
-
-            <div class="subscription-container">
-                <div class="subscription-plan">
-                    <h2>Plan gratuito**</h2>
-                    <ul>
-                        <li>Registro de <strong>1000 productos</strong>.</li>
-                        <li>Registro de <strong>1000 ventas</strong>.</li>
-                        <li>Generar <strong>un solo reporte</strong>.</li>
-                    </ul>
-                    <div class="subscription-price">Gratuito</div>
-                    <div class="button-container">
-                        <a href="/login" class="choose-plan-button">Elegir plan</a>
-                    </div>
-                </div>
-                    
-                <div class="subscription-plan">
-                    <h2>Mensual</h2>
-                    <ul>
-                        <li>Registro de <strong>productos ilimitados</strong>.</li>
-                        <li>Eliminar <strong>5 productos</strong> al mes.</li>
-                        <li>Registro de <strong>ilimitadas</strong>.</li>
-                        <li>Generar <strong> reportes ilimitados</strong>.</li>
-                    </ul>
-                    <div class="subscription-price">$19.900*</div>
-                </div>
-
-                <div class="subscription-plan">
-                    <h2>Trimestral</h2>
-                    <ul>
-                        <li>Registro de <strong>productos ilimitados</strong>.</li>
-                        <li>Eliminar <strong>10 productos</strong> al mes.</li>
-                        <li>Registro de <strong>ilimitadas</strong>.</li>
-                        <li>Generar <strong> reportes ilimitados</strong>.</li>
-                    </ul>
-                    <div class="subscription-price">$59.700*</div>
-                </div>
-
-                <div class="subscription-plan">
-                    <h2>Semestral</h2>
-                    <ul>
-                        <li>Registro de <strong>productos ilimitados</strong>.</li>
-                        <li>Eliminar <strong>20 productos</strong> al mes.</li>
-                        <li>Registro de <strong>ilimitadas</strong>.</li>
-                        <li>Generar <strong> reportes ilimitados</strong>.</li>
-                    </ul>
-                    <div class="subscription-price">$99.500*</div>
-                </div>
-
-                <div class="subscription-plan">
-                    <h2>Anual</h2>
-                    <ul>
-                        <li>Registro de <strong>productos ilimitados</strong>.</li>
-                        <li>Eliminar <strong>productos ilimitadas</strong>.</li>
-                        <li>Registro de <strong>ilimitadas</strong>.</li>
-                        <li>Generar <strong> reportes ilimitados</strong>.</li>
-                    </ul>
-                    <div class="subscription-price">$199.900*</div>
-                </div>
-            </div>
-
-            <div class="subscription-data">
-                <i>*Este valor será cobrado una única vez y funcionará por un periodo de 30 días para la membresía mensual,
-                    90 días para la menbresía trimestral, 180 días para la membresía semestral y 365 días para la membresía anual.</i>
-            </div>
-            <div class="subscription-data">
-                <i>**El plan gratuito no tiene fecha de expiración, pero tiene limitaciones en la cantidad de productos y ventas que puedes registrar.</i>
-            </div>
-        </div>
-    </div>        
+    <div class="background-cookies" id="background-cookies"></div>
 
     <footer class="footer">
         <div class="footer-container">
@@ -341,15 +224,15 @@
                 <h4>Contacto</h4>
                 <p>Email: zaikodo.services@gmail.com </p>
                 <p>Línea de atención: +123 456 7890</p>
-
             </div>
+
             <div class="footer-section">
                 <h4>Síguenos</h4>
                 <a href="https://instagram.com/zaiko.do/" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
                 <a href="#" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
             </div>
         </div>
-    </footer>
+    </footer>      
 </body>
 </html>
 
@@ -372,20 +255,9 @@
         document.getElementById('intro-message').style.display = 'none'; // Ocultar en Conócenos
         }); 
 
-    document.getElementById('planes-btn').addEventListener('click', function(event) {
-        event.preventDefault();
-        document.getElementById('vision-mision').style.display = 'none';
-        document.getElementById('faq').style.display = 'none';
-        document.getElementById('equipo').style.display = 'none';
-        document.getElementById('planes').style.display = 'block';
-        document.getElementById('intro-message').style.display = 'none'; // Ocultar en Planes
-        });
-
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('vision-mision').style.display = 'flex';
         document.getElementById('faq').style.display = 'block';
-        document.getElementById('equipo').style.display = 'none';
-        document.getElementById('planes').style.display = 'none';
         document.getElementById('intro-message').style.display = 'block'; // Mostrar por defecto
     });
 
@@ -408,16 +280,28 @@
     document.getElementById('equipo').style.display = 'none';
     document.getElementById('planes').style.display = 'none';
     document.getElementById('intro-message').style.display = 'block'; // Asegurar que la valla publ. se muestre
-});
+    });
 
-document.addEventListener('DOMContentLoaded', function() {
-  const mobileMenu = document.getElementById('mobile-menu');
-  const navList = document.querySelector('.nav-list');
-  const navButtons = document.querySelector('.navbar-buttons');
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        const navList = document.querySelector('.nav-list');
+        const navButtons = document.querySelector('.navbar-buttons');
 
-  mobileMenu.addEventListener('click', function() {
-    navList.classList.toggle('active');
-    navButtons.classList.toggle('active');
-  });
-});
+        mobileMenu.addEventListener('click', function() {
+            navList.classList.toggle('active');
+            navButtons.classList.toggle('active');
+        });
+    });
+
+    if (!localStorage.getItem('cookies-aceptadas')){
+        document.getElementById('cookies-container').classList.add('active');
+        document.getElementById('background-cookies').classList.add('active');
+    };
+
+    document.getElementById('btn-aceptar-cookies').addEventListener('click', () => {
+        document.getElementById('cookies-container').classList.remove('active');
+        document.getElementById('background-cookies').classList.remove('active');
+
+        localStorage.setItem('cookies-aceptadas', true);
+    });
 </script>
