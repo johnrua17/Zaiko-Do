@@ -257,7 +257,7 @@
                         <th>Precio</th>
                         <th>Stock</th>
                         <th>Categoría</th>
-                        <th>Cantidad</th> <!-- Nueva columna para la cantidad -->
+                        <th>Cantidad</th> 
                     </tr>
                 </thead>
                 <tbody id="tabla_productos">
@@ -339,7 +339,7 @@
                                         <td>{{ render_field(VentasCreditoForm.nota) }}</td>
                                     </tr>
                                 </table>
-                                <button type="submit" class="btn-submit" id="registrar-venta-credito">Registrar venta</button>
+                                <button type="submit" class="btn-submit" id="registrar_venta">Registrar venta</button>
                                 <button type="button" class="btn-close cerrar-modal">Cerrar</button>
                             </form>
                         </div>
@@ -362,133 +362,7 @@
             }
         }
     </script>
-    <script>
-        // Buscar producto por código de barras
-        async function buscarProductoCodigo() {
-            const codigoBarras = document.getElementById('buscar_codigo_barras').value;
-
-            if (!codigoBarras) {
-                alert('Por favor, ingresa un código de barras.')
-                
-                return;
-            }
-
-            try {
-                const response = await fetch('/buscar_producto_codigo', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ codigo_barras: codigoBarras }),
-                });
-
-                if (!response.ok) throw new Error('Error al buscar producto por código de barras.');
-
-                const data = await response.json();
-
-                if (data.error) {
-                    alert(data.error);
-                    // Usamos SweetAlert2 para mostrar la advertencia
-                    // Swal.fire({
-                    //     title: 'Advertencia',
-                    //     text: data.error,
-                    //     icon: 'warning',
-                    //     confirmButtonText: 'Entendido'
-                    // });
-                    return;
-                }
-
-                const producto = data.producto;
-                // Llamamos a la función de verificación que ya se encargará de mostrar advertencias si corresponde
-                verificarProducto(producto);
-
-            } catch (error) {
-                console.error(error);
-                // Swal.fire({
-                //     title: 'Error',
-                //     text: 'Ocurrió un error al buscar el producto.',
-                //     icon: 'error',
-                //     confirmButtonText: 'Aceptar'
-                // });
-            }
-        }
-
-        function Boton(){
-            alert("Pronto podrás disfrutar de esta funcionalidad...")
-        }
-        // Asignar el evento de clic al botón de búsqueda
-        document.getElementById('buscar_producto_codigo').addEventListener('click', buscarProductoCodigo);
-        document.getElementById('modificar_valor').addEventListener('click', Boton);
-        document.getElementById('eliminar_producto').addEventListener('click', Boton);
-    </script>
-    <script>
-        document.getElementById('buscar_productos').addEventListener('click', () => {
-            document.getElementById('buscador_contenedor').style.display = 'block';
-            // console.log("holaaa")
-        });
-
-        document.getElementById('cerrar_buscador').addEventListener('click', () => {
-            document.getElementById('buscador_contenedor').style.display = 'none';
-        });
-
-        // Buscar productos dinámicamente al escribir en el input
-        document.getElementById('buscador_input').addEventListener('input', async (e) => {
-            const terminoBusqueda = e.target.value.trim();
-
-            if (!terminoBusqueda) {
-                document.getElementById('resultados_busqueda').innerHTML = '';
-                return;
-            }
-
-            try {
-                const response = await fetch('/buscar_productoss', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ termino_busqueda: terminoBusqueda }),
-                });
-
-                if (!response.ok) throw new Error('Error al buscar productos');
-
-                const data = await response.json();
-
-                if (data.error) {
-                    document.getElementById('resultados_busqueda').innerHTML = `<p>${data.error}</p>`;
-                    return;
-                }
-
-                // Mostrar resultados con botón "Agregar a la venta"
-                const resultadosHtml = data.productos.map(prod => `
-                    <div style="padding: 10px; border-bottom: 1px solid #ccc;">
-                        <strong>${prod.Nombre}</strong> (${prod.Codigo_de_barras})<br>
-                        <small>${prod.Descripcion}</small><br>
-                        Precio: $${prod.Precio_Valor}<br>
-                        Cantidad disponible: ${prod.Cantidad}<br>
-                        <button 
-                            class="agregar-venta-btn" 
-                            data-producto='${JSON.stringify(prod)}'
-                        >
-                            Agregar a la venta
-                        </button>
-                    </div>
-                `).join('');
-                document.getElementById('resultados_busqueda').innerHTML = resultadosHtml;
-
-                // Agregar evento a los botones de "Agregar a la venta"
-                document.querySelectorAll('.agregar-venta-btn').forEach(btn => {
-                    btn.addEventListener('click', (event) => {
-                        const producto = JSON.parse(event.target.getAttribute('data-producto'));
-                        // La función verificarProducto se encargará de mostrar la advertencia si no hay stock.
-                        verificarProducto(producto);
-                    });
-                });
-            } catch (error) {
-                console.error(error);
-                document.getElementById('resultados_busqueda').innerHTML = '<p>Ocurrió un error al buscar productos.</p>';
-            }
-        });
-    </script>
+   
     <script>
     document.getElementById('cobrar').addEventListener('click', () => {
     // Calcular el total a pagar
@@ -523,151 +397,77 @@ document.querySelectorAll('.cerrar-modal').forEach(button => {
 
     </script>
     <script>
+        
     // Manejar el registro de la venta
-    document.getElementById('registrar-venta').addEventListener('click', async () => {
-    const botonRegistrar = document.getElementById('registrar-venta');
-    if (productosAgregados.length === 0) {
-        alert('No hay productos agregados para registrar la venta.');
-        return;
-    }
-    const total = parseFloat(document.getElementById('total-pagar').innerText);
-    const pagoCon = parseFloat(document.getElementById('pago-con').value);
-    const metodoPago = document.querySelector('input[name="metodo-pago"]:checked').value;
-    // Desactivar el botón para evitar múltiples envíos
-    botonRegistrar.disabled = true;
-    // console.log(pagoCon)
-    // console.log(metodoPago)
+//     document.getElementById('registrar-venta').addEventListener('click', async () => {
+//     const botonRegistrar = document.getElementById('registrar-venta');
+//     if (productosAgregados.length === 0) {
+//         alert('No hay productos agregados para registrar la venta.');
+//         return;
+//     }
+//     const total = parseFloat(document.getElementById('total-pagar').innerText);
+//     const pagoCon = parseFloat(document.getElementById('pago-con').value);
+//     const metodoPago = document.querySelector('input[name="metodo-pago"]:checked').value;
+//     // Desactivar el botón para evitar múltiples envíos
+//     botonRegistrar.disabled = true;
+//     // console.log(pagoCon)
+//     // console.log(metodoPago)
 
-    try {
-        const response = await fetch('/ventas/registrar', { //se envian los datos al backend en formato JSON, al endopoint /ventas/registrar
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-                productos: productosAgregados, //Se envía el array productosAgregados, que contiene los productos que el usuario ha agregado a la venta.
-                metodo_pago: metodoPago, //Se envía el valor del método de pago (ya sea "efectivo" o "credito").
-                pagocon: pagoCon //lo mismo pero con cuanto paga
-            }),
-        });
+//     try {
+//         const response = await fetch('/ventas/registrar', { //se envian los datos al backend en formato JSON, al endopoint /ventas/registrar
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({ 
+//                 productos: productosAgregados, //Se envía el array productosAgregados, que contiene los productos que el usuario ha agregado a la venta.
+//                 metodo_pago: metodoPago, //Se envía el valor del método de pago (ya sea "efectivo" o "credito").
+//                 pagocon: pagoCon //lo mismo pero con cuanto paga
+//             }),
+//         });
 
-        if (!response.ok) throw new Error('Error al registrar la venta, el response dio error entonces el error es en la respuesta del backend.');
+//         if (!response.ok) throw new Error('Error al registrar la venta, el response dio error entonces el error es en la respuesta del backend.');
 
-        const data = await response.json();
+//         const data = await response.json();
 
-        if (data.success) {
-            // Registrar productos en detalleventas
-            const agregarProductosResponse = await fetch('/ventas/agregar_productos', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    idventa: data.idventa,
-                    productos: productosAgregados,
-                    fecha: data.fecha,
-                }),
-            });
+//         if (data.success) {
+//             // Registrar productos en detalleventas
+//             const agregarProductosResponse = await fetch('/ventas/agregar_productos', {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                 },
+//                 body: JSON.stringify({
+//                     idventa: data.idventa,
+//                     productos: productosAgregados,
+//                     fecha: data.fecha,
+//                 }),
+//             });
 
-            if (!agregarProductosResponse.ok) throw new Error('Error al agregar productos.');
+//             if (!agregarProductosResponse.ok) throw new Error('Error al agregar productos.');
 
-            const productosData = await agregarProductosResponse.json();
-            if (productosData.success) {
-                alert('Venta y productos registrados correctamente.');
-                document.getElementById('modal-overlay').style.display = 'none';
+//             const productosData = await agregarProductosResponse.json();
+//             if (productosData.success) {
+//                 alert('Venta y productos registrados correctamente.');
+//                 document.getElementById('modal-overlay').style.display = 'none';
 
-                // Limpiar la tabla y los productos agregados
-                productosAgregados.length = 0; // Vaciar el array
-                document.getElementById('tabla_productos').innerHTML = ''; // Limpiar la tabla
-            }
-        } else {
-            alert(data.error);
-        }
-    } catch (error) {
-        console.error(error);
-        alert('Ocurrió un error al registrar la venta.');
-    } finally {
-        // Habilitar el botón después de la respuesta del servidor
-        botonRegistrar.disabled = false;
-    }
-});
+//                 // Limpiar la tabla y los productos agregados
+//                 productosAgregados.length = 0; // Vaciar el array
+//                 document.getElementById('tabla_productos').innerHTML = ''; // Limpiar la tabla
+//             }
+//         } else {
+//             alert(data.error);
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         alert('Ocurrió un error al registrar la venta.');
+//     } finally {
+//         // Habilitar el botón después de la respuesta del servidor
+//         botonRegistrar.disabled = false;
+//     }
+// });
 
-        // Manejar el registro de la venta
-        document.getElementById('registrar_venta').addEventListener('click', async () => {
-            const botonRegistrar = document.getElementById('registrar_venta');
-            if (productosAgregados.length === 0) {
-                alert('No hay productos agregados para registrar la venta.');
-                return;
-            }
-            const total = parseFloat(document.getElementById('total-pagar').innerText);
-            const pagoCon = parseFloat(document.getElementById('pago-con').value);
-            const metodoPago = document.querySelector('input[name="metodo-pago"]:checked').value;
-            
-            // Recoger los datos del cliente (si se han ingresado)
-            const clienteNombre = document.getElementById('cliente-nombre').value.trim();
-            const clienteCC = document.getElementById('cliente-cc').value.trim();
-            
-            // Desactivar el botón para evitar múltiples envíos
-            botonRegistrar.disabled = true;
-            // console.log(pagoCon)
-            // console.log(metodoPago)
         
-            try {
-                const response = await fetch('/ventas/registrar', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        productos: productosAgregados, 
-                        metodo_pago: metodoPago,
-                        pagocon: pagoCon,
-                        // Si no se ingresa datos, se usan valores por defecto:
-                        cliente: clienteNombre || "Consumidor Final",
-                        idcliente: clienteCC || "222222222222"
-                    }),
-                });
-        
-                if (!response.ok) throw new Error('Error al registrar la venta.');
-        
-                const data = await response.json();
-        
-                if (data.success) {
-                    // Registrar productos en detalleventas
-                    const agregarProductosResponse = await fetch('/ventas/agregar_productos', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            idventa: data.idventa,
-                            productos: productosAgregados,
-                            fecha: data.fecha,
-                        }),
-                    });
-        
-                    if (!agregarProductosResponse.ok) throw new Error('Error al agregar productos.');
-        
-                    const productosData = await agregarProductosResponse.json();
-                    if (productosData.success) {
-                        alert('Venta y productos registrados correctamente.');
-                        document.getElementById('modal-overlay').style.display = 'none';
-        
-                        // Limpiar la tabla y los productos agregados
-                        productosAgregados.length = 0; // Vaciar el array
-                        document.getElementById('tabla_productos').innerHTML = ''; // Limpiar la tabla
-                    }
-                } else {
-                    alert(data.error);
-                }
-            } catch (error) {
-                console.error(error);
-                alert('Ocurrió un error al registrar la venta.');
-            } finally {
-                // Habilitar el botón después de la respuesta del servidor
-                botonRegistrar.disabled = false;
-            }
-        });
     </script>
     <script>
 // Evento que detecta cambios en la cantidad de productos agregados
@@ -686,59 +486,50 @@ document.addEventListener("input", (event) => {
         }
     }
 });
+// Objeto para rastrear productos en la tabla
+let productosEnTabla = {};
+
+// Función para verificar y agregar un producto a la tabla
 function verificarProducto(producto) {
-    // Si el producto no tiene inventario disponible, se muestra la advertencia y no se continúa
-<<<<<<< HEAD
-    if (producto.Cantidad <= 0) {
-        
-        alert(`El producto "${producto.Nombre}" no tiene inventario disponible.`)
-=======
-    if (producto.Stock <= 0) {
-        Swal.fire({
-            title: 'Advertencia',
-            text: `El producto "${producto.Nombre}" no tiene inventario disponible.`,
-            icon: 'warning',
-            confirmButtonText: 'Entendido'
-        });
->>>>>>> da8d03afca7a0bd83b2a4b7ba5ba03b1bd3fca2c
-        return;
-    }
+    const productosBody = document.getElementById('tabla_productos'); // Referencia al cuerpo de la tabla
+
+    // Verificar si el producto ya está en la tabla
+    if (productosEnTabla[producto.Codigo_de_barras]) {
+        const existingRow = productosEnTabla[producto.Codigo_de_barras];
+        const cantidadActual = parseInt(existingRow.cells[6].textContent); // Columna de cantidad (índice 6)
+        const nuevaCantidad = cantidadActual + 1;
+
+        // Verificar si la nueva cantidad supera el stock disponible
+        if (nuevaCantidad <= producto.Stock) {
+            existingRow.cells[6].textContent = nuevaCantidad; // Actualizar la cantidad
+        } else {
+            alert(`El producto "${producto.Nombre}" ha alcanzado el límite de stock disponible.`)
     
-    // Si hay stock, se procede a agregar el producto a la tabla de ventas
-    // Aquí va la lógica que ya tienes para crear la fila en la tabla, por ejemplo:
-    const filaExistente = document.querySelector(`tr[data-codigo="${producto.Codigo_de_barras}"]`);
-    if (filaExistente) {
-        Swal.fire({
-            title: 'Información',
-            text: 'El producto ya está en la tabla.',
-            icon: 'info',
-            confirmButtonText: 'Aceptar'
-        });
-        return;
-    }
-    
-    const fila = `
-        <tr data-codigo="${producto.Codigo_de_barras}">
+        }
+    } else {
+        // Si el producto no está en la tabla, crear una nueva fila
+        const row = document.createElement('tr');
+        row.innerHTML = `
             <td>${producto.Codigo_de_barras}</td>
             <td>${producto.Nombre}</td>
             <td>${producto.Descripcion}</td>
-            <td>${producto.Precio_Valor}</td>
-            <td class="stock-producto">${producto.Stock}</td>
+            <td>$${producto.Precio_Valor}</td>
+            <td>${producto.Stock}</td> <!-- Stock disponible -->
             <td>${producto.Categoria}</td>
-            <td>
-                <input type="number" class="cantidad-producto" value="1" min="1" max="${producto.Stock}">
-            </td>
-        </tr>
-    `;
-    document.getElementById('tabla_productos').insertAdjacentHTML('beforeend', fila);
-    
-    // Opcional: agregar el producto a un array global (por ejemplo, productosAgregados)
-    productosAgregados.push(producto);
+            <td>1</td> <!-- Cantidad inicial -->
+        `;
+        productosBody.appendChild(row);
+
+        // Guardar la fila en el objeto productosEnTabla para llevar el seguimiento
+        productosEnTabla[producto.Codigo_de_barras] = row;
+    }
 }
+
+
 </script>
-<<<<<<< HEAD
+
 <script src="{{ url_for('static', filename='js/ventas.js') }}"></script>  
-=======
+<script src="{{ url_for('static', filename='js/busqueda.js') }}"></script>  
 <script>
     document.getElementById('toggle-datos-cliente').addEventListener('click', function() { // Para agregar datos del cliente (nombre y CC)
         var datosCliente = document.getElementById('datos-cliente');
@@ -751,6 +542,6 @@ function verificarProducto(producto) {
         }
     });
 </script>
->>>>>>> da8d03afca7a0bd83b2a4b7ba5ba03b1bd3fca2c
+
 </body>
 </html>

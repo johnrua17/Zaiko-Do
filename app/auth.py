@@ -82,9 +82,9 @@ def login_user():
     """Autentica a un usuario en el sistema."""
     if request.method == 'POST':
         # Obtener y verificar el token de Turnstile
-        turnstile_token = request.form.get('cf-turnstile-response')
-        if not verify_turnstile_token(turnstile_token):
-            return render_template('index.html', error_message='Error en la verificación de seguridad. Inténtelo nuevamente.')
+        # turnstile_token = request.form.get('cf-turnstile-response')
+        # if not verify_turnstile_token(turnstile_token):
+        #     return render_template('index.html', error_message='Error en la verificación de seguridad. Inténtelo nuevamente.')
 
         correo = request.form['email']
         contraseña = request.form['password']
@@ -157,9 +157,9 @@ def register_user():
     """Registra un nuevo usuario en el sistema."""
     if request.method == 'POST':
         # Obtener y verificar el token de Turnstile
-        turnstile_token = request.form.get('cf-turnstile-response')
-        if not verify_turnstile_token_registro(turnstile_token):
-            return render_template('register.html', message='Error en la verificación de seguridad. Inténtelo nuevamente.')
+        # turnstile_token = request.form.get('cf-turnstile-response')
+        # if not verify_turnstile_token_registro(turnstile_token):
+        #     return render_template('register.html', message='Error en la verificación de seguridad. Inténtelo nuevamente.')
             
         nombre = bleach.clean(request.form['name'])
         correo = bleach.clean(request.form['email'])
