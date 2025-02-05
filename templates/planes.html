@@ -77,9 +77,7 @@
                                     <p class="new-plans-section-grid__description">Gestiona con <b>Zaiko Do</b> el inventario de tu negocio</p>
                                 {% elif plan.nombre == 'Plan Año' %}
                                     <p class="new-plans-section-grid__description">Disfruta de lo mejor de <b>Zaiko Do</b> con el máximo nivel de funciones</p>
-                                {% else %}
-                                    <p class="new-plans-section-grid__description"><b>-----</b></p>
-                                {% endif %}
+                               {% endif %}
                                 
                                 {% if plan.idplan == plan_actual %}
                                     <span class="new-plans-section-grid__flag">Plan <b>Actual</b></span>
@@ -196,12 +194,12 @@
                                     {% endif %}
                                 </strong>
                                 {% if plan.nombre == 'Plan Semestre' %}
-                                <p class="new-plans-section-grid__disclaimers">
-                                    <b>mensual por 3 meses</b>, después $ 109.900/mes
+                                <p class="new-plans-section-grid__new-price2" style="text-decoration: none">
+                                    Ahorra $19.900 COP
                                 </p>
                                 {% elif plan.nombre == 'Plan Año' %}
-                                <p class="new-plans-section-grid__disclaimers">
-                                    <b>mensual por 3 meses</b>, después $ 89.900/mes
+                                <p class="new-plans-section-grid__new-price2" style="text-decoration: none">
+                                    Ahorra $38.900 COP
                                 </p>
                                 {% endif %}
                             </div>

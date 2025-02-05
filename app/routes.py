@@ -545,7 +545,7 @@ def suscribir(idplan):
     
     id_usuario = session.get('idusuario')
     # correo_usuario = session.get('correo')
-    if not id_usuario or not correo_usuario:
+    if not id_usuario:
             return redirect(url_for('auth.login')) # Redirigir al login si el usuario no está autenticado
 
     cur = mysql.connection.cursor()

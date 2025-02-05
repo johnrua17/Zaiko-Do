@@ -441,18 +441,31 @@
     font-weight: bold;  
     text-decoration: line-through; 
     color: #ffffff;  
+    background-color: #58C793;  
+    text-align: center;
+    padding: 4px 8px;    
+    border-radius: 4px;  
+    margin-bottom: 8px;  
+    width: 120px;
+}
+.new-plans-section-grid__new-price2{
+    font-family: DM Sans, sans-serif;  
+    font-size: 17px; 
+    font-weight: bold;  
+    text-decoration: line-through; 
+    color: #ffffff;  
     background-color: #1d976c;  
     text-align: center;
     padding: 4px 8px;    
     border-radius: 4px;  
     margin-bottom: 8px;  
-    width: 20%;
+    width: 200px;
 }
 .new-plans-section-grid__old-price {
     font-family: DM Sans, sans-serif;  
-    font-size: 14px; 
+    font-size: 17px; 
     display: block;
-    padding: 2px 4px;
+    padding: 8px 8px;
     text-decoration: line-through; 
     background-color: #1d976c;  
     color: #ffff;
