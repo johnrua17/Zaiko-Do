@@ -412,6 +412,9 @@ def descargar_productos():
 @routes_blueprint.route('/admin', methods=["GET", "POST"])
 def admin():
     from app import mysql
+    id_usuario_actual = session.get('idusuario')
+    print("este es el id de usuario")
+    print(id_usuario_actual)
     VentasCreditoForm = forms.VentasCreditoForm(request.form)
     saludo = session.get('saludo')
     username = session.get('username')

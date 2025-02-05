@@ -7,6 +7,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="icon" href="{{ url_for('static', filename='images/icono/icono.ico') }}" type="image/x-icon">
+    <script src="../static/js/ventas.js"></script>  
+    <script src="../static/js/busqueda.js"></script>
     <style>
         /* Botón Agregar a la Venta */
 .agregar-venta-btn {
@@ -528,8 +530,7 @@ function verificarProducto(producto) {
 
 </script>
 
-<script src="{{ url_for('static', filename='js/ventas.js') }}"></script>  
-<script src="{{ url_for('static', filename='js/busqueda.js') }}"></script>  
+  
 <script>
     document.getElementById('toggle-datos-cliente').addEventListener('click', function() { // Para agregar datos del cliente (nombre y CC)
         var datosCliente = document.getElementById('datos-cliente');
