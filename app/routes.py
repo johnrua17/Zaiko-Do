@@ -1029,11 +1029,15 @@ def registrar_venta():
             mysql.connection.commit()
 
         
+        cur.execute('SELECT idventas FROM ventas WHERE idventausuario = %s', (idventausuario,))
+        idventa = cur.fetchone()
+        print(f"el idventa es {idventa["idventas"]}")
+
         cur.close()
 
         return jsonify({
             'success': 'Venta registrada correctamente.',
-            'idventa': idventausuario,
+            'idventa': idventa["idventas"],
             'total_venta': total_venta,
             'fecha': str(fecha),
             'devuelto': devuelto
