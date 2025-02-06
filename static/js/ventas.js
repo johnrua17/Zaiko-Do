@@ -31,6 +31,8 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
     const clienteCC = document.getElementById('cliente-cc').value.trim();
 
     // Datos para crédito
+    const identificacion = document.getElementById('identificacion').value.trim();
+    const nombre = document.getElementById('nombres').value.trim();
     const contacto = document.getElementById('contacto').value.trim();
     const nota = document.getElementById('nota').value.trim();
 
@@ -48,10 +50,11 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
                 productos: productos,
                 metodo_pago: metodoPago,
                 pagocon: pagoCon,
-                cliente: clienteNombre || "Consumidor Final",
-                idcliente: clienteCC || "222222222222",
+                cliente: metodoPago === 'credito' ? nombre : (clienteNombre || "Consumidor Final"),
+                idcliente: metodoPago === 'credito' ? identificacion : (clienteCC || "222222222222"),
                 contacto: metodoPago === 'credito' ? contacto : "",
-                nota: metodoPago === 'credito' ? nota : ""
+                nota: metodoPago === 'credito' ? nota : "",
+                credito: metodoPago === 'credito' ? 1 : 0,
             }),
         });
 
