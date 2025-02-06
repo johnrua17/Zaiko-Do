@@ -106,7 +106,8 @@ document.getElementById('buscador_input').addEventListener('input', async (e) =>
                 <strong>${prod.Nombre}</strong> (${prod.Codigo_de_barras})<br>
                 <small>${prod.Descripcion}</small><br>
                 Precio: $${prod.Precio_Valor}<br>
-                Cantidad disponible: ${prod.Cantidad}<br>
+                Cantidad disponible: ${prod.Stock}<br>
+
                 <button 
                     class="agregar-venta-btn" 
                     data-producto='${JSON.stringify(prod)}'

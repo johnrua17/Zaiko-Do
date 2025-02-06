@@ -131,8 +131,9 @@ def buscar_productos():
                 "Descripcion": prod["Descripcion"],
                 "Precio_Valor": prod["Precio_Valor"],
                 "Precio_Costo": prod["Precio_Costo"],
-                "Cantidad": prod["Cantidad"],
+                "Stock": prod["Cantidad"],
                 "Categoria": prod["Categoria"]
+                
             }
             for prod in productos
         ]
@@ -1001,15 +1002,13 @@ def registrar_venta():
         query_venta = """
         INSERT INTO ventas (
             idusuario, totalventa, pagocon, fecha, hora, metodo_pago,
-            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor,
-            contacto, nota
+            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cur.execute(query_venta, (
             id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
-            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor,
-            contacto, nota
+            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
         ))
 
         mysql.connection.commit()
