@@ -315,11 +315,74 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('generate-report-btn').addEventListener('click', async () => {
-        const fecha_inicio = document.getElementById('start-date').value.trim();
-        const fecha_fin = document.getElementById('end-date').value.trim();
+        const fecha_inicio = document.getElementById('start-date').value;
+        const fecha_fin = document.getElementById('end-date').value;
         console.log("fecha inicio: " + fecha_inicio);
         console.log("fecha fin: " + fecha_fin);
+
+        const response = await fetch('/ventas/reporte', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                fecha_inicio: fecha_inicio,
+                fecha_fin: fecha_fin,
+            }),
+        });
+
+        if (!response.ok) {
+            console.error('Error al registrar la venta:', response.statusText);
+            throw new Error('Error al registrar la venta.');
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+        // Actualizar la tabla de categorías vendidas
+        updateTable('categorias-container', data.categorias_vendidas, ['categoria', 'ingresos_brutos']);
+
+        // Actualizar la tabla de ganancias por categoría
+        updateTable('ganancias-container', data.ganancias_categoria, ['categoria', 'ganancia_total']);
+
+        // Actualizar la tabla de ventas por método de pago
+        updateTable('categorias-container', data.ventas_metodo_pago, ['metodo_pago', 'ganancia_total']);
+
+        // Actualizar las ventas del día y ganancias
+        document.getElementById('totalVentas').textContent = data.ventas_dia || 'No disponible';
+        document.getElementById('gananciasTotales').textContent = data.ganancias_dia || 'No disponible';
     });
+
+    /**
+     * Función para actualizar una tabla con nuevos datos.
+     * @param {string} containerClass - Clase del contenedor de la tabla.
+     * @param {Array} data - Datos recibidos desde el backend.
+     * @param {Array} columns - Columnas a mostrar en la tabla.
+     */
+    function updateTable(containerClass, data, columns) {
+        const container = document.querySelector(`.${containerClass}`);
+        const tableBody = container.querySelector('tbody');
+        tableBody.innerHTML = ''; // Limpiar la tabla antes de agregar nuevos datos
+
+        if (data && data.length > 0) {
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                columns.forEach(column => {
+                    const cell = document.createElement('td');
+                    cell.textContent = item[column] || 'No disponible';
+                    row.appendChild(cell);
+                });
+                tableBody.appendChild(row);
+            });
+        } else {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.setAttribute('colspan', columns.length);
+            cell.textContent = 'No hay datos disponibles';
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+        }
+    }
 });
 
 
@@ -415,6 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Datos para el gráfico circular de ventas por método de pago
     const metodoPagoData = {{ ventas_metodo_pago | tojson }};
+    console.log("meotdoPagoData "+ metodoPagoData)
     const metodoPagoLabels = metodoPagoData.map(item => item.metodo_pago);
     const metodoPagoValues = metodoPagoData.map(item => item.ganancia_total);
     const ctxMetodoPago = document.getElementById('metodoPagoChart').getContext('2d');

@@ -523,11 +523,14 @@ function verificarProducto(producto) {
             <td>${producto.Stock}</td> <!-- Stock disponible -->
             <td>${producto.Categoria}</td>
             <td>1</td> <!-- Cantidad inicial -->
+            <td style="visibility:collapse; display:none;">$${producto.Precio_Costo}</td>
         `;
         productosBody.appendChild(row);
 
         // Guardar la fila en el objeto productosEnTabla para llevar el seguimiento
         productosEnTabla[producto.Codigo_de_barras] = row;
+        console.log('productos en tabla')
+        console.log(Object.values(productosEnTabla))
     }
 }
 

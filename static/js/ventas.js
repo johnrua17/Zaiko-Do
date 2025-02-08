@@ -15,8 +15,8 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
             Nombre: row.cells[1].textContent,
             Descripcion: row.cells[2].textContent,
             Precio_Valor: parseFloat(row.cells[3].textContent.replace('$', '')),
-            Precio_Costo: parseFloat(row.cells[4].textContent.replace('$', '')),
-            Stock: parseInt(row.cells[6].textContent),
+            Precio_Costo: parseFloat(row.cells[7].textContent.replace('$', '')),
+            Cantidad: parseInt(row.cells[6].textContent),
             Categoria: row.cells[5].textContent
         };
     });
@@ -79,7 +79,7 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
                 }),
             });
 
-            if (!agregarProductosResponse.ok) throw new Error('Error al agregar productos.');
+            if (!agregarProductosResponse.ok) throw new Error('Errorrrrrr al agregar productos.');
 
             const productosData = await agregarProductosResponse.json();
             
