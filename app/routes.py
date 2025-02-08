@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, jsonify
 from app.auth import login_user, register_user
 from app.utils import obtener_hora_actual_bogota
+from app.database import get_connection
 from flask_mysqldb import MySQL
 from io import BytesIO
 from openpyxl import Workbook
@@ -13,6 +14,8 @@ import hashlib
 import hmac
 from datetime import datetime, timedelta
 import pdfkit  # Para convertir a PDF (requiere wkhtmltopdf instalado)
+from app.auth import validar_sesion  # Importar el decorador
+
 ''' para Windows:
     Descarga el instalador desde wkhtmltopdf.org.
     Durante la instalación, marca la opción para agregar wkhtmltopdf al PATH del sistema.'''
@@ -409,6 +412,7 @@ def descargar_productos():
         return jsonify({"error": "Error interno del servidor"}), 500
 
 @routes_blueprint.route('/admin', methods=["GET", "POST"])
+@validar_sesion
 def admin():
     from app import mysql
     id_usuario_actual = session.get('idusuario')
@@ -471,8 +475,28 @@ def agregar_producto():
 
 @routes_blueprint.route("/logout", methods=["POST"])
 def logout():
-    session.clear()
-    return redirect(url_for('routes.login'))
+    """Cierra la sesión del usuario."""
+    try:
+        if 'logueado' in session:
+            conn = get_connection()
+            cur = conn.cursor()
+            # Limpiar el session_id en la base de datos
+            cur.execute("""
+                UPDATE usuario
+                SET session_id = NULL
+                WHERE idusuario = %s
+            """, [session['idusuario']])
+            conn.commit()
+            cur.close()
+            session.clear()
+            return redirect(url_for('routes.login'))
+        
+        session.clear()
+        return redirect(url_for('routes.login'))
+    except Exception as e:
+        print(f"Error al cerrar sesión: {e}")
+        return redirect(url_for('routes.login'))
+
 
 @routes_blueprint.route('/terminos_condiciones', methods=['GET'], endpoint='terminos_condiciones')
 def terminos_condiciones():

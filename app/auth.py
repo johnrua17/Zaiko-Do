@@ -3,8 +3,12 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, timedelta
 from app.config import Config
 from app.database import get_connection
+from functools import wraps
+from app import mysql
 import bleach
 import requests
+import uuid
+
 
 # Crear un Blueprint para las rutas de autenticación
 auth_blueprint = Blueprint('auth', __name__)
@@ -104,28 +108,68 @@ def login_user():
                 error_message = f"Cuenta bloqueada. Inténtelo de nuevo en {minutos_restantes} minutos."
                 return render_template('index.html', error_message=error_message)
 
-            # Verificar contraseña
             if check_password_hash(account['contraseña'], contraseña):
-                session['logueado'] = True
-                session['idusuario'] = account['idusuario']
-                session['nombre'] = account['nombre']
-                session['role'] = account['role']
-                session['correo'] = account['correo']
-                session['idplan'] = account['idplan']
-                session['username'] = account['nombre']
+                # Generar un nuevo session_id
+                new_session_id = str(uuid.uuid4())
+
+                # Actualizar el session_id en la base de datos
+                cur.execute("""
+                    UPDATE usuario
+                    SET session_id = %s
+                    WHERE idusuario = %s
+                """, (new_session_id, account['idusuario']))
+                conn.commit()
+
+                # Guardar el session_id en la sesión del usuario
+                session.update({
+                    'logueado': True,
+                    'idusuario': account['idusuario'],
+                    'nombre': account['nombre'],
+                    'role': account['role'],
+                    'correo': account['correo'],
+                    'idplan': account['idplan'],
+                    'username': account['nombre'],
+                    'session_id': new_session_id  # Guardar el session_id en la sesión
+                })
 
                 gestionar_intentos(correo, exito=True)
                 return redirect(url_for('routes.admin'))
             else:
                 gestionar_intentos(correo, exito=False)
-                return render_template('index.html', error_message="Credenciales incorrectas.")
+                return render_template('index.html', error_message="Credenciales incorrectas.")               
+        else:
+           return render_template('index.html', error_message="El usuario no existe.")
 
-        return render_template('index.html', error_message="El usuario no existe.")
     return render_template('index.html')
 
+def validar_sesion(f):
+    """Decorador para validar la sesión del usuario."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logueado' in session:
+            try:
+                with mysql.connection.cursor() as cur:
+                    # Obtener el session_id almacenado en la base de datos
+                    cur.execute('SELECT session_id FROM usuario WHERE idusuario = %s', [session['idusuario']])
+                    result = cur.fetchone()
 
+                    if result and result['session_id'] != session.get('session_id'):
+                        # Si el session_id no coincide, cerrar la sesión actual
+                        session.clear()  # Limpiar toda la sesión
+                        print("Tu sesión ha sido cerrada porque iniciaste sesión en otro dispositivo.", 'error')
+                        return redirect(url_for('auth.login'))
+            except Exception as e:
+                # Manejar errores de base de datos
+                print(f"Error al validar la sesión: {e}")
+                session.clear()  # Limpiar toda la sesión en caso de error
+                print("Ocurrió un error al validar tu sesión. Por favor, inicia sesión nuevamente.", 'error')
+                return redirect(url_for('auth.login'))
+        else:
+            # Si no hay sesión activa, redirigir al login
+            return redirect(url_for('auth.login'))
 
-
+        return f(*args, **kwargs)
+    return decorated_function
 
 CLOUDFLARE_SECRET_KEY_REGISTER = '0x4AAAAAAA7ZB7u4Qaog9mifEKyPvj1lai4'
 
