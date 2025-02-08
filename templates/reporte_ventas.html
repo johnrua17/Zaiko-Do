@@ -29,8 +29,13 @@
             background-color: #4caf83;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
             margin-top: 10px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: auto; /* Ajusta el ancho al contenido */
         }
 
         .generate-report-btn:hover {
@@ -127,9 +132,6 @@
         }
     }
 
-    .ventas-metodo-container {
-        margin-top: 20px;
-    }
 
     .ventas-datos-grafica {
         display: flex;
@@ -192,7 +194,7 @@
             <label for="end-date">Hasta:</label>
             <input type="date" id="end-date" name="end-date">
             
-            <a href="#" class="generate-report-btn">Generar Reporte</a>
+            <button class="generate-report-btn" id="generate-report-btn">Generar Reporte</button>
         </div>
 
     </div>
@@ -260,9 +262,9 @@
         </div>
 
         <!-- Ventas por Método de Pago con Gráfico Circular -->
-        <div class="ventas-metodo-container">
-            <h3>Ventas por Método de Pago</h3>
-            <div class="ventas-datos-grafica">
+        <div class="fila">
+            <div class="categorias-container">
+                <h3>Ventas por Método de Pago</h3>
                 <table>
                     <thead>
                         <tr>
@@ -286,9 +288,9 @@
                         {% endif %}
                     </tbody>
                 </table>
-                <div class="grafica-container">
-                    <canvas id="metodoPagoChart"></canvas>
-                </div>
+            </div>
+            <div class="grafico-container">
+                <canvas id="metodoPagoChart"></canvas>
             </div>
         </div>
 
@@ -311,6 +313,16 @@
 
 <!-- Script para generar los gráficos -->
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('generate-report-btn').addEventListener('click', async () => {
+        const fecha_inicio = document.getElementById('start-date').value.trim();
+        const fecha_fin = document.getElementById('end-date').value.trim();
+        console.log("fecha inicio: " + fecha_inicio);
+        console.log("fecha fin: " + fecha_fin);
+    });
+});
+
+
     // Función para alternar el sidebar (similar a la utilizada en otras páginas)
     function toggleSidebar() {
       const sidebar = document.querySelector('.sidebar');

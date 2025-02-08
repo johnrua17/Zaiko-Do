@@ -134,8 +134,9 @@ def buscar_productos():
                 "Descripcion": prod["Descripcion"],
                 "Precio_Valor": prod["Precio_Valor"],
                 "Precio_Costo": prod["Precio_Costo"],
-                "Cantidad": prod["Cantidad"],
+                "Stock": prod["Cantidad"],
                 "Categoria": prod["Categoria"]
+                
             }
             for prod in productos
         ]
@@ -969,9 +970,13 @@ def registrar_venta():
     pagocon = data.get("pagocon", 0)
     contacto = data.get("contacto", "")
     nota = data.get("nota", "")
+    credito = data.get("credito", 0)
     id_usuario_actual = session.get('idusuario')
-    print(f"el data es {data}")
     print(f"el metodo de pago es {metodo_pago}")
+    print(f"el nombre del cliente es {cliente}")
+    print(f"su id es {idcliente}")
+    print(f"el contacto es {contacto}")
+    print(f"la nota es {nota}")
 
     # Validar que se envíen productos en la venta
     if not productos:
@@ -1013,7 +1018,6 @@ def registrar_venta():
         
         # Valores predeterminados para la venta
         devuelto = float(pagocon) - total_venta if float(pagocon) >= total_venta else 0
-        credito = 0
         fecha_servidor = fecha
 
         # Obtener el último idventausuario
@@ -1025,23 +1029,39 @@ def registrar_venta():
         query_venta = """
         INSERT INTO ventas (
             idusuario, totalventa, pagocon, fecha, hora, metodo_pago,
-            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor,
-            contacto, nota
+            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cur.execute(query_venta, (
             id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
-            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor,
-            contacto, nota
+            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
         ))
-
         mysql.connection.commit()
+
+        # Actualizar la tabla creditos si crédito es 1
+        if credito == 1:
+            # Convertir el valor a entero o flotante, dependiendo del formato que necesites
+            abono = 0 #por ahora es cero
+            #abono = (pagocon)  # Si es un número entero
+            # nota = request.form.get('notaCliente')[:100]
+            
+            cur.execute(
+                'INSERT INTO creditos (nombre_cliente, identificacion_cliente, contacto_cliente, total_compra, abono, idventausuario, idusuario, fecha_registro, hora, nota) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                (cliente, idcliente ,contacto , total_venta , abono, idventausuario, id_usuario_actual, fecha, hora, nota)
+            )
+            mysql.connection.commit()
+
+        
+        cur.execute('SELECT idventas FROM ventas WHERE idventausuario = %s', (idventausuario,))
+        idventa = cur.fetchone()
+        print(f"el idventa es {idventa["idventas"]}")
+
         cur.close()
 
         return jsonify({
             'success': 'Venta registrada correctamente.',
-            'idventa': idventausuario,
+            'idventa': idventa["idventas"],
             'total_venta': total_venta,
             'fecha': str(fecha),
             'devuelto': devuelto

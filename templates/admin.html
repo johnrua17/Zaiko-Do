@@ -7,8 +7,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="icon" href="{{ url_for('static', filename='images/icono/icono.ico') }}" type="image/x-icon">
-    <script src="../static/js/ventas.js"></script>  
-    <script src="../static/js/busqueda.js"></script>
     <style>
         /* Botón Agregar a la Venta */
 .agregar-venta-btn {
@@ -189,7 +187,7 @@
 }
 
 /* General del formulario */ 
-.formulario-datos-cliente { 
+.formulario-credito { 
     max-width: 500px; 
     margin: 20px auto; 
     padding: 20px; 
@@ -212,7 +210,7 @@
 
 .input-formulario { 
     width: 100%; 
-    padding: 5px; 
+    padding: 10px; 
     border: 1px solid #ccc; 
     border-radius: 4px; 
     font-size: 14px; 
@@ -320,13 +318,11 @@
                             <label for="pago-con">Pago con:</label>
                             <input type="number" id="pago-con" min="0" step="0.01">
                             <p><strong>Su cambio:</strong> $<span id="su-cambio">0.00</span></p>
-                            <button type="submit" class="btn-submit" id="registrar-venta">Registrar venta</button>
-                            <button class="btn-close cerrar-modal">Cerrar</button>
+                            
                         </div>
                         <!-- Sección para Crédito -->
-                         <!-- De pronto no es tan buena idea usar un formulario para optener estos datos extra cuando es por credito -->
                         <div id="seccion-credito" style="display: none;">
-                            <form action="{{ url_for('routes.registrar_venta') }}" method="POST" class="formulario-credito">
+                          
                                 <div class="campo-formulario">
                                     <label for="nombre" class="etiqueta-formulario" >Nombre:</label>
                                     <input type="text" id="nombres" name="nombre" class="input-formulario" required>
@@ -343,11 +339,12 @@
                                     <label for="nota" class="etiqueta-formulario">Nota:</label>
                                     <input id="nota" name="nota" class="input-formulario" required>
                                 </div>
-                                <button type="submit" class="btn-submit" id="registrar_venta">Registrar venta</button>
-                                <button type="button" class="btn-close cerrar-modal">Cerrar</button>    
-                            </form>
+                                
+                           
                         </div>
                     </div>
+                    <button type="submit" class="btn-submit" id="registrar_venta">Registrar venta</button>
+                    <button type="button" class="btn-close cerrar-modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -368,19 +365,24 @@
     </script>
    
     <script>
-    document.getElementById('cobrar').addEventListener('click', () => {
-    // Calcular el total a pagar
-    console.log("productos agregados")
-    console.log(productosAgregados)
-    const total = productosAgregados.reduce((acc, producto) => acc + (producto.Stock * producto.Precio_Valor), 0);
+   document.getElementById('cobrar').addEventListener('click', () => {
+    let total = 0;
+
+    // Recorremos los productos en la tabla
+    for (const codigo in productosEnTabla) {
+        const row = productosEnTabla[codigo]; 
+        const precio = parseFloat(row.cells[3].textContent.replace('$', '')); // Precio en la columna 3
+        const cantidad = parseInt(row.cells[6].textContent); // Cantidad en la columna 6
+
+        total += precio * cantidad;
+    }
+
+    // Mostrar el total en el modal
     document.getElementById('total-pagar').innerText = total.toFixed(2);
     document.getElementById('pago-con').value = total.toFixed(2); // Por defecto, igual al total
     document.getElementById('su-cambio').innerText = '0.00';
 
-    console.log("TOTAL");
-    console.log(total);
-
-    // Mostrar el modal
+    // Mostrar el modal de cobro
     document.getElementById('modal-overlay').style.display = 'flex';
 });
 
@@ -532,7 +534,8 @@ function verificarProducto(producto) {
 
 </script>
 
-  
+<script src="{{ url_for('static', filename='js/ventas.js') }}"></script>  
+<script src="{{ url_for('static', filename='js/busqueda.js') }}"></script>  
 <script>
     document.getElementById('toggle-datos-cliente').addEventListener('click', function() { // Para agregar datos del cliente (nombre y CC)
         var datosCliente = document.getElementById('datos-cliente');
