@@ -13,7 +13,14 @@ import uuid
 import hashlib
 import hmac
 from datetime import datetime, timedelta
-import pdfkit  # Para convertir a PDF (requiere wkhtmltopdf instalado)
+
+import pdfkit
+from dotenv import load_dotenv
+import os
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(dotenv_path, override=True)
+
 from app.auth import validar_sesion  # Importar el decorador
 
 ''' para Windows:
@@ -399,9 +406,17 @@ def descargar_productos():
             </body>
             </html>
             """
-            pdf_output = BytesIO()
-            pdfkit.from_string(html, pdf_output)
+            
+            wkhtmltopdf_path = os.getenv('WKHTMLTOPDF_PATH')
+            print("WKHTMLTOPDF_PATH:", wkhtmltopdf_path)
+            config_pdfkit = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+
+            pdf = pdfkit.from_string(html, False, configuration=config_pdfkit)
+
+            from io import BytesIO
+            pdf_output = BytesIO(pdf)
             pdf_output.seek(0)
+            
             nombre_archivo = f"productos_{username}.pdf"
             return send_file(pdf_output, as_attachment=True, download_name=nombre_archivo)
 
@@ -1461,8 +1476,11 @@ def generar_factura(idventa):
 
         # Renderizar la plantilla HTML de la factura
         html = render_template('factura.html', venta=venta, detalles=detalles)
-        # Generar PDF a partir del HTML (pdfkit.from_string devuelve bytes si se pasa False)
-        pdf = pdfkit.from_string(html, False)
+        wkhtmltopdf_path = os.getenv('WKHTMLTOPDF_PATH', '/usr/bin/wkhtmltopdf')
+
+        config_pdfkit = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+        
+        pdf = pdfkit.from_string(html, False, configuration=config_pdfkit)
 
         # Preparar la respuesta con el PDF
         response = make_response(pdf)
