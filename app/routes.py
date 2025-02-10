@@ -410,8 +410,6 @@ def descargar_productos():
             config_pdfkit = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
 
             pdf = pdfkit.from_string(html, False, configuration=config_pdfkit)
-
-            from io import BytesIO
             pdf_output = BytesIO(pdf)
             pdf_output.seek(0)
             
@@ -1474,7 +1472,8 @@ def generar_factura(idventa):
 
         # Renderizar la plantilla HTML de la factura
         html = render_template('factura.html', venta=venta, detalles=detalles)
-        wkhtmltopdf_path = os.getenv('WKHTMLTOPDF_PATH', '/usr/bin/wkhtmltopdf')
+        
+        wkhtmltopdf_path = os.getenv('WKHTMLTOPDF_PATH')
 
         config_pdfkit = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
         
