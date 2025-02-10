@@ -13,19 +13,17 @@ import uuid
 import hashlib
 import hmac
 from datetime import datetime, timedelta
-
 import pdfkit
-from dotenv import load_dotenv
 import os
-
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-load_dotenv(dotenv_path, override=True)
-
+from dotenv import load_dotenv
+from jinja2 import Environment, FileSystemLoader
 from app.auth import validar_sesion  # Importar el decorador
+ 
+load_dotenv(dotenv_path='../.env')
+ 
+TEMPLATES_DIR = '../../templates'   
+env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
 
-''' para Windows:
-    Descarga el instalador desde wkhtmltopdf.org.
-    Durante la instalación, marca la opción para agregar wkhtmltopdf al PATH del sistema.'''
 # Crear un Blueprint para las rutas
 routes_blueprint = Blueprint('routes', __name__)
 
