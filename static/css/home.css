@@ -200,8 +200,8 @@
 /* FAQ Section */
 .faq {
   background-color: var(--Verde_claro);
-  padding: 4rem 0;
-  margin: 4rem 0;
+  padding: 1rem 0;
+  margin-top: 2rem;
 }
   
 .faq-container {
@@ -211,7 +211,8 @@
 }
   
 .faq-title {
-  font-size: 2rem;
+  font-size: 30px;
+  font-weight: bold;
   color: var(--Verde_azulado_oscuro2);
   text-align: center;
   margin-bottom: 2rem;
@@ -243,29 +244,65 @@
 }
   
 /* Team Section */
-.team {
-  padding: 40px 20px; /* Espaciado interno para la sección del equipo */
-  background-color: #f8f9fa; /* Color de fondo suave */
+.sobre-nosotros-section {
+  padding: 50px 20px;
+  background-color: var(--Verde_claro);
+  margin-bottom: 50px;
 }
-  
-.team h2 {
+
+.sobre-nosotros-section h5 {
+  font-size: 36px;
   text-align: center;
-  color: var(--Verde_azulado_oscuro2);
-  margin-bottom: 3rem;
+  margin-bottom: 20px;
 }
-  
+
+.blog {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.blog h6 {
+  font-size: 24px;
+  margin-top: 20px;
+  color: var(--Verde_azulado_oscuro2);
+}
+
+.blog p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.perfiles-section{
+  background: var(--Blanco);
+}
+
+.team.section-container {
+  background-color: var(--Blanco); 
+}
+
+.team.section-container h2{
+  text-align: center;
+}
+
 .team-container {
-  display: flex; /* Usar flexbox para alinear las tarjetas */
-  flex-wrap: wrap; /* Permitir que las tarjetas se envuelvan en varias filas */
-  justify-content: space-around; /* Espacio entre las tarjetas */
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content: space-around; 
+  padding: 20px; 
 }
   
 .card {
   background-color: white; /* Color de fondo de la tarjeta */
   border-radius: 10px; /* Bordes redondeados */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para dar profundidad */
-  margin: 20px; /* Espacio entre tarjetas */
-  padding: 20px; /* Espaciado interno de la tarjeta */
+  margin: 10px; /* Espacio entre tarjetas */
+  padding: 10px; /* Espaciado interno de la tarjeta */
   text-align: center; /* Centrar el texto */
   width: 250px; /* Ancho fijo para las tarjetas */
   transition: transform 0.3s; /* Transición suave para el hover */
@@ -285,7 +322,7 @@
 .social-icons {
   display: flex; /* Usar flexbox para alinear los iconos sociales */
   justify-content: center; /* Centrar los iconos */
-  gap: 10px; /* Espacio entre los iconos */
+  gap: 10px;
 }
 
  .social-icon {
@@ -293,39 +330,6 @@
   height: 24px; /* Alto de los iconos sociales */
 }
   
-/* Plans Section */
-.plans {
-  padding: 4rem 0;
-  background-color: var(--Verde_claro);
-}
-  
-.subscription-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  padding: 2rem 1rem;
-}
-  
-.subscription-plan {
-  background-color: var(--Blanco);
-  border-radius: 16px;
-  padding: 2rem;
-  text-align: center;
-  transition: transform 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-  
-.subscription-plan:hover {
-  transform: translateY(-5px);
-}
-  
-.subscription-price {
-  font-size: 2rem;
-  color: var(--Verde_azulado);
-  margin: 1.5rem 0;
-  font-weight: bold;
-}
-
 /*Cookies*/
 
 .cookies-container {
@@ -350,10 +354,10 @@
 }
 
 .cookies-container .cookies-image {
-  max-width: 100px;
-  position: absolute;
-  top: -50px;
-  left: calc(50% - 50px);
+  max-width: 80px;
+  position: absolute; 
+  top: -55px;
+  left: calc(50% - 40px);
 }
 
 .cookies-container .cookies-titule {
@@ -558,11 +562,24 @@
   }
   
   .hero-icon {
-    font-size: 10rem;
-    color: rgba(255, 255, 255, 0.2);
+    font-size: 15rem;
+    padding-right: 5%;
+    color: rgba(255, 255, 255, 0.508);
     animation: float 3s ease-in-out infinite;
   }
-  
+
+.fade {
+    transition: opacity 0.5s ease-in-out;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+.fade-in {
+  opacity: 1;
+}
+   
   @keyframes float {
     0% {
       transform: translateY(0px);
@@ -697,7 +714,7 @@
   
   /* About Section */
   .about-section {
-    padding: 6rem 5%;
+    padding: 3rem 5%;
     background-color: var(--Verde_claro);
   }
   
