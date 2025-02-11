@@ -178,7 +178,7 @@
 }
   
 .content-box.primary {
-  background: linear-gradient(135deg, var(--Verde_azulado) 0%, var(--Verde) 100%);
+  background: var(--Verde_azulado);
   color: var(--Blanco);
   text-align: center;
   padding: 4rem 2rem;
@@ -246,7 +246,7 @@
 /* Team Section */
 .sobre-nosotros-section {
   padding: 50px 20px;
-  background-color: var(--Verde_claro);
+  background: linear-gradient(135deg, var(--Verde_azulado) 0%, var(--Verde) 100%);
   margin-bottom: 50px;
 }
 
@@ -254,6 +254,7 @@
   font-size: 36px;
   text-align: center;
   margin-bottom: 20px;
+  color: var(--Blanco);
 }
 
 .blog {
@@ -493,7 +494,9 @@
 
   /* Hero Section */
   .hero-section {
-    background: linear-gradient(135deg, var(--Verde_azulado) 0%, var(--Verde) 100%);
+    background: var(--Verde_azulado);
+    background-size: 100% 100%;
+    animation: gradient 10s ease infinite;
     padding: 4rem 5%;
     display: flex;
     flex-direction: row;
@@ -591,6 +594,18 @@
       transform: translateY(0px);
     }
   }
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
   
   /* Responsive design */
   @media (max-width: 768px) {
