@@ -1185,8 +1185,7 @@ def registrar_venta():
         fecha = fecha_actual.date()
         hora = fecha_actual.time()
         
-        # Valores predeterminados para la venta
-        devuelto = float(pagocon) - total_venta if float(pagocon) >= total_venta else 0
+       
         fecha_servidor = fecha
 
         # Obtener el último idventausuario
@@ -1198,13 +1197,13 @@ def registrar_venta():
         query_venta = """
         INSERT INTO ventas (
             idusuario, totalventa, pagocon, fecha, hora, metodo_pago,
-            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
+            idventausuario, cliente, idcliente, credito, fecha_servidor
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cur.execute(query_venta, (
             id_usuario_actual, total_venta, pagocon, fecha, hora, metodo_pago,
-            idventausuario, devuelto, cliente, idcliente, credito, fecha_servidor
+            idventausuario, cliente, idcliente, credito, fecha_servidor
         ))
         mysql.connection.commit()
 
@@ -1231,8 +1230,7 @@ def registrar_venta():
             'success': 'Venta registrada correctamente.',
             'idventa': idventa["idventas"],
             'total_venta': total_venta,
-            'fecha': str(fecha),
-            'devuelto': devuelto
+            'fecha': str(fecha)
         }), 200
 
     except Exception as e:

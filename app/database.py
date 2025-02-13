@@ -2,6 +2,8 @@ from flask_mysqldb import MySQL
 
 mysql = MySQL()
 
+
+
 def init_db(app):
     """
     Inicializa la extensión MySQL con la configuración de la aplicación Flask.
