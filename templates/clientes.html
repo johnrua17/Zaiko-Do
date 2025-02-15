@@ -3,10 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
     <title>Clientes</title>
 </head>
+<style>
+ /* añadir cliente modal */
+ /* Estilos del modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenido del modal */
+.modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 400px;
+    text-align: center;
+    position: relative;
+    animation: fadeIn 0.3s ease-in-out;
+}
+/* Animación de aparición */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+/* Botón de cerrar */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+}
+
+.close:hover {
+    color: #d9534f;
+}
+
+/* Estilos del formulario */
+#cliente-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Inputs del formulario */
+#cliente-form input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border 0.3s ease-in-out;
+}
+
+#cliente-form input:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+/* Botón de envío */
+.btn-submit {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-submit:hover {
+    background-color: #45a049;
+}
+
+</style>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0; 
+        display: flex;
+        justify-content: center;
+        /* align-items: center; */
+        height: auto;
+    }
+    .main-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 80%;
+        max-width: 8000px;
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+    }
+    th {
+        background-color: #4CAF50;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    .btn-add {
+        display: block;
+        width: 200px;
+        margin: 20px auto;
+        padding: 10px;
+        text-align: center;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .btn-add:hover {
+        background-color: #45a049;
+    }
+</style>
 <body>
-    <h1>Gestión de Clientes</h1>
-    <p>Aquí podrás gestionar los datos de tus clientes.</p>
+    <button class="toggle-sidebar" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    {% include 'sidebar.html' %}
+    <div class="main-content">
+        <h1>Gestión de Clientes</h1>
+        <p>Aquí podrás gestionar los datos de tus clientes.</p>
+        <!-- Botón para abrir el formulario -->
+        <a  class="btn-add" onclick="openForm()">Añadir Cliente</a>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Identificación</th>
+                    <th>Contacto</th>
+                    <th>Fecha de Registro</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>{{ cliente["idcliente"] }}</td>
+                    <td>{{ cliente["nombre"] }}</td>
+                    <td>{{ cliente["identificacion"] }}</td>
+                    <td>{{ cliente["contacto"] }}</td>
+                    <td>{{ cliente["fecha_registro"] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- Contenedor del formulario modal -->
+<div id="modal-container" class="modal" style="display: none">
+    <div class="modal-content">
+        <span class="close" onclick="closeForm()">&times;</span>
+        <h2>Añadir Cliente</h2>
+        <form id="cliente-form">
+            <input type="text" id="nombre" placeholder="Nombre" required>
+            <input type="text" id="identificacion" placeholder="Identificación" required>
+            <input type="text" id="contacto" placeholder="Contacto" required>
+            <button type="submit" class="btn-submit">Guardar Cliente</button>
+        </form>
+    </div>
+</div>
+
+    
+    </div>
+    
 </body>
+<script>
+    function openForm() {
+        document.getElementById("modal-container").style.display = "flex";
+    }
+
+    function closeForm() {
+        document.getElementById("modal-container").style.display = "none";
+    }
+
+    document.getElementById("cliente-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const nombre = document.getElementById("nombre").value;
+        const identificacion = document.getElementById("identificacion").value;
+        const contacto = document.getElementById("contacto").value;
+
+        fetch("/clientes/nuevo", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nombre: nombre,
+                identificacion: identificacion,
+                contacto: contacto
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            closeForm();
+            location.reload(); // Recargar la página para mostrar el nuevo cliente
+        })
+        .catch(error => console.error("Error:", error));
+    });
+</script>
+
 </html>

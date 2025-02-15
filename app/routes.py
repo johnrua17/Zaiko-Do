@@ -535,7 +535,45 @@ def inventario():
 @routes_blueprint.route('/clientes', methods=['GET'], endpoint='clientes')
 def clientes():
     """Página para gestionar los clientes."""
-    return render_template('clientes.html')
+    if not session.get('idusuario'):
+        return redirect(url_for('routes.login'))  # Redirigir si no está autenticado
+    
+    id_usuario = session.get('idusuario')
+    cur = mysql.connection.cursor()
+    query = """
+        SELECT idcliente, nombre, identificacion, contacto, fecha_registro
+        FROM clientes
+        WHERE idusuario = %s
+    """
+    cur.execute(query, (id_usuario,))
+    clientes = cur.fetchall()
+    cur.close()
+    
+    return render_template('clientes.html', clientes=clientes)
+
+
+@routes_blueprint.route('/clientes/nuevo', methods=['POST'], endpoint='agregar_cliente')
+def agregar_cliente():
+    """Agregar un nuevo cliente."""
+    if not session.get('idusuario'):
+        return jsonify({'error': 'No autenticado'}), 401
+    
+    data = request.json
+    nombre = data.get('nombre')
+    identificacion = data.get('identificacion')
+    contacto = data.get('contacto')
+    id_usuario = session.get('idusuario')
+    
+    cur = mysql.connection.cursor()
+    query = """
+        INSERT INTO clientes (nombre, identificacion, contacto, fecha_registro, idusuario)
+        VALUES (%s, %s, %s, NOW(), %s)
+    """
+    cur.execute(query, (nombre, identificacion, contacto, id_usuario))
+    mysql.connection.commit()
+    cur.close()
+    
+    return jsonify({'message': 'Cliente agregado correctamente'}), 201
 
 @routes_blueprint.route('/configuracion', methods=['GET'], endpoint='configuracion')
 def configuracion():

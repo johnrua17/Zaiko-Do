@@ -40,9 +40,19 @@
         <a href="{{ url_for('routes.inventario') }}" class="nav-item">
             <i class="fas fa-chart-bar"></i> Inventario
         </a>
-        <a href="{{ url_for('routes.clientes') }}" class="nav-item">
-            <i class="fas fa-users"></i> Clientes
-        </a>
+        <div class="nav-item" onclick="toggleSubmenu('clientes-submenu')">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span> 
+            <i class="fas fa-chevron-down arrow"></i>
+
+        </div>
+        <div class="submenu" id="clientes-submenu">
+            <a href="{{ url_for('routes.clientes') }}" class="nav-item">
+                <span>Lista de clientes</span>
+            </a>
+
+        </div>
+        
         
         
        
