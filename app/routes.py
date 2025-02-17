@@ -1665,3 +1665,88 @@ def editar_usuario(id_usuario):
              return redirect(url_for('routes.ventana_administracion'))
 
         return render_template('editar_usuario.html', usuario=usuario)
+
+@routes_blueprint.route('/clientes/eliminar/<int:idcliente>', methods=['DELETE'], endpoint='eliminar_cliente')
+def eliminar_cliente(idcliente):
+    """Eliminar un cliente por su ID."""
+    if not session.get('idusuario'):
+        return jsonify({'error': 'No autenticado'}), 401
+
+    cur = mysql.connection.cursor()
+    
+    # Verificar si el cliente pertenece al usuario autenticado
+    cur.execute("SELECT idusuario FROM clientes WHERE idcliente = %s", (idcliente,))
+    result = cur.fetchone()
+    
+    if not result or result["idusuario"] != session.get('idusuario'):
+        return jsonify({'error': 'Acceso no autorizado'}), 403
+
+    # Eliminar el cliente
+    cur.execute("DELETE FROM clientes WHERE idcliente = %s", (idcliente,))
+    mysql.connection.commit()
+    cur.close()
+
+    return jsonify({'message': 'Cliente eliminado correctamente'}), 200
+
+@routes_blueprint.route('/clientes/editar/<int:idcliente>', methods=['PUT'], endpoint='editar_cliente')
+def editar_cliente(idcliente):
+    """Editar un cliente existente."""
+    if not session.get('idusuario'):
+        return jsonify({'error': 'No autenticado'}), 401
+
+    data = request.json
+    nombre = data.get('nombre')
+    contacto = data.get('contacto')
+
+    cur = mysql.connection.cursor()
+    
+    # Verificar si el cliente pertenece al usuario autenticado
+    cur.execute("SELECT idusuario FROM clientes WHERE idcliente = %s", (idcliente,))
+    result = cur.fetchone()
+    
+    if not result or result["idusuario"] != session.get('idusuario'):
+        return jsonify({'error': 'Acceso no autorizado'}), 403
+
+    # Actualizar el cliente
+    query = """
+        UPDATE clientes 
+        SET nombre = %s, contacto = %s
+        WHERE idcliente = %s and idusuario =%s
+    """
+    cur.execute(query, (nombre, contacto, idcliente,session.get('idusuario')))
+    mysql.connection.commit()
+    cur.close()
+
+    return jsonify({'message': 'Cliente actualizado correctamente'}), 200
+
+
+@routes_blueprint.route('/clientes/top', methods=['GET'], endpoint='clientes_top')
+def clientes_top():
+    """Obtener los clientes con mayor volumen de compras."""
+    if not session.get('idusuario'):
+        return redirect(url_for('routes.login'))  # Redirigir si no está autenticado
+
+    id_usuario = session.get('idusuario')
+    cur = mysql.connection.cursor()
+
+    query = """
+        SELECT 
+            COALESCE(c.idcliente, 0) AS idcliente,
+            COALESCE(c.nombre, v.cliente, 'No suministrado') AS nombre,
+            COALESCE(c.identificacion, v.idcliente, 'No suministrado') AS identificacion,
+            COALESCE(c.contacto, 'No suministrado') AS contacto,
+            SUM(v.totalventa) AS total_compras
+        FROM ventas v
+        LEFT JOIN clientes c ON c.identificacion = v.idcliente AND c.idusuario = %s
+        WHERE v.idusuario = %s
+        GROUP BY c.idcliente, c.nombre, c.identificacion, c.contacto, v.cliente, v.idcliente
+        ORDER BY total_compras DESC
+        LIMIT 10;
+    """
+    cur.execute(query, (id_usuario, id_usuario))
+    
+    clientes_top = cur.fetchall()
+    print(clientes_top)  # Debugging
+    cur.close()
+
+    return render_template('clientes_top.html', clientes_top=clientes_top)

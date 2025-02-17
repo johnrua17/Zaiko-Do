@@ -7,6 +7,99 @@
     <title>Clientes</title>
 </head>
 <style>
+    /* Estilos del modal para editar */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenido del modal */
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 400px;
+    text-align: center;
+    position: relative;
+}
+
+/* Botón de cerrar */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+}
+
+.close:hover {
+    color: #d9534f;
+}
+
+/* Inputs del formulario */
+#edit-cliente-form input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+/* Hacer que la identificación sea de solo lectura */
+#edit-identificacion {
+    background-color: #f2f2f2;
+    cursor: not-allowed;
+}
+
+/* Botón de envío */
+.btn-submit {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-submit:hover {
+    background-color: #45a049;
+}
+
+</style>
+<style>
+    /* Estilo de los botones en la tabla */
+.btn-delete, .btn-edit {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.btn-delete:hover {
+    color: red;
+    transform: scale(1.2);
+}
+
+.btn-edit:hover {
+    color: #4CAF50;
+    transform: scale(1.2);
+}
+
+</style>
+<style>
  /* añadir cliente modal */
  /* Estilos del modal */
 .modal {
@@ -172,6 +265,7 @@
                     <th>Identificación</th>
                     <th>Contacto</th>
                     <th>Fecha de Registro</th>
+                    <th>Acciones</th> <!-- Nueva columna -->
                 </tr>
             </thead>
             <tbody>
@@ -182,10 +276,37 @@
                     <td>{{ cliente["identificacion"] }}</td>
                     <td>{{ cliente["contacto"] }}</td>
                     <td>{{ cliente["fecha_registro"] }}</td>
+                    <td>
+                        <!-- Icono de eliminar -->
+                        <button class="btn-delete" onclick="confirmDelete({{ cliente['idcliente'] }})">
+                            🗑️
+                        </button>
+                       
+                        <!-- Botón de editar -->
+                        <button class="btn-edit" onclick="openEditForm({{ cliente['idcliente'] }}, '{{ cliente['nombre'] }}', '{{ cliente['identificacion'] }}', '{{ cliente['contacto'] }}')">
+                            ✏️
+                        </button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
+            
         </table>
+        <!-- Contenedor modal para editar cliente -->
+<div id="edit-modal-container" class="modal" style="display: none">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditForm()">&times;</span>
+        <h2>Editar Cliente</h2>
+        <form id="edit-cliente-form">
+            <input type="hidden" id="edit-idcliente"> <!-- ID oculto -->
+            <input type="text" id="edit-nombre" placeholder="Nombre" required>
+            <input type="text" id="edit-identificacion" placeholder="Identificación" readonly> <!-- No editable -->
+            <input type="text" id="edit-contacto" placeholder="Contacto" required>
+            <button type="submit" class="btn-submit">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+
         <!-- Contenedor del formulario modal -->
 <div id="modal-container" class="modal" style="display: none">
     <div class="modal-content">
@@ -204,6 +325,56 @@
     </div>
     
 </body>
+<script>
+    function openEditForm(idcliente, nombre, identificacion, contacto) {
+        document.getElementById("edit-idcliente").value = idcliente;
+        document.getElementById("edit-nombre").value = nombre;
+        document.getElementById("edit-identificacion").value = identificacion; // Solo lectura
+        document.getElementById("edit-contacto").value = contacto;
+        document.getElementById("edit-modal-container").style.display = "flex";
+    }
+
+    function closeEditForm() {
+        document.getElementById("edit-modal-container").style.display = "none";
+    }
+
+    document.getElementById("edit-cliente-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const idcliente = document.getElementById("edit-idcliente").value;
+        const nombre = document.getElementById("edit-nombre").value;
+        const contacto = document.getElementById("edit-contacto").value;
+
+        fetch(`/clientes/editar/${idcliente}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre, contacto })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            location.reload(); // Recargar la página para ver los cambios
+        })
+        .catch(error => console.error("Error:", error));
+    });
+</script>
+
+<script>
+    function confirmDelete(idCliente) {
+        if (confirm("¿Estás seguro de que deseas eliminar este cliente?")) {
+            fetch(`/clientes/eliminar/${idCliente}`, {
+                method: "DELETE"
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload(); // Recargar la página después de eliminar
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    }
+</script>
+
 <script>
     function openForm() {
         document.getElementById("modal-container").style.display = "flex";
