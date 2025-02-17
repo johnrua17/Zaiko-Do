@@ -283,6 +283,8 @@ body {
     .main-content {
         margin-left: 0;
         padding: 1rem;
+        width: 95%; /* Ocupa casi todo el ancho */
+        max-width: 500px; /* No se vuelve demasiado grande */
     }
 
     .table-container {
