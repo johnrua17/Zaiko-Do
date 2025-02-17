@@ -18,6 +18,7 @@ import os
 from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader
 from app.auth import validar_sesion  # Importar el decorador
+from .reporte_ventas import query_reportes
  
 load_dotenv(dotenv_path='../.env')
  
@@ -908,100 +909,7 @@ def registrar_historial_plan(idusuario, nombre_plan, transaction_amount_in_cents
         cur.close()
 
 @routes_blueprint.route('/ventas/reporte', methods=["GET", "POST"])
-def reporte_ventas():
-
-    def query_reportes():
-        cur = mysql.connection.cursor()
-
-
-        query_categorias_vendidas = """
-        SELECT
-            categoria,
-            SUM(CAST(cantidad AS DECIMAL(10,2)) * CAST(valor AS DECIMAL(10,2))) AS ingresos_brutos
-        FROM
-            detalleventas
-        WHERE
-            idusuario = %s
-            AND fecha BETWEEN %s AND %s
-        GROUP BY
-            categoria;
-        """
-        cur.execute(query_categorias_vendidas, (id_usuario_actual, fecha_inicio, fecha_fin))
-        categorias_vendidas = cur.fetchall()
-
-        print(f"idusuario es {id_usuario_actual}, fecha inicio es {fecha_inicio}, fehca fin es {fecha_fin}")
-        print(f"ya calcule cateogrias vendidas, es: {categorias_vendidas}")
-        print(type(categorias_vendidas))
-
-
-        query_ganancias_categoria = """
-        SELECT
-            categoria,
-            SUM((CAST(valor AS DECIMAL(10,2)) - CAST(costo AS DECIMAL(10,2))) * CAST(cantidad AS DECIMAL(10,2))) AS ganancia_total
-        FROM
-            detalleventas
-        WHERE
-            idusuario = %s
-            AND fecha BETWEEN %s AND %s
-        GROUP BY
-            categoria;
-        """
-        cur.execute(query_ganancias_categoria, (id_usuario_actual, fecha_inicio, fecha_fin))
-        ganancias_categoria = cur.fetchall()
-
-
-
-
-        query_ventas_metodo_pago = """
-                SELECT
-            v.metodo_pago,
-            SUM((CAST(dv.valor AS DECIMAL(10,2)) - CAST(dv.costo AS DECIMAL(10,2))) * CAST(dv.cantidad AS DECIMAL(10,2))) AS ganancia_total
-        FROM
-            detalleventas dv
-        INNER JOIN
-            ventas v ON dv.idventa = v.idventas
-        WHERE
-            dv.idusuario = %s
-            AND dv.fecha BETWEEN %s AND %s
-        GROUP BY
-            v.metodo_pago;
-        """
-        cur.execute(query_ventas_metodo_pago, (id_usuario_actual, fecha_inicio, fecha_fin))
-        ventas_metodo_pago = cur.fetchall()
-
-
-        query_ventas_dia = """
-        SELECT
-            SUM(CAST(cantidad AS DECIMAL(10,2)) * CAST(valor AS DECIMAL(10,2))) AS ingresos_brutos_hoy
-        FROM
-            detalleventas
-        WHERE
-            idusuario = %s
-            AND fecha = %s;
-        """
-        cur.execute(query_ventas_dia, (id_usuario_actual, fecha))
-        ventas_dia_result = cur.fetchone()  # Usamos fetchone porque esperamos un solo resultado
-        ventas_dia = ventas_dia_result['ingresos_brutos_hoy'] if ventas_dia_result['ingresos_brutos_hoy'] else 0 
-
-
-        query_ganancias_dia = """
-        SELECT
-            SUM((CAST(valor AS DECIMAL(10,2)) - CAST(costo AS DECIMAL(10,2))) * CAST(cantidad AS DECIMAL(10,2))) AS ganancia_total
-        FROM
-            detalleventas
-        WHERE
-            idusuario = %s
-            AND fecha = %s;
-        """
-        cur.execute(query_ganancias_dia, (id_usuario_actual, fecha))
-        ganancias_dia_result = cur.fetchone()
-        ganancias_dia = ganancias_dia_result['ganancia_total'] if ganancias_dia_result['ganancia_total'] else 0
-
-
-        cur.close()
-
-        return [categorias_vendidas, ganancias_categoria, ventas_metodo_pago, ventas_dia, ganancias_dia]
-    
+def reporte_ventas():    
     # Verificar si el usuario está autenticado
     if not session.get('idusuario'):
         return redirect(url_for('auth.login'))
@@ -1014,13 +922,22 @@ def reporte_ventas():
     timezone = pytz.timezone('America/Bogota')
     fecha_actual = datetime.now(timezone)
     fecha = fecha_actual.date()
+    fecha_inicio = fecha - timedelta(days=7)
+    fecha_fin = fecha
+    lista_consultas_para_reporte = query_reportes(id_usuario_actual, fecha_inicio, fecha_fin)
 
     if request.method == 'POST':
         data = request.get_json()
         fecha_inicio = data.get("fecha_inicio"),
         fecha_fin = data.get("fecha_fin")
         print("Datos recibidos:", data)  # Verifica que los datos se están recibiendo correctamente
-        lista_consultas_para_reporte = query_reportes()
+        lista_consultas_para_reporte = query_reportes(id_usuario_actual, fecha_inicio, fecha_fin)
+        print(f"categorias vendidas {lista_consultas_para_reporte[0]}")
+        print(f"ganancias categoria {lista_consultas_para_reporte[1]}")
+        print(f"ventas metoido pago {lista_consultas_para_reporte[2]}")
+        print(f"ventas dia {lista_consultas_para_reporte[3]}")
+        print(f"ganancias dia {lista_consultas_para_reporte[4]}")
+
 
         return jsonify({
             'categorias_vendidas': lista_consultas_para_reporte[0],
@@ -1030,9 +947,8 @@ def reporte_ventas():
             'ganancias_dia': lista_consultas_para_reporte[4]
         })
     
-    fecha_inicio = fecha - timedelta(days=7)
-    fecha_fin = fecha
-    lista_consultas_para_reporte = query_reportes()
+
+    
 
     
     return render_template('reporte_ventas.html',
@@ -1041,122 +957,6 @@ def reporte_ventas():
                             ventas_metodo_pago=lista_consultas_para_reporte[2],
                             ventas_dia=lista_consultas_para_reporte[3],
                             ganancias_dia=lista_consultas_para_reporte[4])
-
-
-    #data = request.get_json()
-
-
-    # start_date = data.get('start_date')
-    # end_date = data.get('end_date')
-
-
-    # #print(f"el inicio es {start_date} el fin es {end_date}")
-    # fecha_inicio = fecha - timedelta(days=7)
-    # fecha_fin = fecha
-    # print(f"estoy a punto de hacer las querys para reporte de ventas, la fecha de inicio es {fecha_inicio} y la fecha de fin es {fecha_fin}")
-    # try:
-    #     cur = mysql.connection.cursor()
-
-
-    #     query_categorias_vendidas = """
-    #     SELECT
-    #         categoria,
-    #         SUM(CAST(cantidad AS DECIMAL(10,2)) * CAST(valor AS DECIMAL(10,2))) AS ingresos_brutos
-    #     FROM
-    #         detalleventas
-    #     WHERE
-    #         idusuario = %s
-    #         AND fecha BETWEEN %s AND %s
-    #     GROUP BY
-    #         categoria;
-    #     """
-    #     cur.execute(query_categorias_vendidas, (id_usuario_actual, fecha_inicio, fecha_fin))
-    #     categorias_vendidas = cur.fetchall()
-
-
-    #     query_ganancias_categoria = """
-    #     SELECT
-    #         categoria,
-    #         SUM((CAST(valor AS DECIMAL(10,2)) - CAST(costo AS DECIMAL(10,2))) * CAST(cantidad AS DECIMAL(10,2))) AS ganancia_total
-    #     FROM
-    #         detalleventas
-    #     WHERE
-    #         idusuario = %s
-    #         AND fecha BETWEEN %s AND %s
-    #     GROUP BY
-    #         categoria;
-    #     """
-    #     cur.execute(query_ganancias_categoria, (id_usuario_actual, fecha_inicio, fecha_fin))
-    #     ganancias_categoria = cur.fetchall()
-
-
-
-
-    #     query_ventas_metodo_pago = """
-    #             SELECT
-    #         v.metodo_pago,
-    #         SUM((CAST(dv.valor AS DECIMAL(10,2)) - CAST(dv.costo AS DECIMAL(10,2))) * CAST(dv.cantidad AS DECIMAL(10,2))) AS ganancia_total
-    #     FROM
-    #         detalleventas dv
-    #     INNER JOIN
-    #         ventas v ON dv.idventa = v.idventas
-    #     WHERE
-    #         dv.idusuario = %s
-    #         AND dv.fecha BETWEEN %s AND %s
-    #     GROUP BY
-    #         v.metodo_pago;
-    #     """
-    #     cur.execute(query_ventas_metodo_pago, (id_usuario_actual, fecha_inicio, fecha_fin))
-    #     ventas_metodo_pago = cur.fetchall()
-
-
-    #     query_ventas_dia = """
-    #     SELECT
-    #         SUM(CAST(cantidad AS DECIMAL(10,2)) * CAST(valor AS DECIMAL(10,2))) AS ingresos_brutos_hoy
-    #     FROM
-    #         detalleventas
-    #     WHERE
-    #         idusuario = %s
-    #         AND fecha = %s;
-    #     """
-    #     cur.execute(query_ventas_dia, (id_usuario_actual, fecha))
-    #     ventas_dia_result = cur.fetchone()  # Usamos fetchone porque esperamos un solo resultado
-    #     ventas_dia = ventas_dia_result['ingresos_brutos_hoy'] if ventas_dia_result else 0  # Extraemos el valor
-
-
-    #     query_ganancias_dia = """
-    #     SELECT
-    #         SUM((CAST(valor AS DECIMAL(10,2)) - CAST(costo AS DECIMAL(10,2))) * CAST(cantidad AS DECIMAL(10,2))) AS ganancia_total
-    #     FROM
-    #         detalleventas
-    #     WHERE
-    #         idusuario = %s
-    #         AND fecha = %s;
-    #     """
-    #     cur.execute(query_ganancias_dia, (id_usuario_actual, fecha))
-    #     ganancias_dia_result = cur.fetchone()
-    #     ganancias_dia = ganancias_dia_result['ganancia_total'] if ganancias_dia_result else 0
-
-
-    #     cur.close()
-
-
-    #     # Renderizar la plantilla con las ventas
-    #     return render_template('reporte_ventas.html',
-    #                            categorias_vendidas=categorias_vendidas,
-    #                            ganancias_categoria=ganancias_categoria,
-    #                            ventas_metodo_pago=ventas_metodo_pago,
-    #                            ventas_dia=ventas_dia,
-    #                            ganancias_dia=ganancias_dia)
-   
-    # except Exception as e:
-    #     print(f"Error al obtener las ventas: {e}")
-    #     return render_template('reporte_ventas.html', error_message="Error al cargar las ventas.")
-
-
-    # finally:
-    #     if cur:
-    #         cur.close()
 
 
 

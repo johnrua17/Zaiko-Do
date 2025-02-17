@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="/static/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <title>Reporte de Ventas</title>
 <!-- Incluimos Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -58,9 +60,9 @@
 
     /* Estilos para los contenedores individuales */
     .categorias-container,
+    .metodo-container,
     .grafico-container,
     .ganancias-container,
-    .ventas-metodo-container,
     .grafica-ventas-container,
     .ventas-actual-container {
         background-color: white;
@@ -175,6 +177,44 @@
       font-size: 2rem;
       color: #333;
     }
+    .barcode-entry {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 15px; /* Espaciado entre el input y el botón */
+        margin: 20px; /* Espaciado general alrededor del contenedor */
+        padding: 10px; /* Espaciado interno dentro del contenedor */
+        background-color: #ffffff; /* Fondo claro para mayor claridad visual */
+        border-radius: 8px; /* Bordes redondeados */
+    }
+    /* Botón verde */
+    .data-table button,
+    .download-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+        background-color: #4caf83 !important; /* Verde */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: auto; /* Asegura que el ancho sea ajustado automáticamente */
+    }
+    .data-table button:hover,
+    .download-btn:hover {
+        background-color: #388e3c !important; /* Un tono más oscuro del verde */
+    }
+
+    /* Ajuste de espaciado vertical entre botones */
+    .data-table .btn-edit {
+        margin-bottom: 10px; /* Espacio inferior para separar del siguiente botón */
+    }
+
+    /* Elimina estilos redundantes del botón de descarga */
+    .download-btn {
+        position: static; /* Ajustamos para evitar conflictos */
+        display: inline-block; /* Evita comportamientos inesperados */
+    }
 </style>
 </head>
 <body>
@@ -198,6 +238,11 @@
         </div>
 
     </div>
+    <div class="barcode-entry">
+        <!-- Botón para mostrar la ventana modal -->
+        <button type="button" class="data-table download-btn" id="download-pdf-btn">
+            <i class="fas fa-download"></i> Descargar reporte</button>
+    </div> 
 
     <div class="admin-container">
         <!-- Categorías Más Vendidas con Gráfico Circular -->
@@ -216,7 +261,7 @@
                         {% for categoria in categorias_vendidas|sort(attribute='ingresos_brutos', reverse=True) %}
                         <tr>
                             <td>{{ categoria.categoria }}</td>
-                            <td>{{ categoria.ingresos_brutos }}</td>
+                            <td>{{ categoria.ingresos_brutos | int }}</td>
                         </tr>
                         {% endfor %}
                         {% else %}
@@ -248,7 +293,7 @@
                     {% for ganancia in ganancias_categoria %}
                     <tr>
                         <td>{{ ganancia.categoria }}</td>
-                        <td>{{ ganancia.ganancia_total }}</td>
+                        <td>{{ ganancia.ganancia_total | int }}</td>
                     </tr>
                     {% endfor %}
                     {% else %}
@@ -263,7 +308,7 @@
 
         <!-- Ventas por Método de Pago con Gráfico Circular -->
         <div class="fila">
-            <div class="categorias-container">
+            <div class="metodo-container">
                 <h3>Ventas por Método de Pago</h3>
                 <table>
                     <thead>
@@ -277,7 +322,7 @@
                         {% for metodo in ventas_metodo_pago %}
                         <tr>
                             <td>{{ metodo.metodo_pago }}</td>
-                            <td>{{ metodo.ganancia_total }}</td>
+                            <td>{{ metodo.ganancia_total | int }}</td>
                         </tr>
                         {% endfor %}
                         {% else %}
@@ -303,13 +348,43 @@
                 </div>
                 <div class="ventas-actual-container">
                     <h3>Ventas del Día Actual</h3>
-                    <p><strong>Total de Ventas:</strong> <span id="totalVentas">{{ ventas_dia }}</span></p>
-                    <p><strong>Ganancias Totales:</strong> <span id="gananciasTotales">{{ ganancias_dia }}</span></p>
+                    <p><strong>Total de Ventas:</strong> <span id="totalVentas">{{ ventas_dia | int }}</span></p>
+                    <p><strong>Ganancias Totales:</strong> <span id="gananciasTotales">{{ ganancias_dia | int }}</span></p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+    <script>
+        document.getElementById("download-pdf-btn").addEventListener("click", function () {
+            const { jsPDF } = window.jspdf;
+            const reporte = document.querySelector(".main-content");
+
+            html2canvas(reporte, { scale: 2 }).then(canvas => {
+                let imgData = canvas.toDataURL("image/png");
+                let pdf = new jsPDF("p", "mm", "a4");
+                
+                let imgWidth = 210; // Tamaño A4 en mm
+                let pageHeight = 297;
+                let imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let position = 0;
+
+                pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+                
+                if (imgHeight > pageHeight) {
+                    while (imgHeight > pageHeight) {
+                        position -= pageHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+                        imgHeight -= pageHeight;
+                    }
+                }
+
+                pdf.save("reporte_ventas.pdf");
+            });
+        });
+    </script>
 
 <!-- Script para generar los gráficos -->
 <script>
@@ -338,6 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const data = await response.json();
         console.log(data);
+        updateCharts(data);
 
         // Actualizar la tabla de categorías vendidas
         updateTable('categorias-container', data.categorias_vendidas, ['categoria', 'ingresos_brutos']);
@@ -346,44 +422,152 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTable('ganancias-container', data.ganancias_categoria, ['categoria', 'ganancia_total']);
 
         // Actualizar la tabla de ventas por método de pago
-        updateTable('categorias-container', data.ventas_metodo_pago, ['metodo_pago', 'ganancia_total']);
+        updateTable('metodo-container', data.ventas_metodo_pago, ['metodo_pago', 'ganancia_total']);
 
         // Actualizar las ventas del día y ganancias
-        document.getElementById('totalVentas').textContent = data.ventas_dia || 'No disponible';
-        document.getElementById('gananciasTotales').textContent = data.ganancias_dia || 'No disponible';
+        document.getElementById('totalVentas').textContent = Math.floor(data.ventas_dia) || 'No disponible';
+        document.getElementById('gananciasTotales').textContent = Math.floor(data.ganancias_dia) || 'No disponible';
     });
 
-    /**
-     * Función para actualizar una tabla con nuevos datos.
-     * @param {string} containerClass - Clase del contenedor de la tabla.
-     * @param {Array} data - Datos recibidos desde el backend.
-     * @param {Array} columns - Columnas a mostrar en la tabla.
-     */
-    function updateTable(containerClass, data, columns) {
-        const container = document.querySelector(`.${containerClass}`);
-        const tableBody = container.querySelector('tbody');
-        tableBody.innerHTML = ''; // Limpiar la tabla antes de agregar nuevos datos
+/**
+ * Función para actualizar una tabla con nuevos datos.
+ * @param {string} containerClass - Clase del contenedor de la tabla.
+ * @param {Array} data - Datos recibidos desde el backend.
+ * @param {Array} columns - Columnas a mostrar en la tabla.
+ */
+ function updateTable(containerClass, data, columns) {
+    const container = document.querySelector(`.${containerClass}`);
+    const tableBody = container.querySelector('tbody');
+    tableBody.innerHTML = ''; // Limpiar la tabla antes de agregar nuevos datos
 
-        if (data && data.length > 0) {
-            data.forEach(item => {
-                const row = document.createElement('tr');
-                columns.forEach(column => {
-                    const cell = document.createElement('td');
-                    cell.textContent = item[column] || 'No disponible';
-                    row.appendChild(cell);
-                });
-                tableBody.appendChild(row);
-            });
-        } else {
+    if (data && data.length > 0) {
+        data.forEach(item => {
             const row = document.createElement('tr');
-            const cell = document.createElement('td');
-            cell.setAttribute('colspan', columns.length);
-            cell.textContent = 'No hay datos disponibles';
-            row.appendChild(cell);
+            columns.forEach(column => {
+                const cell = document.createElement('td');
+                // Verificar si el valor es numérico y formatearlo sin decimales
+                const value = item[column];
+                if (!isNaN(parseFloat(value))) {
+                    cell.textContent = Math.floor(parseFloat(value)); // Eliminar decimales
+                } else {
+                    cell.textContent = value || 'No disponible';
+                }
+                row.appendChild(cell);
+            });
             tableBody.appendChild(row);
-        }
+        });
+    } else {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.setAttribute('colspan', columns.length);
+        cell.textContent = 'No hay datos disponibles';
+        row.appendChild(cell);
+        tableBody.appendChild(row);
     }
-});
+}
+
+
+    const initialData = {
+        categorias_vendidas: {{ categorias_vendidas | tojson | safe }},
+        ganancias_categoria: {{ ganancias_categoria | tojson | safe }},
+        ventas_metodo_pago: {{ ventas_metodo_pago | tojson | safe }},
+        ventas_dia: {{ ventas_dia | tojson | safe }},
+        ganancias_dia: {{ ganancias_dia | tojson | safe }}
+    };
+
+    // Inicializar gráficas con los datos iniciales
+    let categoriasChart, metodoPagoChart, ventasDiaChart;
+    initializeCharts(initialData);
+
+    // Función para inicializar las gráficas
+    function initializeCharts(data) {
+        // Gráfico circular para categorías más vendidas
+        categoriasChart = new Chart(document.getElementById('categoriasChart'), {
+            type: 'pie',
+            data: {
+                labels: data.categorias_vendidas.map(item => item.categoria),
+                datasets: [{
+                    data: data.categorias_vendidas.map(item => parseFloat(item.ingresos_brutos)),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Gráfico circular para ventas por método de pago
+        metodoPagoChart = new Chart(document.getElementById('metodoPagoChart'), {
+            type: 'pie',
+            data: {
+                labels: data.ventas_metodo_pago.map(item => item.metodo_pago),
+                datasets: [{
+                    data: data.ventas_metodo_pago.map(item => parseFloat(item.ganancia_total)),
+                    backgroundColor: ['#4BC0C0', '#9966FF'],
+                    hoverBackgroundColor: ['#4BC0C0', '#9966FF']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Gráfico de barras para ventas diarias
+        ventasDiaChart = new Chart(document.getElementById('ventasDiaChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Ventas del Día'],
+                datasets: [
+                    {
+                        label: 'Ingresos Brutos',
+                        data: [parseFloat(data.ventas_dia)],
+                        backgroundColor: '#FF6384',
+                        borderColor: '#FF6384',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Ganancias',
+                        data: [parseFloat(data.ganancias_dia)],
+                        backgroundColor: '#36A2EB',
+                        borderColor: '#36A2EB',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Función para actualizar las gráficas con nuevos datos
+    function updateCharts(data) {
+        // Actualizar gráfico de categorías más vendidas
+        categoriasChart.data.labels = data.categorias_vendidas.map(item => item.categoria);
+        categoriasChart.data.datasets[0].data = data.categorias_vendidas.map(item => parseFloat(item.ingresos_brutos));
+        categoriasChart.update();
+
+        // Actualizar gráfico de ventas por método de pago
+        metodoPagoChart.data.labels = data.ventas_metodo_pago.map(item => item.metodo_pago);
+        metodoPagoChart.data.datasets[0].data = data.ventas_metodo_pago.map(item => parseFloat(item.ganancia_total));
+        metodoPagoChart.update();
+
+        // Actualizar gráfico de ventas diarias
+        ventasDiaChart.data.datasets[0].data = [parseFloat(data.ventas_dia)];
+        ventasDiaChart.data.datasets[1].data = [parseFloat(data.ganancias_dia)];
+        ventasDiaChart.update();
+    }
+
+}); //hasta aca llega el document.addEventListener('DOMContentLoaded'...
 
 
     // Función para alternar el sidebar (similar a la utilizada en otras páginas)
@@ -413,99 +597,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.addEventListener('load', handleMobileView);
     window.addEventListener('resize', handleMobileView);
-
-    // Datos para el gráfico circular de categorías más vendidas
-    const categoriasData = {{ categorias_vendidas | tojson }};
-    const categoriasLabels = categoriasData.map(item => item.categoria);
-    const categoriasValues = categoriasData.map(item => item.ingresos_brutos);
-    const ctxCategorias = document.getElementById('categoriasChart').getContext('2d');
-    new Chart(ctxCategorias, {
-        type: 'pie',
-        data: {
-            labels: categoriasLabels,
-            datasets: [{
-                label: 'Ingresos Brutos',
-                data: categoriasValues,
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Categorías Más Vendidas'
-                }
-            }
-        }
-    });
-
-    // Datos para el gráfico de barras de ventas por día
-    const ventasDiaData = {
-        labels: ['Ingresos Brutos', 'Ganancias Totales'],
-        datasets: [{
-            label: 'Ingresos Brutos',
-            data: [{{ ventas_dia }}, {{ ganancias_dia }}],
-            backgroundColor: ['#36A2EB', '#FF6384']
-        }]
-    };
-    const ctxVentasDia = document.getElementById('ventasDiaChart').getContext('2d');
-    new Chart(ctxVentasDia, {
-        type: 'bar',
-        data: ventasDiaData,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Ventas por Día'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    // Datos para el gráfico circular de ventas por método de pago
-    const metodoPagoData = {{ ventas_metodo_pago | tojson }};
-    console.log("meotdoPagoData "+ metodoPagoData)
-    const metodoPagoLabels = metodoPagoData.map(item => item.metodo_pago);
-    const metodoPagoValues = metodoPagoData.map(item => item.ganancia_total);
-    const ctxMetodoPago = document.getElementById('metodoPagoChart').getContext('2d');
-    new Chart(ctxMetodoPago, {
-        type: 'pie',
-        data: {
-            labels: metodoPagoLabels,
-            datasets: [{
-                label: 'Ganancias por Método de Pago',
-                data: metodoPagoValues,
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Ventas por Método de Pago'
-                }
-            }
-        }
-    });
 </script>
 </body>
 </html>
