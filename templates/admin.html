@@ -237,13 +237,13 @@
             {% include 'buscar_productos.html' %}
             <div class="barcode-entry">
                 <label for="buscar_codigo_barras">Buscar producto por código de barras:</label>
-                <input type="text" id="buscar_codigo_barras" name="buscar_codigo_barras" placeholder="Ingresa el código de barras">
-                <button id="buscar_producto_codigo" class="data-table buscar-btn">Registrar producto</button>
+                <input type="text" id="buscar_codigo_barras" name="buscar_codigo_barras" placeholder="Ingresa el código de barras del producto a registrar">
+                <button id="buscar_producto_codigo" class="data-table buscar-btn">Registrar - R</button>
             </div>
             <div class="admin-buttons">
-                <button id="eliminar_producto" class="data-table btn-delete">Eliminar producto</button>
-                <button id="buscar_productos" class="data-table">Buscar producto</button>
-                <button id="modificar_valor" class="data-table">Modificar valor unitario</button>
+                <button id="eliminar_producto" class="data-table btn-delete">Eliminar producto - E</button>
+                <button id="buscar_productos" class="data-table">Buscar producto - B</button>
+                <button id="modificar_valor" class="data-table">Modificar valor unitario - M</button>
             </div>                               
             <div class="table-header">
                 <h2>Productos</h2>
@@ -264,7 +264,7 @@
                     <!-- Productos se añadirán aquí dinámicamente -->
                 </tbody>
             </table>
-            <button class="data-table admin-buttons" id="cobrar">Cobrar</button>
+            <button class="data-table admin-buttons" id="cobrar">Cobrar - C</button>
         </div>
         <div id="buscador_contenedor" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; width: 80%; max-width: 500px;">
@@ -551,6 +551,7 @@ function verificarProducto(producto) {
         }
     });
 </script>
-
+<script src="{{ url_for('static', filename='js/atajos.js') }}">  // Para atajos de teclado
+</script>
 </body>
 </html>
