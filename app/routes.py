@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, jsonify
 from app.auth import login_user, register_user
-from app.utils import obtener_hora_actual_bogota
+from app.utils import obtener_hora_actual_bogota, login_required
 from app.database import get_connection
 from flask_mysqldb import MySQL
 from io import BytesIO
@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader
 from app.auth import validar_sesion  # Importar el decorador
 from .reporte_ventas import query_reportes
- 
+
 load_dotenv(dotenv_path='../.env')
  
 TEMPLATES_DIR = '../../templates'   
@@ -103,6 +103,7 @@ def buscar_producto():
 
 
 @routes_blueprint.route('/buscar_productoss', methods=["POST"])
+
 def buscar_productos():
     if not session.get('idusuario'):
         return jsonify({"error": "Usuario no autenticado"}), 401
@@ -156,6 +157,7 @@ def buscar_productos():
 
 
 @routes_blueprint.route('/productos/listar', methods=["GET"])
+@login_required
 def listar_productos():
     # Verificar si el usuario está autenticado
     if not session.get('idusuario'):
@@ -426,6 +428,7 @@ def descargar_productos():
 
 @routes_blueprint.route('/admin', methods=["GET", "POST"])
 @validar_sesion
+@login_required
 def admin():
     from app import mysql
     id_usuario_actual = session.get('idusuario')
@@ -438,6 +441,7 @@ def admin():
     return render_template('admin.html', saludo=saludo, username=username, idplan=idplan)
 
 @routes_blueprint.route('/productos/agregar', methods=["GET", "POST"])
+@login_required
 def agregar_producto():
     from app import mysql
     if request.method == 'POST':
@@ -517,6 +521,7 @@ def terminos_condiciones():
     return render_template('terminos_condiciones.html')
 
 @routes_blueprint.route('/inventario', methods=['GET'], endpoint='inventario')
+@login_required 
 def inventario():
     """Página para gestionar el inventario."""
     if not session.get('idusuario'):
@@ -534,6 +539,7 @@ def inventario():
     return render_template('inventario.html', productos=productos)
 
 @routes_blueprint.route('/clientes', methods=['GET'], endpoint='clientes')
+@login_required 
 def clientes():
     """Página para gestionar los clientes."""
     if not session.get('idusuario'):
@@ -583,6 +589,7 @@ def configuracion():
 
 
 @routes_blueprint.route('/planes', methods=['GET'])
+@login_required 
 def planes():
 
     nombre = session.get('nombre')
@@ -909,6 +916,7 @@ def registrar_historial_plan(idusuario, nombre_plan, transaction_amount_in_cents
         cur.close()
 
 @routes_blueprint.route('/ventas/reporte', methods=["GET", "POST"])
+@login_required
 def reporte_ventas():    
     # Verificar si el usuario está autenticado
     if not session.get('idusuario'):
@@ -1194,6 +1202,7 @@ def buscar_producto_codigo():
         cur.close()
 
 @routes_blueprint.route('/ventas/realizadas', methods=["GET"])
+@login_required
 def ventas_realizadas():
     # Verificar si el usuario está autenticado
     if not session.get('idusuario'):
@@ -1324,11 +1333,8 @@ def generar_factura(idventa):
         print("Error generando factura:", e)
         return "Error generando factura", 500
 @routes_blueprint.route('/ventana_administracion')
+@login_required
 def ventana_administracion():
-    # Verificar si el usuario está autenticado
-    if not session.get('idusuario'):
-        return redirect(url_for('routes.login'))  # Redirigir al login si no está autenticado
-
     rol_usuario_actual = session.get('role')  # Obtener el rol del usuario
 
     # Verificar si el usuario es administrador
@@ -1521,11 +1527,9 @@ def editar_cliente(idcliente):
 
 
 @routes_blueprint.route('/clientes/top', methods=['GET'], endpoint='clientes_top')
+@login_required
 def clientes_top():
-    """Obtener los clientes con mayor volumen de compras."""
-    if not session.get('idusuario'):
-        return redirect(url_for('routes.login'))  # Redirigir si no está autenticado
-
+    """Obtener los 10 clientes con más compras."""
     id_usuario = session.get('idusuario')
     cur = mysql.connection.cursor()
 

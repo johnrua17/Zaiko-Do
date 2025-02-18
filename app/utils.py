@@ -1,6 +1,7 @@
 from datetime import datetime
 from app.config import Config
-
+from functools import wraps
+from flask import session, redirect, url_for
 # Función para obtener la hora actual en la zona horaria de Bogotá
 def obtener_hora_actual_bogota():
     """
@@ -32,3 +33,11 @@ def calcular_tiempo_restante(bloqueado_hasta):
     tiempo_restante = bloqueado_hasta.replace(tzinfo=Config.ZONE_BOGOTA) - ahora
     minutos_restantes = int(tiempo_restante.total_seconds() / 60)
     return minutos_restantes
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('idusuario'):
+            return redirect(url_for('routes.login')) 
+        return f(*args, **kwargs)
+    return decorated_function
