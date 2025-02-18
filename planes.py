@@ -28,10 +28,10 @@ MAIL_PASSWORD = SECRET_MAIL = os.getenv("SECRET_MAIL")
 # Conexión a la base de datos
 def get_db_connection():
     return mysql.connector.connect(
-        host=os.getenv("SECRET_HOST"),
-        user=os.getenv("SECRET_USER_BD"),
-        password=os.getenv("SECRET_KEY"),
-        database=os.getenv("SECRET_BD")
+        host=os.getenv("MYSQL_HOST"),
+        user=os.getenv("MYSQL_USER"),
+        password=os.getenv("MYSQL_PASSWORD"),
+        database=os.getenv("MYSQL_DB")
     )
 
 
