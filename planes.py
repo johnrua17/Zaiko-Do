@@ -80,7 +80,6 @@ def actualizar_planes_vencidos():
         fecha_actual = datetime.now(bogota_tz).strftime('%Y-%m-%d %H:%M:%S')
 
 
-
         # Seleccionar los usuarios con planes vencidos
         cursor.execute("""
             SELECT idusuario, nombre, correo

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificación de Vencimiento de Plan</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Verificación de correo electrónico</h2>
+        </div>
+        <div class="content">
+            <p>Hola {{ nombre_usuario }},</p>
+            <p>Hemos visto que te registraste en <strong>Zaiko Do</strong>.</p>
+            <p></p>
+            <p>Para finalizar tu registro por favor da click en el siguiente botón para validar la información.</p>
+            <p></p>
+            <p><strong>{{ otp }}</strong> </p>
+            <p></p>
+            <p>¡Gracias por confiar en Zaiko Do!</p>
+        </div>
+        <div class="footer">
+            <p>&copy; {{ current_year }} Zaiko Do. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+        background-color: #4CAF50;
+        color: #ffffff;
+        padding: 10px;
+        text-align: center;
+        border-radius: 10px 10px 0 0;
+    }
+    .content {
+        padding: 20px;
+        line-height: 1.6;
+        color: #333333;
+    }
+    .button {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-top: 20px;
+        background-color: #4CAF50;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    .footer {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 12px;
+        color: #888888;
+    }
+</style>
+</html>

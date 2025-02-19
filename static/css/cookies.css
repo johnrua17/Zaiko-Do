@@ -11,10 +11,8 @@
 body { 
     background-image: linear-gradient(
         to bottom,
-        var(--Blanco) 0%,
-        var(--Verde_claro) 25%, 
-        var(--Verde) 50%,
-        var(--Verde_azulado) 75%
+        var(--Verde),
+        var(--Verde_azulado)
     );
     background-size: 200% 200%;
     animation: moveBackground 5s linear infinite alternate;

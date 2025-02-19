@@ -5,10 +5,17 @@ from app.config import Config
 from app.database import get_connection
 from functools import wraps
 from app import mysql
+from app.email import enviar_correos
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+from dotenv import load_dotenv
+import os
+
 import bleach
 import requests
 import uuid
+import random
 
+load_dotenv(dotenv_path='/home/ZaikodDo/.env')
 
 # Crear un Blueprint para las rutas de autenticación
 auth_blueprint = Blueprint('auth', __name__)
@@ -219,16 +226,19 @@ def register_user():
             cur.execute('SELECT * FROM usuario WHERE correo = %s', [correo])
             if cur.fetchone():
                 return render_template('register.html', message='El correo ya está en uso.')
-
+            
             # Crear usuario
             contraseña_hash = generate_password_hash(contraseña)
             fecha_creacion_plan = obtener_hora_actual_bogota()
+            otp = random.randint(100000, 999999)
             cur.execute("""
-                INSERT INTO usuario (nombre, correo, contraseña, role, idplan, fecha_creacion_plan)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (nombre, correo, contraseña_hash, 'usuario', 1, fecha_creacion_plan))
-
+                INSERT INTO usuario (nombre, correo, contraseña, role, idplan, fecha_creacion_plan, token_verificacion, token_expiracion, verificado)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (nombre, correo, contraseña_hash, 'usuario', 1, fecha_creacion_plan, otp, fecha_creacion_plan + timedelta(days=1), False))
+            
             conn.commit()
+
+            enviar_correos(correo, nombre, "vencimiento", otp)
 
             session['logueado'] = True
             session['idusuario'] = cur.lastrowid
@@ -237,10 +247,40 @@ def register_user():
             session['username'] = nombre
             session['idplan'] = 1
 
-            return redirect(url_for('routes.admin'))
+            s = URLSafeTimedSerializer(os.getenv("SECRET_KEY"))
+            token = s.dumps(correo, salt='email-confirm')
+            return redirect(url_for('routes.validar', token=token))
         except Exception as e:
             conn.rollback()
+            print(e)
             return render_template('register.html', message='Error en el registro. Inténtelo de nuevo más tarde.')
         finally:
             cur.close()
     return render_template('register.html')
+
+@auth_blueprint.route('/validar_otp', methods=['GET', 'POST'], endpoint='validar_otp')
+def validar_otp():
+    """Valida el OTP ingresado por el usuario."""
+    if request.method == 'POST':
+        otp = request.form['otp']
+        correo = request.form['correo']
+
+        conn = get_connection()
+        cur = conn.cursor()
+
+        try:
+            cur.execute('SELECT * FROM usuario WHERE correo = %s', [correo])
+            usuario = cur.fetchone()
+
+            if usuario and usuario['token_verificacion'] == int(otp) and usuario['token_expiracion'] > obtener_hora_actual_bogota():
+                cur.execute('UPDATE usuario SET verificado = %s WHERE correo = %s', (True, correo))
+                conn.commit()
+                return redirect(url_for('auth.admin'))
+            else:
+                return render_template('validar_otp.html', message='OTP incorrecto o expirado.')
+        except Exception as e:
+            conn.rollback()
+            return render_template('validar_otp.html', message='Error al validar el OTP. Inténtelo de nuevo más tarde.')
+        finally:
+            cur.close()
+    return render_template('validar_otp.html')

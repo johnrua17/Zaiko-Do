@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, jsonify
-from app.auth import login_user, register_user
+from app.auth import login_user, register_user, validar_otp
 from app.utils import obtener_hora_actual_bogota, login_required
 from app.database import get_connection
 from flask_mysqldb import MySQL
@@ -43,6 +43,47 @@ def login():
 def register():
     return register_user()
 
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+
+@routes_blueprint.route('/validar_otp/<token>', methods=['GET', 'POST'])
+def validar(token):
+    try:
+        s = URLSafeTimedSerializer(os.getenv("SECRET_KEY"))
+        correo = s.loads(token, salt='email-confirm', max_age=86400)  # Token válido por 24 horas
+    except SignatureExpired:
+        return render_template('validar_otp.html', message='El enlace de verificación ha expirado.')
+    except BadSignature:
+        return render_template('validar_otp.html', message='El enlace de verificación no es válido.')
+
+    if request.method == 'POST':
+        otp = request.form.get('otp')
+        if not otp:
+            return render_template('validar_otp.html', token=token, message='Por favor, proporciona el OTP.')
+
+        conn = get_connection()
+        cur = conn.cursor()
+
+        try:
+            # Verificar si el OTP es correcto
+            cur.execute('SELECT * FROM usuario WHERE correo = %s AND token_verificacion = %s AND token_expiracion > NOW()', (correo, otp))
+            usuario = cur.fetchone()
+
+            if not usuario:
+                return render_template('validar_otp.html', token=token, message='OTP incorrecto o expirado.')
+
+            # Actualizar la columna verificado
+            cur.execute('UPDATE usuario SET verificado = %s WHERE correo = %s', (True, correo))
+            conn.commit()
+
+            return redirect(url_for('routes.admin'))
+        except Exception as e:
+            conn.rollback()
+            print(e)
+            return render_template('validar_otp.html', token=token, message='Error al verificar el OTP. Inténtelo de nuevo más tarde.')
+        finally:
+            cur.close()
+    return render_template('validar_otp.html', token=token)
+
 @routes_blueprint.route('/')
 def home():
     return render_template('home.html')
@@ -50,6 +91,10 @@ def home():
 @routes_blueprint.route('/home')
 def home_redirect():
     return redirect(url_for('routes.home'))
+
+@routes_blueprint.route('/avisoPrivacidad')
+def cookies():
+    return render_template('cookies.html')
 
 @routes_blueprint.route('/buscar_productos', methods=["POST"])
 def buscar_producto():
