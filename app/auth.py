@@ -9,6 +9,7 @@ from app.email import enviar_correos
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from dotenv import load_dotenv
 import os
+import re
 
 import bleach
 import requests
@@ -203,6 +204,16 @@ def verify_turnstile_token_registro(token):
         print(f"Error al verificar el token de Turnstile: {str(e)}")
         return False
 
+def validar_contrasena(contrasena):
+    if len(contrasena) < 8:
+        return "La contraseña debe tener al menos 8 caracteres."
+    if not re.search(r"[A-Z]", contrasena):
+        return "La contraseña debe tener al menos una letra mayúscula."
+    if not re.search(r"[0-9]", contrasena):
+        return "La contraseña debe tener al menos un número."
+    return None
+
+
 @auth_blueprint.route('/register', methods=['GET', 'POST'], endpoint='register')
 def register_user():
     """Registra un nuevo usuario en el sistema."""
@@ -216,6 +227,11 @@ def register_user():
         correo = bleach.clean(request.form['email'])
         contraseña = request.form['password']
 
+        # Validar la contraseña
+        mensaje_error = validar_contrasena(contraseña)
+        if mensaje_error:
+            return render_template('register.html', message=mensaje_error)
+        
         conn = get_connection()
         cur = conn.cursor()
 
