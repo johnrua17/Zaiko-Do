@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, session, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, session, jsonify, Flask
 from app.auth import login_user, register_user
 from app.utils import obtener_hora_actual_bogota, login_required
 from app.database import get_connection
@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader
 from app.auth import validar_sesion  # Importar el decorador
 from .reporte_ventas import query_reportes
+import requests # Para el chatbot
 
 load_dotenv(dotenv_path='../.env')
  
@@ -1554,3 +1555,18 @@ def clientes_top():
     cur.close()
 
     return render_template('clientes_top.html', clientes_top=clientes_top)
+
+@routes_blueprint.route('/chatbot', methods=['POST'], endpoint='chatbot') # Para el chatbot
+def chatbot():
+    """Ruta para procesar mensajes al chatbot integrado con la API de Gémini."""
+    user_input = request.json.get('message')
+    headers = {
+        'Authorization': 'Bearer AIzaSyAWR9bnkx_gXtZPZOKIS3XLE0m_u3lMsTA',
+        'Content-Type': 'application/json'
+    }
+    data = {
+        'prompt': user_input
+    }
+    response = requests.post('https://api.aistudio.google.com/v1/chat', headers=headers, json=data)
+    response_data = response.json()
+    return jsonify({'reply': response_data['choices'][0]['message']['content']})
