@@ -1615,3 +1615,8 @@ def chatbot():
     response = requests.post('https://api.aistudio.google.com/v1/chat', headers=headers, json=data)
     response_data = response.json()
     return jsonify({'reply': response_data['choices'][0]['message']['content']})
+
+from flask import render_template
+@routes_blueprint.route('/chatbot', methods=['GET'], endpoint='chatbot_page')
+def chatbot_page():
+    return render_template('chatbot.html')

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot de Soporte - Zaiko Do</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <!-- Puedes agregar un archivo CSS específico para el chatbot si es necesario -->
+    <link rel="icon" href="{{ url_for('static', filename='images/icono/icono.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <!-- Puedes incluir el mismo header/nav de home.html si lo deseas -->
+    <nav class="navbar" id="navbar">
+        <!-- ... contenido de navegación ... -->
+    </nav>
+
+    <!-- Sección del chatbot -->
+    <div class="chatbot-container">
+        <h2>Chatbot de Soporte</h2>
+        <div id="chatbot">
+            <input type="text" id="userInput" placeholder="Escribe tu mensaje..." class="chatbot-input">
+            <button onclick="sendMessage()" class="chatbot-button">Enviar</button>
+            <div id="chatbotResponse" class="chatbot-response"></div>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+            fetch('/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('chatbotResponse').innerText = data.reply;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
