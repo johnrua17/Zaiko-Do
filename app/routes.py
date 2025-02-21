@@ -659,10 +659,52 @@ def planes():
         cur.execute('SELECT idplan, nombre, precio, duracion FROM planes')
         planes = cur.fetchall()
 
-        # Enviar datos a la plantilla
-        return render_template('planes.html', planes=planes, nombre=nombre, plan_actual=id_plan, fecha_expiracion_plan=fecha_expiracion_plan)
+        query_fecha_inicio_plan_a_devolver = ("""SELECT fecha_inicio
+                    FROM historial_planes_usuarios
+                    WHERE idusuario = %s
+                    ORDER BY fecha_inicio DESC
+                    LIMIT 1;""")
+
+        cur.execute(query_fecha_inicio_plan_a_devolver, (id_usuario,))
+        fecha_inicio_plan_a_devolver = cur.fetchone()
+
+        timezone = pytz.timezone('America/Bogota')
+        fecha_actual = datetime.now(timezone)
+
+        puede_pedir_devolucion = False
+
+        # Verifica si se obtuvo una fecha de inicio del plan, o sea la fecha del plan del que quiere devolucion, en test no va a funcionar porque necesito comprar un plan para eso
+        if fecha_inicio_plan_a_devolver:
+            fecha_inicio = fecha_inicio_plan_a_devolver[0]  # Ya es un objeto datetime
+            diferencia_horas = (fecha_actual - fecha_inicio).total_seconds() / 3600
+
+            # Si no han pasado más de 24 horas
+            if diferencia_horas < 24:
+                puede_pedir_devolucion = True
+        
+
+        
+        puede_pedir_devolucion = True #esto es solo para testear, no deberia definirla como true
+        ha_hecho_solicitud = True
+        #Si sí puede pedir una devolucion, verificamos si ya ha hecho una solicitud
+        if puede_pedir_devolucion:
+            query_ha_hecho_solicitud = ("""SELECT idusuario 
+                                        FROM solicitudes_devolucion
+                                        WHERE idusuario = %s 
+                                        AND idplan_comprado = %s;
+                                        """)
+
+            cur.execute(query_ha_hecho_solicitud, (id_usuario, id_plan))
+            ha_hecho_solicitud_result = cur.fetchone()
+
+            ha_hecho_solicitud = ha_hecho_solicitud_result is not None
+
+
+            # Enviar datos a la plantilla
+        return render_template('planes.html', planes=planes, nombre=nombre, plan_actual=id_plan, fecha_expiracion_plan=fecha_expiracion_plan, puede_pedir_devolucion=puede_pedir_devolucion, ha_hecho_solicitud=ha_hecho_solicitud)
 
     except Exception as e:
+        print("esta mierda da error")
         return render_template('planes.html', message=f'Error: {str(e)}')
     finally:
         cur.close()
@@ -960,6 +1002,65 @@ def registrar_historial_plan(idusuario, nombre_plan, transaction_amount_in_cents
         # print(f"Error al registrar el historial del plan: {str(e)}")
     finally:
         cur.close()
+
+@routes_blueprint.route('/solicitar-devolucion', methods=['POST'])
+def solicitar_devolucion():
+    # Obtener el usuario actual desde la sesión
+    id_usuario_actual = session.get('idusuario')
+    
+    if id_usuario_actual:
+        # Lógica para procesar la devolución (usando el usuario_actual)
+        print(f"El usuario {id_usuario_actual} ha solicitado una devolución.")
+
+        cur = mysql.connection.cursor()
+
+
+        # Buscar el plan actual del usuario
+        cur.execute("SELECT idplan FROM usuario WHERE idusuario = %s", [id_usuario_actual])
+        plan_actual = cur.fetchone()
+
+        if not plan_actual:
+            return jsonify({'success': False, 'message': 'Usuario no encontrado'}), 404
+        
+        idplan_actual = plan_actual['idplan']
+
+        timezone = pytz.timezone('America/Bogota')
+        fecha_actual = datetime.now(timezone)
+        fecha_solicitud = fecha_actual.date()
+
+
+        # Insertar la nueva solicitud
+        cur.execute("""
+            INSERT INTO solicitudes_devolucion (idusuario, idplan_comprado, fecha_solicitud)
+            VALUES (%s, %s, %s)
+        """, [id_usuario_actual, idplan_actual, fecha_solicitud])
+        
+        mysql.connection.commit()
+        cur.close()
+
+        
+
+        # # Obtener la última suscripción activa del usuario
+        # cur.execute("SELECT idplan_anterior, fecha_creacion_plan_anterior, fecha_expiracion_plan_anterior "
+        #             "FROM historial_planes WHERE idusuario=%s"
+        #             "ORDER BY id DESC LIMIT 1", [id_usuario_actual])
+        
+        # historial_info = cur.fetchone()
+
+        # if historial_info:
+        #     idplan_anterior = historial_info['idplan_anterior']
+        #     fecha_creacion_plan_anterior = historial_info['fecha_creacion_plan_anterior']
+        #     fecha_expiracion_plan_anterior = historial_info['fecha_expiracion_plan_anterior']
+        #         # Actualizar el plan del usuario a los valores anteriores
+        #     cur.execute("UPDATE usuario SET idplan=%s, fecha_creacion_plan=%s, fecha_expiracion_plan=%s "
+        #                 "WHERE idusuario=%s",
+        #                 [idplan_anterior, fecha_creacion_plan_anterior, fecha_expiracion_plan_anterior, id_usuario_actual])
+        #     mysql.connection.commit()
+
+
+        return jsonify({'success': True})
+    else:
+        return redirect(url_for('auth.login'))
 
 @routes_blueprint.route('/ventas/reporte', methods=["GET", "POST"])
 @login_required

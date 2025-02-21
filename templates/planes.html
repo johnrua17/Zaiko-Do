@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/stylePlanes.css">
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* Ocultar la sección de tarjetas en pantallas grandes */
         .new-plans-section-cards {
@@ -23,6 +24,38 @@
                 display: block;
             }
         }
+        .solicitar-devolucion-btn {
+    background-color: #ff4d4d; /* Rojo llamativo */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+        transition: background-color 0.3s ease;
+        display: inline-block;
+        text-align: center;
+        width: 40%; /* Ocupa todo el ancho disponible */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra suave */
+    }
+
+    .solicitar-devolucion-btn:hover {
+        background-color: #ff1a1a; /* Rojo más oscuro al pasar el mouse */
+    }
+
+    .solicitar-devolucion-btn:active {
+        background-color: #e60000; /* Rojo aún más oscuro al hacer clic */
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Sombra más pequeña al hacer clic */
+    }
+    .devolucion-info {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    font-style: italic;
+    }
     </style>
 </head>
 <body>
@@ -148,6 +181,16 @@
                                 </div>
                                 {% if plan.idplan == plan_actual %}
                                     <span class="current-plan">Plan Actual</span>
+                                    {% if puede_pedir_devolucion and not ha_hecho_solicitud %}
+                                        <button class="solicitar-devolucion-btn">Solicitar Devolución</button>
+                                        <p class="devolucion-info">
+                                            * La devolución solo está disponible durante las primeras 24 horas después de adquirir un nuevo plan.
+                                        </p>
+                                    {% elif puede_pedir_devolucion and ha_hecho_solicitud %}
+                                        <p class="devolucion-info">
+                                            * Ya has solicitado una devolución para este plan. Tu solicitud está actualmente en proceso y se encuentra pendiente de revisión.
+                                        </p>
+                                    {% endif %}
                                 {% elif plan.nombre != 'Plan Gratuito' %}
                                     <a href="/suscribir/{{ plan.idplan }}" class="new-home-v4-btn" title="¡Inscríbete ya!">
                                         <button class="plans-button">Seleccionar</button>
@@ -270,4 +313,57 @@
     
 
 </body>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const botonesDevolucion = document.querySelectorAll('.solicitar-devolucion-btn');
+
+    botonesDevolucion.forEach(boton => {
+        boton.addEventListener('click', function() {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¿Deseas solicitar la devolución de este plan?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, solicitar devolución',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Realizar una solicitud POST al servidor sin enviar datos adicionales
+                    fetch('/solicitar-devolucion', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                '¡Solicitud enviada!',
+                                'Tu solicitud de devolución ha sido procesada.',
+                                'success'
+                            );
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                'Hubo un problema al procesar tu solicitud.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error',
+                            'Hubo un problema al procesar tu solicitud.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        });
+    });
+});
+</script>
 </html>
