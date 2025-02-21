@@ -1214,14 +1214,13 @@ def registrar_venta():
             mysql.connection.commit()
 
         
-        cur.execute('SELECT idventas FROM ventas WHERE idventausuario = %s', (idventausuario,))
-        idventa = cur.fetchone()
+      
 
         cur.close()
 
         return jsonify({
             'success': 'Venta registrada correctamente.',
-            'idventa': idventa["idventas"],
+            'idventa': idventausuario,
             'total_venta': total_venta,
             'fecha': str(fecha)
         }), 200
@@ -1377,20 +1376,29 @@ def ventas_realizadas():
 @routes_blueprint.route('/detalles/<int:idventa>', methods=["GET"])
 def detalles_venta(idventa):
     try:
-        idusuario = session["idusuario"]
+        idusuario = session.get("idusuario", None)
+        if idusuario is None:
+            return jsonify({"error": "Usuario no autenticado"}), 403
+
+        print(f"Consultando detalles de venta: idventa={idventa}, idusuario={idusuario}")
+        
         cur = mysql.connection.cursor()
-        # Obtener los detalles de la venta
-        query = """
-        SELECT * FROM detalleventas WHERE idventa = %s and idusuario=%s
-        """
-        cur.execute(query, (idventa,idusuario,))
+        query = "SELECT * FROM detalleventas WHERE idventa =%s AND idusuario =%s"
+        cur.execute(query, (idventa, idusuario))
         detalles = cur.fetchall()
         cur.close()
 
-        return jsonify(detalles)  # Devolver los detalles como JSON
+        if not detalles:
+            print("No se encontraron detalles para la venta.")
+        else:
+            print("Detalles encontrados:", detalles)
+
+        return jsonify(detalles)
+
     except Exception as e:
         print(f"Error al obtener los detalles de la venta: {e}")
         return jsonify({"error": "Error al cargar los detalles."}), 500
+
 
 
 @routes_blueprint.route('/devolucion/<int:idventa>', methods=["POST"])
