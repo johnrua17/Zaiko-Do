@@ -1065,10 +1065,6 @@ def solicitar_devolucion():
 @routes_blueprint.route('/ventas/reporte', methods=["GET", "POST"])
 @login_required
 def reporte_ventas():    
-    # Verificar si el usuario está autenticado
-    if not session.get('idusuario'):
-        return redirect(url_for('auth.login'))
-
 
     id_usuario_actual = session.get('idusuario')
 
@@ -1171,7 +1167,14 @@ def registrar_venta():
 
             # Acumular el total de la venta
             total_venta += cantidad_solicitada * precio_unitario
-
+        total_original_calculado = total_venta
+        # Aplicar descuento si se envía información desde el cliente
+        total_final = float(data["total_final"])
+        if total_final < total_original_calculado:
+            total_venta = total_final  # Se usa el total final (con descuento) para la venta
+            
+        else:
+            print("No se aplica descuento, total final es igual o mayor al total original.")
         # Fecha y hora de Bogotá
         timezone = pytz.timezone('America/Bogota')
         fecha_actual = datetime.now(timezone)
@@ -1240,6 +1243,7 @@ def agregar_productos():
         id_venta = datos.get('idventa')
         productos = datos.get('productos', [])
         fecha = datos.get('fecha')
+        total = datos.get('total_final'),
 
         if not id_venta or not productos:
             return jsonify({'error': 'Datos incompletos para agregar productos.'}), 400
@@ -1260,7 +1264,7 @@ def agregar_productos():
                 producto.get('Codigo_de_barras'),
                 producto.get('Nombre'),
                 producto.get('Descripcion', ''),
-                producto.get('Precio_Valor'),
+                total,
                 producto.get('Precio_Costo'),
                 producto.get('Cantidad'),
                 producto.get('Categoria', ''),

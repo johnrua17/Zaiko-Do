@@ -315,6 +315,7 @@
                         <input type="text" id="cliente-cc" name="cliente_cc" class="input-formulario" placeholder="Ingrese la cédula del cliente">
                     </div>
                     <div class="modal-content">
+                        
                         <label style="display: block;">Método de pago:</label>
                         <div style="display: inline-block; margin-top: 10px;">
                             <div style="display: inline-block; margin: 0 10px;">
@@ -329,6 +330,17 @@
                         <!-- Sección para Efectivo -->
                         <div id="seccion-efectivo">
                             <p><strong>Total a pagar:</strong> $<span id="total-pagar"></span></p>
+                                <!-- Nuevo apartado de descuento -->
+                                <div id="seccion-descuento" style="margin-bottom: 15px;">
+                                    <p>Aplicar descuento</p>
+                                    <button type="button" onclick="aplicarDescuento(5)">5%</button>
+                                    <button type="button" onclick="aplicarDescuento(10)">10%</button>
+                                    <button type="button" onclick="mostrarDescuentoPersonalizado()">Personalizado</button>
+                                    <div id="descuento-personalizado" style="display: none; margin-top: 10px;">
+                                    <input type="number" id="input-descuento" min="0" max="100" placeholder="% descuento">
+                                    <button type="button" onclick="aplicarDescuentoPersonalizado()">Aplicar</button>
+                                    </div>
+                                </div>
                             <label for="pago-con">Pago con:</label>
                             <input type="number" id="pago-con" min="0" step="0.01">
                             <p><strong>Su cambio:</strong> $<span id="su-cambio">0.00</span></p>
@@ -378,114 +390,79 @@
         }
     </script>
    
-    <script>
-   document.getElementById('cobrar').addEventListener('click', () => {
-    let total = 0;
-
-    // Recorremos los productos en la tabla
-    for (const codigo in productosEnTabla) {
-        const row = productosEnTabla[codigo]; 
+   <script>
+    // Variable global para almacenar el total original
+    let totalOriginal = 0;
+  
+    // Aplica un descuento fijo en porcentaje (5% o 10%)
+    function aplicarDescuento(porcentaje) {
+      const totalElement = document.getElementById('total-pagar');
+      // Se usa totalOriginal para evitar descuentos acumulados
+      const descuento = totalOriginal * (porcentaje / 100);
+      const totalConDescuento = totalOriginal - descuento;
+      totalElement.innerText = totalConDescuento.toFixed(2);
+      // Actualizamos el valor del input "pago-con" para reflejar el cambio
+      document.getElementById('pago-con').value = totalConDescuento.toFixed(2);
+    }
+  
+    // Muestra el input para ingresar un descuento personalizado
+    function mostrarDescuentoPersonalizado() {
+      document.getElementById('descuento-personalizado').style.display = 'block';
+    }
+  
+    // Aplica el descuento ingresado por el usuario
+    function aplicarDescuentoPersonalizado() {
+      const inputDescuento = document.getElementById('input-descuento');
+      const porcentaje = parseFloat(inputDescuento.value);
+      if (!isNaN(porcentaje) && porcentaje >= 0 && porcentaje <= 100) {
+        aplicarDescuento(porcentaje);
+        document.getElementById('descuento-personalizado').style.display = 'none';
+      } else {
+        alert('Ingrese un porcentaje válido entre 0 y 100.');
+      }
+    }
+  
+    // Evento para calcular el total y mostrar el modal de cobro
+    document.getElementById('cobrar').addEventListener('click', () => {
+      let total = 0;
+  
+      // Recorremos los productos en la tabla
+      for (const codigo in productosEnTabla) {
+        const row = productosEnTabla[codigo];
         const precio = parseFloat(row.cells[3].textContent.replace('$', '')); // Precio en la columna 3
         const cantidad = parseInt(row.cells[6].textContent); // Cantidad en la columna 6
-
         total += precio * cantidad;
-    }
-
-    // Mostrar el total en el modal
-    document.getElementById('total-pagar').innerText = total.toFixed(2);
-    document.getElementById('pago-con').value = total.toFixed(2); // Por defecto, igual al total
-    document.getElementById('su-cambio').innerText = '0.00';
-
-    // Mostrar el modal de cobro
-    document.getElementById('modal-overlay').style.display = 'flex';
-});
-
-// Actualizar el cambio al modificar el pago con
-document.getElementById('pago-con').addEventListener('input', (event) => {
-    const total = parseFloat(document.getElementById('total-pagar').innerText);
-    const pagoCon = parseFloat(event.target.value) || 0;
-    const cambio = pagoCon - total;
-    document.getElementById('su-cambio').innerText = cambio >= 0 ? cambio.toFixed(2) : '0.00';
-});
-
-// Cerrar el modal usando una clase común
-document.querySelectorAll('.cerrar-modal').forEach(button => {
-    button.addEventListener('click', () => {
-        document.getElementById('modal-overlay').style.display = 'none';
+      }
+  
+      // Asignamos el total calculado a la variable global totalOriginal
+      totalOriginal = total;
+  
+      // Mostrar el total en el modal y actualizar el input "pago-con"
+      document.getElementById('total-pagar').innerText = totalOriginal.toFixed(2);
+      document.getElementById('pago-con').value = totalOriginal.toFixed(2); // Por defecto, igual al total
+      document.getElementById('su-cambio').innerText = '0.00';
+  
+      // Mostrar el modal de cobro
+      document.getElementById('modal-overlay').style.display = 'flex';
     });
-});
-
-    </script>
+  
+    // Actualizar el cambio al modificar el "pago con"
+    document.getElementById('pago-con').addEventListener('input', (event) => {
+      const total = parseFloat(document.getElementById('total-pagar').innerText);
+      const pagoCon = parseFloat(event.target.value) || 0;
+      const cambio = pagoCon - total;
+      document.getElementById('su-cambio').innerText = cambio >= 0 ? cambio.toFixed(2) : '0.00';
+    });
+  
+    // Cerrar el modal usando una clase común
+    document.querySelectorAll('.cerrar-modal').forEach(button => {
+      button.addEventListener('click', () => {
+        document.getElementById('modal-overlay').style.display = 'none';
+      });
+    });
+  </script>
+  
     <script>
-        
-    // Manejar el registro de la venta
-//     document.getElementById('registrar-venta').addEventListener('click', async () => {
-//     const botonRegistrar = document.getElementById('registrar-venta');
-//     if (productosAgregados.length === 0) {
-//         alert('No hay productos agregados para registrar la venta.');
-//         return;
-//     }
-//     const total = parseFloat(document.getElementById('total-pagar').innerText);
-//     const pagoCon = parseFloat(document.getElementById('pago-con').value);
-//     const metodoPago = document.querySelector('input[name="metodo-pago"]:checked').value;
-//     // Desactivar el botón para evitar múltiples envíos
-//     botonRegistrar.disabled = true;
-//     // console.log(pagoCon)
-//     // console.log(metodoPago)
-
-//     try {
-//         const response = await fetch('/ventas/registrar', { //se envian los datos al backend en formato JSON, al endopoint /ventas/registrar
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify({ 
-//                 productos: productosAgregados, //Se envía el array productosAgregados, que contiene los productos que el usuario ha agregado a la venta.
-//                 metodo_pago: metodoPago, //Se envía el valor del método de pago (ya sea "efectivo" o "credito").
-//                 pagocon: pagoCon //lo mismo pero con cuanto paga
-//             }),
-//         });
-
-//         if (!response.ok) throw new Error('Error al registrar la venta, el response dio error entonces el error es en la respuesta del backend.');
-
-//         const data = await response.json();
-
-//         if (data.success) {
-//             // Registrar productos en detalleventas
-//             const agregarProductosResponse = await fetch('/ventas/agregar_productos', {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify({
-//                     idventa: data.idventa,
-//                     productos: productosAgregados,
-//                     fecha: data.fecha,
-//                 }),
-//             });
-
-//             if (!agregarProductosResponse.ok) throw new Error('Error al agregar productos.');
-
-//             const productosData = await agregarProductosResponse.json();
-//             if (productosData.success) {
-//                 alert('Venta y productos registrados correctamente.');
-//                 document.getElementById('modal-overlay').style.display = 'none';
-
-//                 // Limpiar la tabla y los productos agregados
-//                 productosAgregados.length = 0; // Vaciar el array
-//                 document.getElementById('tabla_productos').innerHTML = ''; // Limpiar la tabla
-//             }
-//         } else {
-//             alert(data.error);
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         alert('Ocurrió un error al registrar la venta.');
-//     } finally {
-//         // Habilitar el botón después de la respuesta del servidor
-//         botonRegistrar.disabled = false;
-//     }
-// });
 
         
     </script>

@@ -20,12 +20,12 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
             Categoria: row.cells[5].textContent
         };
     });
-
+    
     // Obtener datos del modal
     const total = parseFloat(document.getElementById('total-pagar').innerText);
     const pagoCon = parseFloat(document.getElementById('pago-con').value);
     const metodoPago = document.querySelector('input[name="metodo-pago"]:checked').value;
-
+    
     // Datos del cliente
     const clienteNombre = document.getElementById('cliente-nombre').value.trim();
     const clienteCC = document.getElementById('cliente-cc').value.trim();
@@ -50,6 +50,7 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
                 productos: productos,
                 metodo_pago: metodoPago,
                 pagocon: pagoCon,
+                total_final: total,
                 cliente: metodoPago === 'credito' ? nombre : (clienteNombre || "Consumidor Final"),
                 idcliente: metodoPago === 'credito' ? identificacion : (clienteCC || "222222222222"),
                 contacto: metodoPago === 'credito' ? contacto : "",
@@ -75,7 +76,8 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
                 body: JSON.stringify({
                     idventa: idventa,
                     productos: productos,
-                    fecha: fecha
+                    fecha: fecha,
+                    total_final: total,
                 }),
             });
 
