@@ -338,6 +338,8 @@
         const modal = document.getElementById('chatbotModal');
         const widget = document.getElementById('chatbot-widget');
         const closeBtn = document.querySelector('.modal .close');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
     
         // Abre el modal al hacer clic en el widget
         widget.addEventListener('click', function() {
@@ -356,13 +358,52 @@
             }
         });
     
-        // Aquí puedes agregar la lógica para enviar mensajes
+        // Función para enviar el mensaje
         document.getElementById('chat-send').addEventListener('click', function() {
-            const message = document.getElementById('chat-input').value;
-            // Enviar el mensaje a tu ruta /chatbot usando fetch, por ejemplo
+            const message = chatInput.value.trim();
+            if (!message) return;  // No envía mensajes vacíos
+    
+            // Opcional: Agregar el mensaje del usuario al chat
+            const userTemplate = document.getElementById('user-message-template');
+            const userMessageClone = userTemplate.content.cloneNode(true);
+            userMessageClone.querySelector('.message-text').textContent = message;
+            chatMessages.appendChild(userMessageClone);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+            // Limpiar el input
+            chatInput.value = "";
+    
+            // Enviar el mensaje al servidor mediante fetch
+            fetch('/chatbot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Agregar la respuesta del bot al chat
+                const botTemplate = document.getElementById('bot-message-template');
+                const botMessageClone = botTemplate.content.cloneNode(true);
+                botMessageClone.querySelector('.message-text').textContent = data.reply;
+                // Opcional: Agregar una marca de tiempo
+                const now = new Date();
+                const timestamp = now.getHours() + ":" + (now.getMinutes()<10?"0":"") + now.getMinutes();
+                botMessageClone.querySelector('.message-time').textContent = timestamp;
+                chatMessages.appendChild(botMessageClone);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error al enviar el mensaje:', error);
+                // Opcional: Mostrar un mensaje de error en el chat
+                const botTemplate = document.getElementById('bot-message-template');
+                const botMessageClone = botTemplate.content.cloneNode(true);
+                botMessageClone.querySelector('.message-text').textContent = "Lo siento, ocurrió un error. Por favor, inténtalo de nuevo.";
+                chatMessages.appendChild(botMessageClone);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
         });
     });
-    </script>
+    </script>    
 <template id="user-message-template">
     <div class="chat-message user-message">
         <div class="message-text"></div>
@@ -371,7 +412,7 @@
 <template id="bot-message-template">
     <div class="chat-message bot-message">
         <div class="message-photo">
-            <div class="bot-avatar" style="background-image: url('{{ url_for('static', filename='images/icono/chatbot_icon.png') }}');"></div>
+            <div class="bot-avatar" style="background-image: url(&quot;{{ url_for('static', filename='images/icono/chatbot_icon.png') }}&quot;);"></div>
         </div>
         <div class="message-text"></div>
         <div class="message-time"></div>

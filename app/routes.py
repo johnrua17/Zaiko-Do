@@ -20,7 +20,7 @@ from jinja2 import Environment, FileSystemLoader
 from app.auth import validar_sesion  # Importar el decorador
 from .reporte_ventas import query_reportes
 import requests # Para el chatbot
-
+import google.generativeai as genai # Para el chatbot
 load_dotenv(dotenv_path='../.env')
  
 TEMPLATES_DIR = '../../templates'   
@@ -29,12 +29,40 @@ env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
 # Crear un Blueprint para las rutas
 routes_blueprint = Blueprint('routes', __name__)
 
-# Inicialización de MySQL
-mysql = None
-API_KEY = os.getenv('GEMINI_API_KEY') # Key de Gemini para el chatbot
+mysql = None # Inicialización de MySQL
+
+genai.configure(api_key=os.environ["GEMINI_API_KEY"]) # Configura la API Key usando la variable de entorno
 def init_mysql(app):
     global mysql
     mysql = MySQL(app)
+
+# Configuración de generación (ajusta los parámetros según necesites)
+generation_config = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 8192,
+    "response_mime_type": "text/plain",
+}
+
+# Crea el modelo de generación
+model = genai.GenerativeModel(
+    model_name="gemini-2.0-flash",
+    generation_config=generation_config,
+)
+
+# Opcional: Define un historial inicial si deseas enviar contexto (puedes dejarlo vacío o inicializarlo con el prompt deseado)
+initial_history = [
+    {
+        "role": "user",
+        "parts": [
+            "Vamos a implementar el chatbot del sitio web Zaiko Do (zaikodo.com)..."
+            # Aquí puedes incluir el prompt completo o un resumen que establezca el contexto.
+        ],
+    }
+]
+# Inicia una sesión de chat
+chat_session = model.start_chat(history=initial_history)
 
 @routes_blueprint.route('/login', methods=["GET", "POST"])
 def login():
@@ -1714,20 +1742,20 @@ def clientes_top():
 
     return render_template('clientes_top.html', clientes_top=clientes_top)
 
-@routes_blueprint.route('/chatbot', methods=['POST'], endpoint='chatbot') # Para el chatbot
+@routes_blueprint.route('/chatbot', methods=['POST'], endpoint='chatbot')
 def chatbot():
-    """Ruta para procesar mensajes al chatbot integrado con la API de Gémini."""
     user_input = request.json.get('message')
-    headers = {
-    'Authorization': f'Bearer {API_KEY}',
-    'Content-Type': 'application/json'
-}
-    data = {
-        'prompt': user_input
-    }
-    response = requests.post('https://api.aistudio.google.com/v1/chat', headers=headers, json=data)
-    response_data = response.json()
-    return jsonify({'reply': response_data['choices'][0]['message']['content']})
+    try:
+        # Envía el mensaje a la sesión de chat y recibe la respuesta
+        response = chat_session.send_message(user_input)
+        if response and response.text:
+            reply_text = response.text
+        else:
+            reply_text = "La respuesta de la API no contiene datos válidos."
+        return jsonify({'reply': reply_text})
+    except Exception as e:
+        # Manejo de errores más específico
+        return jsonify({'reply': f'Error al conectar con la API de Gémini: {str(e)}'}), 500
 
 from flask import render_template
 @routes_blueprint.route('/chatbot', methods=['GET'], endpoint='chatbot_page')
