@@ -31,7 +31,7 @@ routes_blueprint = Blueprint('routes', __name__)
 
 # Inicialización de MySQL
 mysql = None
-
+API_KEY = os.getenv('GEMINI_API_KEY') # Key de Gemini para el chatbot
 def init_mysql(app):
     global mysql
     mysql = MySQL(app)
@@ -1719,9 +1719,9 @@ def chatbot():
     """Ruta para procesar mensajes al chatbot integrado con la API de Gémini."""
     user_input = request.json.get('message')
     headers = {
-        'Authorization': 'Bearer AIzaSyAWR9bnkx_gXtZPZOKIS3XLE0m_u3lMsTA',
-        'Content-Type': 'application/json'
-    }
+    'Authorization': f'Bearer {API_KEY}',
+    'Content-Type': 'application/json'
+}
     data = {
         'prompt': user_input
     }
