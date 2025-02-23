@@ -117,3 +117,15 @@
     text-align: center;
     margin: 20px 0;
 }
+
+/* Estilo para el fondo oscuro al mostrar el div */
+.overlay {
+    position: fixed; /* Fijar el fondo */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro con opacidad */
+    z-index: 999; /* Asegurarse de que esté debajo del div de detalles */
+    display: none; /* Ocultar por defecto */
+}

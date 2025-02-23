@@ -122,38 +122,37 @@
         </style>
     </head>
     <body>
-        <button class="toggle-sidebar" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
+       
         {% include 'sidebar.html' %}
         <div class="main-content">
-            <div class="table-container">
-                <!-- Reemplaza la barra de búsqueda con la inclusión de la plantilla -->
-                {% include 'buscar_productos.html' %}
-                <div class="barcode-entry">
-                    <!-- Botón para mostrar la ventana modal -->
-                    <button type="button" class="data-table download-btn" title="Descargar Productos" onclick="openDownloadModal()">
-                        <i class="fas fa-download"></i> Descargar productos
-                    </button>
-                
-                    <!-- Ventana modal -->
-                    <div id="downloadModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); width:300px; text-align:center;">
-                        <p style="font-weight: normal; font-size:16px; margin-bottom:20px;">Seleccione el formato de descarga</p>
-                        <button class="btn-download excel" onclick="submitDownload('xlsx')">
-                            <span class="icon">📊</span> Descargar como Excel
-                        </button>
-                        <button class="btn-download pdf" onclick="submitDownload('pdf')">
-                            <span class="icon">📄</span> Descargar como PDF
-                        </button>
-                        <button class="btn-download cancel" onclick="closeDownloadModal()">
-                            <span class="icon">❌</span> Cancelar
-                        </button>
-                    </div>
-                    
-                </div>          
-                <div class="table-header"> 
-                    <h2>Productos</h2>
+            <!-- Reemplaza la barra de búsqueda con la inclusión de la plantilla -->
+            {% include 'buscar_productos.html' %}
+            <div class="barcode-entry">
+                <!-- Botón para mostrar la ventana modal -->
+                <button type="button" class="data-table download-btn" title="Descargar Productos" onclick="openDownloadModal()">
+                    <i class="fas fa-download"></i> Descargar productos
+                </button>
+            
+                <!-- Ventana modal -->
+                <div id="downloadModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); width:300px; text-align:center;">
+                    <p style="font-weight: normal; font-size:16px; margin-bottom:20px;">Seleccione el formato de descarga</p>
+                    <button class="btn-download excel" onclick="submitDownload('xlsx')">
+                        <span class="icon">📊</span> Descargar como Excel
+                    </button>
+                    <button class="btn-download pdf" onclick="submitDownload('pdf')">
+                        <span class="icon">📄</span> Descargar como PDF
+                    </button>
+                    <button class="btn-download cancel" onclick="closeDownloadModal()">
+                        <span class="icon">❌</span> Cancelar
+                    </button>
                 </div>
+                
+            </div>          
+            <div class="table-header"> 
+                <h2>Productos</h2>
+            </div>
+            <div class="table-container">
+                
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -245,34 +244,7 @@
             });
         </script>
    
-        <script>
-            function toggleSidebar() {
-                const sidebar = document.querySelector('.sidebar');
-                const mainContent = document.querySelector('.main-content');
-                const toggleButton = document.querySelector('.toggle-sidebar');
-               
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-                toggleButton.classList.toggle('collapsed');
-            }
-   
-            // Manejo responsive
-            function handleMobileView() {
-                const sidebar = document.querySelector('.sidebar');
-                const toggleButton = document.querySelector('.toggle-sidebar');
-               
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.add('collapsed');
-                    toggleButton.classList.add('collapsed');
-                } else {
-                    sidebar.classList.remove('collapsed');
-                    toggleButton.classList.remove('collapsed');
-                }
-            }
-   
-            window.addEventListener('load', handleMobileView);
-            window.addEventListener('resize', handleMobileView);
-        </script>
+      
         <script>
             function openDownloadModal() {
     const button = document.querySelector('.download-btn');

@@ -1386,6 +1386,16 @@ def ventas_realizadas():
     if not session.get('idusuario'):
         return redirect(url_for('auth.login'))
 
+    # Renderizar la plantilla sin datos (los datos se obtendrán mediante una solicitud POST)
+    return render_template('ventas/ventas_realizadas.html')
+
+@routes_blueprint.route('/obtener_ventas', methods=["POST"])
+@login_required
+def obtener_ventas():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return jsonify({"error": "Usuario no autenticado"}), 403
+
     id_usuario_actual = session.get('idusuario')
 
     try:
@@ -1398,12 +1408,24 @@ def ventas_realizadas():
         ventas = cur.fetchall()
         cur.close()
 
-        # Renderizar la plantilla con las ventas
-        return render_template('ventas/ventas_realizadas.html', ventas=ventas)
+        # Convertir las ventas a una lista de diccionarios
+        ventas_json = []
+        for venta in ventas:
+            venta_dict = {
+                "idventausuario": venta["idventausuario"],
+                "totalventa": float(venta["totalventa"]),
+                "fecha": venta["fecha"].strftime("%d/%m/%y"),  # Formatear fecha
+                "hora": str(venta["hora"]),  # Convertir timedelta a cadena
+                "metodo_pago": venta["metodo_pago"],
+                "cliente": venta["cliente"]
+            }
+            ventas_json.append(venta_dict)
+
+        # Devolver los datos en formato JSON
+        return jsonify(ventas_json)
     except Exception as e:
         print(f"Error al obtener las ventas: {e}")
-        return render_template('ventas/ventas_realizadas.html', error_message="Error al cargar las ventas.")
-
+        return jsonify({"error": "Error al cargar las ventas."}), 500
 
 @routes_blueprint.route('/detalles/<int:idventa>', methods=["GET"])
 def detalles_venta(idventa):

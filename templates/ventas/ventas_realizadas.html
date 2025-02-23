@@ -5,32 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="stylesheet" href="/static/css/ventas/detalleventa.css">
+    <link rel="icon" href="{{ url_for('static', filename='images/icono/icono.ico') }}" type="image/x-icon">
+    <title>Zaiko Do </title>
     
     <!-- Otras etiquetas meta y enlaces -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
    
 </head>
 <style>
-    /* Estilos para la tabla de ventas realizadas */
+  /* Estilos para la tabla de ventas realizadas */
 .table {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
     border-radius: 8px; /* Bordes redondeados */
     overflow: hidden; /* Para que los bordes redondeados se apliquen */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Sombra suave */
+    background-color: #fff; /* Fondo blanco */
 }
 
 .table th, .table td {
     padding: 12px 15px; /* Espaciado más amplio */
     text-align: left;
+    border-bottom: 1px solid #f0f0f0; /* Borde inferior sutil */
 }
 
 .table th {
-    background-color: #4CAF50; /* Color de fondo moderno */
-    color: white; /* Color del texto */
-    font-weight: bold; /* Negrita */
+    background-color: #f8f9fa; /* Color de fondo moderno */
+    color: #333; /* Color del texto */
+    font-weight: 600; /* Negrita */
     text-transform: uppercase; /* Texto en mayúsculas */
+    font-size: 13px; /* Tamaño de fuente más pequeño */
 }
 
 .table tr {
@@ -38,146 +43,153 @@
 }
 
 .table tr:nth-child(even) {
-    background-color: #f2f2f2; /* Color de fondo para filas pares */
+    background-color: #fafafa; /* Color de fondo para filas pares */
 }
 
 .table tr:hover {
-    background-color: #e0e0e0; /* Color de fondo al pasar el mouse */
+    background-color: #f1f1f1; /* Color de fondo al pasar el mouse */
 }
 
+/* Estilo para el botón de detalles */
 .btn-details {
     background-color: #007bff; /* Color del botón */
     color: white;
     border: none;
-    padding: 10px 15px; /* Espaciado del botón */
+    padding: 8px 12px; /* Espaciado del botón */
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    border-radius: 5px; /* Bordes redondeados para el botón */
+    border-radius: 4px; /* Bordes redondeados para el botón */
     cursor: pointer;
     transition: background-color 0.3s; /* Transición suave para el botón */
+    font-size: 13px; /* Tamaño de fuente más pequeño */
 }
 
 .btn-details:hover {
     background-color: #0056b3; /* Color al pasar el mouse */
 }
 
-
-/* Estilo para el fondo oscuro al mostrar el div */
-.overlay {
-    position: fixed; /* Fijar el fondo */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro con opacidad */
-    z-index: 999; /* Asegurarse de que esté debajo del div de detalles */
-    display: none; /* Ocultar por defecto */
-}
-
-
-
-/* Estilo para el botón de cerrar */
-.btn-close {
-    background-color: #f44336; /* Color del botón de cerrar */
-    color: white;
-    border: none;
-    padding: 10px 15px; /* Espaciado del botón */
+/* Estilo para el mensaje cuando no hay ventas */
+.no-ventas {
     text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    border-radius: 5px; /* Bordes redondeados para el botón */
-    cursor: pointer;
-    transition: background-color 0.3s; /* Transición suave para el botón */
-    margin-top: 15px; /* Margen superior */
-}
-
-.btn-close:hover {
-    background-color: #d32f2f; /* Color al pasar el mouse */
-}
-
-.btn-return {
-    background-color: #28a745; /* Color verde */
-    color: white; /* Color del texto */
-    border: none;
-    padding: 10px 15px; /* Espaciado del botón */
-    text-align: center;
-    text-decoration: none;
-    display: inline-flex; /* Usar flex para alinear el ícono y el texto */
-    align-items: center; /* Centrar verticalmente */
-    border-radius: 5px; /* Bordes redondeados */
-    cursor: pointer;
-    transition: background-color 0.3s; /* Transición suave para el botón */
-}
-
-.btn-return:hover {
-    background-color: #218838; /* Color más oscuro al pasar el mouse */
-}
-
-.btn-return i {
-    margin-right: 5px; /* Espacio entre el ícono y el texto */
-}
-
-
-
-/* Información general de la venta */
-.venta-info {
-    margin-bottom: 20px;
-}
-
-.venta-info p {
-    margin: 5px 0;
+    color: #666;
     font-size: 14px;
+    margin-top: 20px;
+}
+</style>
+<style>
+    .filtro-fecha {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filtro-fecha label {
+    font-weight: 500;
     color: #333;
 }
 
-
-
-.btn {
-    padding: 8px 16px;
-    font-size: 14px;
-    border: none;
+.filtro-fecha input {
+    padding: 8px;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    font-size: 14px;
 }
 
-.btn-close {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-close:hover {
-    background-color: #c82333;
-}
-
-.btn-return {
+.btn-filtrar {
     background-color: #4caf83;
     color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-.btn-return:hover {
+.btn-filtrar:hover {
     background-color: #388e3c;
 }
 </style>
 
+<style>
+    /* Contenedor para el scroll horizontal */
+.tabla-contenedor {
+    width: 100%; /* Ocupar todo el ancho disponible */
+    overflow-x: auto; /* Activar scroll horizontal */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    background-color: #fff; /* Fondo blanco */
+}
+
+/* Estilos para la tabla */
+.table {
+    width: 100%; /* Ocupar todo el ancho del contenedor */
+    min-width: 800px; /* Ancho mínimo para activar el scroll */
+    border-collapse: collapse;
+    margin: 0; /* Eliminar margen */
+}
+
+.table th, .table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+    white-space: nowrap; /* Evitar que el texto se divida en varias líneas */
+}
+
+.table th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.table tr {
+    transition: background-color 0.3s;
+}
+
+.table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.btn-details {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 13px;
+}
+
+.btn-details:hover {
+    background-color: #0056b3;
+}
+</style>
 
 {% include 'sidebar.html' %}
 <!-- <div class="overlay" id="overlay" style="display: none;"></div> Div para la superposición -->
 <div class="main-content">
     <h1>Ventas realizadas</h1>
-    <div id="detalle-venta" class="detalle-venta">
-        <h2>Detalles de la Venta</h2>
-        <div id="detalle-contenido"></div> <!-- Contenido de los detalles -->
-        <div class="botones-detalle">
-            <button onclick="ocultarDetalles()" class="btn btn-close">Cerrar</button>
-            <button onclick="aplicarDevolucion()" class="btn btn-return">
-                <i class="fas fa-undo"></i> Aplicar Devolución
-            </button>
-        </div>
+    <!-- Filtro de fecha -->
+    <div class="filtro-fecha">
+        <label for="filtro-fecha">Filtrar ventas por fecha:</label>
+        <input type="date" id="filtro-fecha">
+        <button onclick="filtrarPorFecha()" class="btn btn-filtrar">Filtrar</button>
+        <button onclick="restablecerFiltro()" class="btn btn-filtrar">Restablecer</button>
     </div>
-    {% if ventas %}
-        <table class="table">
+    
+    <div class="tabla-contenedor">
+        <table class="table" id="tabla-ventas">
             <thead>
                 <tr>
                     <th>ID Venta</th>
@@ -190,25 +202,147 @@
                 </tr>
             </thead>
             <tbody>
-                {% for venta in ventas %}
-                <tr>
-                    <td>{{ venta.idventausuario }}</td>
-                    <td>${{ venta.totalventa }}</td>
-                    <td>{{ venta.fecha }}</td>
-                    <td>{{ venta.hora }}</td>
-                    <td>{{ venta.metodo_pago }}</td>
-                    <td>{{ venta.cliente }}</td>
-                    <td>
-                        <button onclick="mostrarDetalles({{ venta.idventausuario }})" class="btn btn-details">Detalles</button>
-                    </td>
-                </tr>
-                {% endfor %}
+                <!-- Las filas se generarán dinámicamente con JavaScript -->
             </tbody>
         </table>
-    {% else %}
-        <p>No se han realizado ventas.</p>
-    {% endif %}
+    </div>
+     <!-- Mensaje si no hay ventas -->
+     <p class="no-ventas" id="mensaje-no-ventas" style="display: none;">No se han realizado ventas.</p>
+    <div id="detalle-venta" class="detalle-venta">
+        <h2>Detalles de la Venta</h2>
+        <div id="detalle-contenido"></div> <!-- Contenido de los detalles -->
+        <div class="botones-detalle">
+            <button onclick="ocultarDetalles()" class="btn btn-close">Cerrar</button>
+            <button onclick="aplicarDevolucion()" class="btn btn-return">
+                <i class="fas fa-undo"></i> Aplicar Devolución
+            </button>
+        </div>
+    </div>
 </div>
+<script>
+    // Función para convertir el formato de fecha de %d/%m/%y a YYYY-MM-DD
+function convertirFecha(fecha) {
+    const [dia, mes, anio] = fecha.split('/'); // Separar día, mes y año
+    return `20${anio}-${mes}-${dia}`; // Convertir a YYYY-MM-DD
+}
+
+    // Función para filtrar las ventas por fecha
+    function filtrarPorFecha() {
+            const inputFecha = document.getElementById('filtro-fecha');
+            const fechaSeleccionada = inputFecha.value; // Obtener la fecha seleccionada
+
+            if (!fechaSeleccionada) {
+                alert('Por favor, selecciona una fecha.');
+                return;
+            }
+
+            const filas = document.querySelectorAll('#tabla-ventas tbody tr');
+            let coincidencias = 0;
+
+            filas.forEach(fila => {
+                const fechaVenta = fila.cells[2].textContent; // Obtener la fecha de la fila
+                const fechaVentaFormateada = convertirFecha(fechaVenta); // Convertir a YYYY-MM-DD
+                if (fechaVentaFormateada === fechaSeleccionada) {
+                    fila.style.display = ''; // Mostrar la fila
+                    coincidencias++;
+                } else {
+                    fila.style.display = 'none'; // Ocultar la fila
+                }
+            });
+
+            if (coincidencias === 0) {
+                alert('No se encontraron ventas para la fecha seleccionada.');
+            }
+        }
+
+        // Función para restablecer el filtro
+        function restablecerFiltro() {
+            const filas = document.querySelectorAll('#tabla-ventas tbody tr');
+            filas.forEach(fila => {
+                fila.style.display = ''; // Mostrar todas las filas
+            });
+            document.getElementById('filtro-fecha').value = ''; // Limpiar el input de fecha
+        }
+
+        // Llamar a la función para obtener las ventas al cargar la página
+        window.onload = obtenerVentas;
+</script>
+<script>
+    // Función para obtener las ventas desde el backend
+    async function obtenerVentas() {
+        try {
+            const response = await fetch('/obtener_ventas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include', // Incluir cookies para autenticación
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al obtener las ventas');
+            }
+
+            const ventas = await response.json();
+            mostrarVentas(ventas);
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('mensaje-no-ventas').textContent = 'Error al cargar las ventas.';
+            document.getElementById('mensaje-no-ventas').style.display = 'block';
+        }
+    }
+    // Función para formatear la hora a formato 12 horas (AM/PM)
+function formatearHora(hora) {
+    const [horas, minutos, segundos] = hora.split(':');
+    let horas12 = parseInt(horas, 10) % 12 || 12; // Convertir a formato 12 horas
+    const ampm = horas < 12 ? 'AM' : 'PM';
+    return `${horas12}:${minutos} ${ampm}`;
+}
+
+    // Función para mostrar las ventas en la tabla
+    function mostrarVentas(ventas) {
+        const tabla = document.getElementById('tabla-ventas').getElementsByTagName('tbody')[0];
+        const mensajeNoVentas = document.getElementById('mensaje-no-ventas');
+
+        // Limpiar la tabla
+        tabla.innerHTML = '';
+
+        if (ventas.length === 0) {
+            // Mostrar mensaje si no hay ventas
+            mensajeNoVentas.style.display = 'block';
+        } else {
+            // Ordenar las ventas por idventausuario (de mayor a menor)
+            ventas.sort((a, b) => b.idventausuario - a.idventausuario);
+
+            // Generar las filas de la tabla
+            ventas.forEach(venta => {
+                const fila = document.createElement('tr');
+                // Formatear totalventa con separadores de miles
+                const totalFormateado = venta.totalventa.toLocaleString('es-ES');
+
+                // Formatear la hora a formato 12 horas (AM/PM)
+                const horaFormateada = formatearHora(venta.hora);
+
+                fila.innerHTML = `
+                    <td>${venta.idventausuario}</td>
+                    <td>$${totalFormateado}</td>
+                    <td>${venta.fecha}</td>
+                    <td>${horaFormateada}</td>
+                    <td>${venta.metodo_pago}</td>
+                    <td>${venta.cliente || 'N/A'}</td>
+                    <td>
+                        <button onclick="mostrarDetalles(${venta.idventausuario})" class="btn btn-details">Detalles</button>
+                    </td>
+                `;
+
+                tabla.appendChild(fila);
+            });
+        }
+    }
+
+    // Llamar a la función para obtener las ventas al cargar la página
+    window.onload = obtenerVentas;
+</script>
 <script>
     let idVentaActual; // Variable global para almacenar el idventa actual
 
