@@ -1,0 +1,276 @@
+/* Modal */
+/* Estilos base */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+}
+
+.modal-container h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    color: #333;
+    text-align: center;
+}
+
+.hidden-section {
+    display: none;
+    margin-bottom: 20px;
+}
+
+.input-formulario {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.input-formulario:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.metodo-pago-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 15px 0;
+}
+
+.metodo-pago-container div {
+    display: flex;
+    align-items: center;
+}
+
+.botones-descuento {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.botones-descuento button {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background-color: #f1f1f1;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.botones-descuento button:hover {
+    background-color: #ddd;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn-submit, .btn-close {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-submit {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.btn-submit:hover {
+    background-color: #218838;
+}
+
+.btn-close {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.btn-close:hover {
+    background-color: #c82333;
+}
+
+/* Responsividad */
+@media (max-width: 480px) {
+    .modal-container {
+        padding: 15px;
+    }
+
+    .modal-container h2 {
+        font-size: 20px;
+    }
+
+    .input-formulario {
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .botones-descuento {
+        flex-direction: column;
+    }
+
+    .botones-descuento button {
+        width: 100%;
+    }
+}
+
+
+/* Contenedor del label y el input */
+.pago-con-container {
+    margin-bottom: 15px; /* Espaciado inferior */
+}
+
+/* Estilo para el label */
+.pago-con-container label {
+    display: block; /* Hacer que el label ocupe toda la línea */
+    font-size: 14px;
+    font-weight: 500; /* Texto semi-negrita */
+    color: #333; /* Color de texto oscuro */
+    margin-bottom: 5px; /* Espaciado entre el label y el input */
+}
+
+/* Estilo para el input */
+.pago-con-container input {
+    width: 100%; /* Ocupar todo el ancho disponible */
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc; /* Borde gris */
+    border-radius: 6px; /* Bordes redondeados */
+    background-color: #f9f9f9; /* Fondo claro */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Transición suave */
+}
+
+/* Efecto cuando el input está enfocado */
+.pago-con-container input:focus {
+    border-color: #4caf83; /* Borde verde */
+    outline: none; /* Quitar el outline predeterminado */
+    box-shadow: 0 0 5px rgba(76, 175, 131, 0.5); /* Sombra suave */
+}
+
+/* Placeholder del input */
+.pago-con-container input::placeholder {
+    color: #999; /* Color del placeholder */
+    font-style: italic; /* Texto en cursiva */
+}   
+
+
+/* Contenedor principal del método de pago */
+.metodo-pago-container {
+    display: flex;
+    gap: 20px; /* Espacio entre los radio buttons */
+    margin-top: 10px; /* Espaciado superior */
+}
+
+/* Estilo para cada opción de método de pago */
+.metodo-pago-container div {
+    display: flex;
+    align-items: center; /* Alinear verticalmente el radio button con el label */
+    gap: 8px; /* Espacio entre el radio button y el label */
+}
+
+/* Estilo para los labels de los radio buttons */
+.metodo-pago-container label {
+    font-size: 14px;
+    color: #333; /* Color de texto oscuro */
+    cursor: pointer; /* Cambiar el cursor a pointer */
+    transition: color 0.3s ease; /* Transición suave para el color */
+}
+
+/* Estilo para los radio buttons */
+.metodo-pago-container input[type="radio"] {
+    width: 16px; /* Tamaño del radio button */
+    height: 16px;
+    cursor: pointer; /* Cambiar el cursor a pointer */
+    accent-color: #4caf83; /* Color del radio button cuando está seleccionado */
+}
+
+/* Efecto hover en los labels */
+.metodo-pago-container label:hover {
+    color: #4caf83; /* Cambiar el color del texto al pasar el mouse */
+}
+
+/* Estilo para el label principal "Método de pago" */
+label[for="metodo-pago"] {
+    font-size: 14px;
+    font-weight: 500; /* Texto semi-negrita */
+    color: #333;
+    margin-bottom: 10px; /* Espaciado inferior */
+    display: block; /* Hacer que el label ocupe toda la línea */
+}
+
+
+
+
+/* Contenedor del descuento personalizado */
+#descuento-personalizado {
+    display: none; /* Oculto por defecto */
+    gap: 8px; /* Espacio reducido entre el input y el botón */
+    margin-top: 10px; /* Espaciado superior */
+    align-items: center; /* Alinear verticalmente el input y el botón */
+}
+
+/* Estilo para el input de descuento */
+#input-descuento {
+    width: 70%; /* Ancho del input */
+    padding: 6px 8px; /* Padding reducido */
+    font-size: 13px; /* Tamaño de fuente más pequeño */
+    border: 1px solid #ccc; /* Borde gris claro */
+    border-radius: 4px; /* Bordes ligeramente redondeados */
+    background-color: #fff; /* Fondo blanco */
+    transition: border-color 0.3s ease; /* Transición suave */
+}
+
+/* Efecto cuando el input está enfocado */
+#input-descuento:focus {
+    border-color: #4caf83; /* Borde verde */
+    outline: none; /* Quitar el outline predeterminado */
+}
+
+/* Placeholder del input */
+#input-descuento::placeholder {
+    color: #999; /* Color del placeholder */
+    font-style: italic; /* Texto en cursiva */
+}
+
+/* Estilo para el botón "Aplicar" */
+#descuento-personalizado button {
+    width: 30%; /* Ancho del botón */
+    padding: 6px 8px; /* Padding reducido */
+    font-size: 13px; /* Tamaño de fuente más pequeño */
+    background-color: #f0f0f0; /* Fondo gris claro */
+    color: #333; /* Texto oscuro */
+    border: 1px solid #ccc; /* Borde gris */
+    border-radius: 4px; /* Bordes ligeramente redondeados */
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Transición suave */
+}
+
+/* Efecto hover en el botón */
+#descuento-personalizado button:hover {
+    background-color: #e0e0e0; /* Fondo gris un poco más oscuro */
+    border-color: #bbb; /* Borde gris más oscuro */
+}

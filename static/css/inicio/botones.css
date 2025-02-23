@@ -1,0 +1,65 @@
+   /* Botones de administración */
+   .admin-buttons {
+    display: flex;
+    justify-content: flex-start; /* Alineación a la izquierda */
+    gap: 15px; /* Espacio entre botones */
+    margin: 20px 0; /* Espaciado superior e inferior */
+    margin-left: 50px; /* Margen izquierdo */
+}
+
+/* Estilos base para los botones */
+.data-table button,
+.barcode-entry .buscar-btn,
+.admin-buttons button,
+.data-table.admin-buttons {
+    padding: 10px 15px; /* Padding inicial */
+    font-size: 14px; /* Tamaño de fuente inicial */
+    background-color: #4caf83; /* Verde */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: auto; /* Ajusta el ancho al contenido */
+}
+
+/* Efecto hover para los botones */
+.data-table button:hover,
+.barcode-entry .buscar-btn:hover,
+.admin-buttons button:hover,
+.data-table.admin-buttons:hover {
+    background-color: #388e3c; /* Verde más oscuro */
+}
+
+/* Media Queries para pantallas pequeñas */
+@media (max-width: 768px) {
+    .admin-buttons {
+        gap: 10px; /* Reducir el espacio entre botones */
+        margin-left: 20px; /* Reducir el margen izquierdo */
+    }
+
+    .data-table button,
+    .barcode-entry .buscar-btn,
+    .admin-buttons button,
+    .data-table.admin-buttons {
+        padding: 8px 12px; /* Padding reducido */
+        font-size: 12px; /* Tamaño de fuente reducido */
+    }
+}
+
+/* Media Queries para pantallas muy pequeñas (móviles) */
+@media (max-width: 480px) {
+    .admin-buttons {
+        gap: 5px; /* Espacio mínimo entre botones */
+        margin-left: 10px; /* Margen izquierdo mínimo */
+        flex-wrap: wrap; /* Permitir que los botones se envuelvan en varias líneas */
+    }
+
+    .data-table button,
+    .barcode-entry .buscar-btn,
+    .admin-buttons button,
+    .data-table.admin-buttons {
+        padding: 6px 10px; /* Padding aún más reducido */
+        font-size: 11px; /* Tamaño de fuente más pequeño */
+    }
+}

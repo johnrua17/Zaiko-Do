@@ -258,10 +258,10 @@ def listar_productos():
 
 
         # Renderizar la plantilla con los productos
-        return render_template('listar_productos.html', productos=productos)
+        return render_template('productos/listar_productos.html', productos=productos)
     except Exception as e:
         print(f"Error al listar productos: {e}")
-        return render_template('listar_productos.html', error_message="Error al cargar los productos.")
+        return render_template('productos/listar_productos.html', error_message="Error al cargar los productos.")
 
 
 @routes_blueprint.route('/productos/editar/<codigo_barras>', methods=['GET', 'POST'])
@@ -335,7 +335,7 @@ def editar_producto(codigo_barras):
 
 
     # Renderizar el formulario con los datos actuales del producto
-    return render_template('editar_producto.html', producto=producto)
+    return render_template('productos/editar_producto.html', producto=producto)
 
 
 @routes_blueprint.route('/productos/eliminar/<codigo_barras>', methods=['GET'])
@@ -542,27 +542,27 @@ def agregar_producto():
                 return jsonify({'success': False, 'message': f'Has alcanzado el límite de {limite_productos} productos.'})
 
         if not (codigo_barras and nombre and precio_valor and precio_costo and cantidad and categoria):
-            return render_template('formulario_productos.html', message='Todos los campos son obligatorios.')
+            return render_template('productos/formulario_productos.html', message='Todos los campos son obligatorios.')
 
         try:
             cur.execute('START TRANSACTION')
             cur.execute('SELECT * FROM productos WHERE Codigo_de_barras = %s AND id_usuario = %s', 
                         (codigo_barras, id_usuario_actual))
             if cur.fetchone():
-                return render_template('formulario_productos.html', message='El código de barras ya está registrado.')
+                return render_template('productos/formulario_productos.html', message='El código de barras ya está registrado.')
 
             cur.execute('INSERT INTO productos (id_usuario,Codigo_de_barras, Nombre, Descripcion, Precio_Valor, Precio_Costo, Cantidad, Categoria) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', 
                         (id_usuario_actual, codigo_barras, nombre, descripcion, precio_valor, precio_costo, cantidad, categoria))
             mysql.connection.commit()
-            return render_template('formulario_productos.html', message='Producto agregado exitosamente.')
+            return render_template('productos/formulario_productos.html', message='Producto agregado exitosamente.')
         except Exception as e:
             mysql.connection.rollback()
             print(f"Error al agregar el producto: {e}")
-            return render_template('formulario_productos.html', message='Error al agregar el producto.')
+            return render_template('productos/formulario_productos.html', message='Error al agregar el producto.')
         finally:
             cur.close()
 
-    return render_template('formulario_productos.html')
+    return render_template('productos/formulario_productos.html')
 
 @routes_blueprint.route("/logout", methods=["POST"])
 def logout():
@@ -610,7 +610,7 @@ def inventario():
     cur.execute(query, (id_usuario,))
     productos = cur.fetchall()
     cur.close()
-    return render_template('inventario.html', productos=productos)
+    return render_template('inventario/inventario.html', productos=productos)
 
 @routes_blueprint.route('/clientes', methods=['GET'], endpoint='clientes')
 @login_required 
@@ -630,7 +630,7 @@ def clientes():
     clientes = cur.fetchall()
     cur.close()
     
-    return render_template('clientes.html', clientes=clientes)
+    return render_template('clientes/clientes.html', clientes=clientes)
 
 
 @routes_blueprint.route('/clientes/nuevo', methods=['POST'], endpoint='agregar_cliente')
@@ -659,7 +659,7 @@ def agregar_cliente():
 @routes_blueprint.route('/configuracion', methods=['GET'], endpoint='configuracion')
 def configuracion():
     """Página para gestionar la configuración."""
-    return render_template('configuracion.html')
+    return render_template('configuracion/configuracion.html')
 
 
 @routes_blueprint.route('/planes', methods=['GET'])
@@ -729,11 +729,11 @@ def planes():
 
 
             # Enviar datos a la plantilla
-        return render_template('planes.html', planes=planes, nombre=nombre, plan_actual=id_plan, fecha_expiracion_plan=fecha_expiracion_plan, puede_pedir_devolucion=puede_pedir_devolucion, ha_hecho_solicitud=ha_hecho_solicitud)
+        return render_template('configuracion/planes.html', planes=planes, nombre=nombre, plan_actual=id_plan, fecha_expiracion_plan=fecha_expiracion_plan, puede_pedir_devolucion=puede_pedir_devolucion, ha_hecho_solicitud=ha_hecho_solicitud)
 
     except Exception as e:
         print("esta mierda da error")
-        return render_template('planes.html', message=f'Error: {str(e)}')
+        return render_template('configuracion/planes.html', message=f'Error: {str(e)}')
     finally:
         cur.close()
 
@@ -832,7 +832,7 @@ def detalle_plan(token):
     # Calcula el hash SHA-256
     integrity_hash = hashlib.sha256(cadena_concatenada.encode()).hexdigest()
 
-    return render_template('detalle_plan.html', suscripcion=suscripcion, integrity_hash=integrity_hash, precio_centavos=precio_centavos)
+    return render_template('configuracion/detalle_plan.html', suscripcion=suscripcion, integrity_hash=integrity_hash, precio_centavos=precio_centavos)
 
 
 
@@ -1130,7 +1130,7 @@ def reporte_ventas():
     
 
     
-    return render_template('reporte_ventas.html',
+    return render_template('ventas/reporte_ventas.html',
                             categorias_vendidas=lista_consultas_para_reporte[0],
                             ganancias_categoria=lista_consultas_para_reporte[1],
                             ventas_metodo_pago=lista_consultas_para_reporte[2],
@@ -1399,10 +1399,10 @@ def ventas_realizadas():
         cur.close()
 
         # Renderizar la plantilla con las ventas
-        return render_template('ventas_realizadas.html', ventas=ventas)
+        return render_template('ventas/ventas_realizadas.html', ventas=ventas)
     except Exception as e:
         print(f"Error al obtener las ventas: {e}")
-        return render_template('ventas_realizadas.html', error_message="Error al cargar las ventas.")
+        return render_template('ventas/ventas_realizadas.html', error_message="Error al cargar las ventas.")
 
 
 @routes_blueprint.route('/detalles/<int:idventa>', methods=["GET"])
@@ -1415,23 +1415,44 @@ def detalles_venta(idventa):
         print(f"Consultando detalles de venta: idventa={idventa}, idusuario={idusuario}")
         
         cur = mysql.connection.cursor()
-        query = "SELECT * FROM detalleventas WHERE idventa =%s AND idusuario =%s"
-        cur.execute(query, (idventa, idusuario))
+
+        # Obtener detalles de los productos de la venta
+        query_detalles = "SELECT * FROM detalleventas WHERE idventa = %s AND idusuario = %s"
+        cur.execute(query_detalles, (idventa, idusuario))
         detalles = cur.fetchall()
+
+        # Obtener información general de la venta
+        query_venta = "SELECT totalventa, pagocon, fecha, hora, metodo_pago, devuelto, cliente, idcliente FROM ventas WHERE idventausuario = %s AND idusuario = %s"
+        cur.execute(query_venta, (idventa, idusuario))
+        venta = cur.fetchone()
+        
+
         cur.close()
 
-        if not detalles:
+        if not detalles or not venta:
             print("No se encontraron detalles para la venta.")
-        else:
-            print("Detalles encontrados:", detalles)
+            return jsonify({"error": "No se encontraron detalles para la venta."}), 404
 
-        return jsonify(detalles)
+        print("Detalles encontrados:", detalles)
+        print("Información de la venta:", venta)
+
+        # Convertir timedelta a una cadena en formato HH:MM:SS
+        if isinstance(venta['hora'], timedelta):
+            total_seconds = int(venta['hora'].total_seconds())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            venta['hora'] = f"{hours:02}:{minutes:02}:{seconds:02}"
+
+        # Combinar los datos en un solo JSON
+        return jsonify({
+            "detalles": detalles,
+            "venta": venta
+        })
 
     except Exception as e:
         print(f"Error al obtener los detalles de la venta: {e}")
         return jsonify({"error": "Error al cargar los detalles."}), 500
-
-
 
 @routes_blueprint.route('/devolucion/<int:idventa>', methods=["POST"])
 def aplicar_devolucion(idventa):
@@ -1559,7 +1580,7 @@ def ventana_administracion():
         cursor.close()
 
         # Renderizar la plantilla 'admin.html' con la información de los usuarios
-        return render_template('ventana_administracion.html', usuarios=usuarios, rol_usuario_actual=rol_usuario_actual)
+        return render_template('configuracion/ventana_administracion.html', usuarios=usuarios, rol_usuario_actual=rol_usuario_actual)
 
     except Exception as e:
         print(f"Error al listar usuarios: {e}")
@@ -1657,7 +1678,7 @@ def editar_usuario(id_usuario):
         if not usuario:
              return redirect(url_for('routes.ventana_administracion'))
 
-        return render_template('editar_usuario.html', usuario=usuario)
+        return render_template('configuracion/editar_usuario.html', usuario=usuario)
 
 @routes_blueprint.route('/clientes/eliminar/<int:idcliente>', methods=['DELETE'], endpoint='eliminar_cliente')
 def eliminar_cliente(idcliente):
@@ -1737,10 +1758,10 @@ def clientes_top():
     cur.execute(query, (id_usuario, id_usuario))
     
     clientes_top = cur.fetchall()
-    print(clientes_top)  # Debugging
+    
     cur.close()
 
-    return render_template('clientes_top.html', clientes_top=clientes_top)
+    return render_template('clientes/clientes_top.html', clientes_top=clientes_top)
 
 @routes_blueprint.route('/chatbot', methods=['POST'], endpoint='chatbot')
 def chatbot():

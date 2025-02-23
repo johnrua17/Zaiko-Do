@@ -96,7 +96,7 @@ def login_user():
         # Obtener y verificar el token de Turnstile
         # turnstile_token = request.form.get('cf-turnstile-response')
         # if not verify_turnstile_token(turnstile_token):
-        #     return render_template('index.html', error_message='Error en la verificación de seguridad. Inténtelo nuevamente.')
+        #     return render_template('login/index.html', error_message='Error en la verificación de seguridad. Inténtelo nuevamente.')
 
         correo = request.form['email']
         contraseña = request.form['password']
@@ -114,7 +114,7 @@ def login_user():
                 tiempo_restante = account['bloqueado_hasta'].replace(tzinfo=Config.ZONE_BOGOTA) - obtener_hora_actual_bogota()
                 minutos_restantes = int(tiempo_restante.total_seconds() / 60)
                 error_message = f"Cuenta bloqueada. Inténtelo de nuevo en {minutos_restantes} minutos."
-                return render_template('index.html', error_message=error_message)
+                return render_template('login/index.html', error_message=error_message)
 
             if check_password_hash(account['contraseña'], contraseña):
                 # Generar un nuevo session_id
@@ -144,11 +144,11 @@ def login_user():
                 return redirect(url_for('routes.admin'))
             else:
                 gestionar_intentos(correo, exito=False)
-                return render_template('index.html', error_message="Credenciales incorrectas.")               
+                return render_template('login/index.html', error_message="Credenciales incorrectas.")               
         else:
-           return render_template('index.html', error_message="El usuario no existe.")
+           return render_template('login/index.html', error_message="El usuario no existe.")
 
-    return render_template('index.html')
+    return render_template('login/index.html')
 
 def validar_sesion(f):
     """Decorador para validar la sesión del usuario."""
@@ -221,7 +221,7 @@ def register_user():
         # Obtener y verificar el token de Turnstile
         # turnstile_token = request.form.get('cf-turnstile-response')
         # if not verify_turnstile_token_registro(turnstile_token):
-        #     return render_template('register.html', message='Error en la verificación de seguridad. Inténtelo nuevamente.')
+        #     return render_template('login/register.html', message='Error en la verificación de seguridad. Inténtelo nuevamente.')
             
         nombre = bleach.clean(request.form['name'])
         correo = bleach.clean(request.form['email'])
@@ -230,7 +230,7 @@ def register_user():
         # Validar la contraseña
         mensaje_error = validar_contrasena(contraseña)
         if mensaje_error:
-            return render_template('register.html', message=mensaje_error)
+            return render_template('login/register.html', message=mensaje_error)
         
         conn = get_connection()
         cur = conn.cursor()
@@ -241,7 +241,7 @@ def register_user():
             # Verificar si el correo ya está registrado
             cur.execute('SELECT * FROM usuario WHERE correo = %s', [correo])
             if cur.fetchone():
-                return render_template('register.html', message='El correo ya está en uso.')
+                return render_template('login/register.html', message='El correo ya está en uso.')
             
             # Crear usuario
             contraseña_hash = generate_password_hash(contraseña)
@@ -269,10 +269,10 @@ def register_user():
         except Exception as e:
             conn.rollback()
             print(e)
-            return render_template('register.html', message='Error en el registro. Inténtelo de nuevo más tarde.')
+            return render_template('login/register.html', message='Error en el registro. Inténtelo de nuevo más tarde.')
         finally:
             cur.close()
-    return render_template('register.html')
+    return render_template('login/register.html')
 
 @auth_blueprint.route('/validar_otp', methods=['GET', 'POST'], endpoint='validar_otp')
 def validar_otp():
@@ -293,10 +293,10 @@ def validar_otp():
                 conn.commit()
                 return redirect(url_for('auth.admin'))
             else:
-                return render_template('validar_otp.html', message='OTP incorrecto o expirado.')
+                return render_template('login/validar_otp.html', message='OTP incorrecto o expirado.')
         except Exception as e:
             conn.rollback()
-            return render_template('validar_otp.html', message='Error al validar el OTP. Inténtelo de nuevo más tarde.')
+            return render_template('login/validar_otp.html', message='Error al validar el OTP. Inténtelo de nuevo más tarde.')
         finally:
             cur.close()
-    return render_template('validar_otp.html')
+    return render_template('login/validar_otp.html')
