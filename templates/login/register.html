@@ -7,6 +7,17 @@
     <title>Registrarse</title>
     <link rel="icon" href="{{ url_for('static', filename='images/icono/icono.ico') }}" type="image/x-icon">
 </head>
+<style>
+    #mensajes-contrasena ul {
+    list-style-type: none; /* Quitar viñetas de la lista */
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+#mensajes-contrasena li {
+    margin-bottom: 5px;
+}
+</style>
 
 <body>
     <div class="header">
@@ -49,9 +60,18 @@
                             <i class="fas fa-info-circle"></i>
                         </span>
                     </div>
-
                 </div>
+                <!-- Mensajes de validación -->
+    <div id="mensajes-contrasena" class="text-muted small mt-2">
+        <ul>
+            <li id="longitud">La contraseña debe tener al menos 8 caracteres.</li>
+            <li id="mayuscula">La contraseña debe tener al menos una letra mayúscula.</li>
+            <li id="numero">La contraseña debe tener al menos un número.</li>
+        </ul>
+    </div>
+            
             </div>
+            
             <!-- Turnstile Cloudflare -->
             <div class="form-group">
                 <div id="turnstile-container" class="cf-turnstile"></div>
@@ -75,6 +95,43 @@
     </div>
     <!-- Turnstile Script -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+    <script>
+        document.getElementById('password').addEventListener('input', function () {
+    const contrasena = this.value; // Obtener el valor del campo de contraseña
+    const mensajes = {
+        longitud: document.getElementById('longitud'),
+        mayuscula: document.getElementById('mayuscula'),
+        numero: document.getElementById('numero')
+    };
+
+    // Validar longitud
+    if (contrasena.length >= 8) {
+        mensajes.longitud.style.color = 'green';
+        mensajes.longitud.innerHTML = '✓ La contraseña tiene al menos 8 caracteres.';
+    } else {
+        mensajes.longitud.style.color = 'red';
+        mensajes.longitud.innerHTML = 'La contraseña debe tener al menos 8 caracteres.';
+    }
+
+    // Validar mayúscula
+    if (/[A-Z]/.test(contrasena)) {
+        mensajes.mayuscula.style.color = 'green';
+        mensajes.mayuscula.innerHTML = '✓ La contraseña tiene al menos una letra mayúscula.';
+    } else {
+        mensajes.mayuscula.style.color = 'red';
+        mensajes.mayuscula.innerHTML = 'La contraseña debe tener al menos una letra mayúscula.';
+    }
+
+    // Validar número
+    if (/[0-9]/.test(contrasena)) {
+        mensajes.numero.style.color = 'green';
+        mensajes.numero.innerHTML = '✓ La contraseña tiene al menos un número.';
+    } else {
+        mensajes.numero.style.color = 'red';
+        mensajes.numero.innerHTML = 'La contraseña debe tener al menos un número.';
+    }
+});
+    </script>
 
 
     <script>

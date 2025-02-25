@@ -3,71 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notificación de Vencimiento de Plan</title>
-</head>
+    <title>Verificación de Correo Electrónico</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffffff; /* Fondo claro por defecto */
+            margin: 0;
+            padding: 0;
+            color: #333333; /* Texto oscuro por defecto */
+        }
 
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+            color: #4CAF50; /* Verde para el encabezado */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333333; /* Texto oscuro */
+        }
+
+        .otp-code {
+            display: inline-block;
+            margin: 30px 0;
+            padding: 20px 40px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: #ffffff; /* Texto blanco en el código OTP */
+            font-size: 32px;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #888888; /* Texto gris para el pie de página */
+        }
+
+        .footer a {
+            color: #4CAF50; /* Verde para los enlaces */
+            text-decoration: none;
+        }
+
+        /* Animación para el código OTP */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            }
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+
+            .header h2 {
+                font-size: 24px;
+            }
+
+            .otp-code {
+                font-size: 24px;
+                padding: 15px 30px;
+            }
+
+            .content p {
+                font-size: 14px;
+            }
+        }
+
+        /* Estilos para modo oscuro */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a; /* Fondo oscuro */
+                color: #e0e0e0; /* Texto claro */
+            }
+
+            .container {
+                background-color: #2c3e50; /* Fondo oscuro para el contenedor */
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .content p {
+                color: #e0e0e0; /* Texto claro en modo oscuro */
+            }
+
+            .footer {
+                color: #b0b0b0; /* Texto gris claro en modo oscuro */
+            }
+        }
+    </style>
+</head>
 <body>
     <div class="container">
+        <!-- Encabezado -->
         <div class="header">
-            <h2>Verificación de correo electrónico</h2>
+            <h2>Verificación de Correo Electrónico</h2>
         </div>
+
+        <!-- Contenido -->
         <div class="content">
             <p>Hola {{ nombre_usuario }},</p>
-            <p>Hemos visto que te registraste en <strong>Zaiko Do</strong>.</p>
-            <p></p>
-            <p>Para finalizar tu registro por favor da click en el siguiente botón para validar la información.</p>
-            <p></p>
-            <p><strong>{{ otp }}</strong> </p>
-            <p></p>
+            <p>Gracias por registrarte en <strong>Zaiko Do</strong>. Para completar tu registro, por favor utiliza el siguiente código de verificación:</p>
+
+            <!-- Código OTP -->
+            <div class="otp-code">{{ otp }}</div>
+
+            <p>Este código es válido por un tiempo limitado. Si no solicitaste este código, por favor ignora este mensaje.</p>
             <p>¡Gracias por confiar en Zaiko Do!</p>
         </div>
+
+        <!-- Pie de página -->
         <div class="footer">
             <p>&copy; {{ current_year }} Zaiko Do. Todos los derechos reservados.</p>
+            <p><a href="https://zaikodo.com">Visita nuestro sitio web</a></p>
         </div>
     </div>
 </body>
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
-    }
-    .container {
-        max-width: 600px;
-        margin: 20px auto;
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    .header {
-        background-color: #4CAF50;
-        color: #ffffff;
-        padding: 10px;
-        text-align: center;
-        border-radius: 10px 10px 0 0;
-    }
-    .content {
-        padding: 20px;
-        line-height: 1.6;
-        color: #333333;
-    }
-    .button {
-        display: inline-block;
-        padding: 10px 20px;
-        margin-top: 20px;
-        background-color: #4CAF50;
-        color: #ffffff;
-        text-decoration: none;
-        border-radius: 5px;
-    }
-    .footer {
-        margin-top: 20px;
-        text-align: center;
-        font-size: 12px;
-        color: #888888;
-    }
-</style>
 </html>
