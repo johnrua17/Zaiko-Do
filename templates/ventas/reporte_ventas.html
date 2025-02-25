@@ -218,9 +218,7 @@
 </style>
 </head>
 <body>
-    <button class="toggle-sidebar" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </button>
+    
 <!-- Sidebar -->
 {% include 'sidebar.html' %}
 <!-- Contenido Principal -->
@@ -261,7 +259,7 @@
                         {% for categoria in categorias_vendidas|sort(attribute='ingresos_brutos', reverse=True) %}
                         <tr>
                             <td>{{ categoria.categoria }}</td>
-                            <td>{{ categoria.ingresos_brutos | int }}</td>
+                            <td>{{ categoria.ingresos_brutos | int | format('.')}}</td>
                         </tr>
                         {% endfor %}
                         {% else %}
@@ -293,7 +291,7 @@
                     {% for ganancia in ganancias_categoria %}
                     <tr>
                         <td>{{ ganancia.categoria }}</td>
-                        <td>{{ ganancia.ganancia_total | int }}</td>
+                        <td>{{ ganancia.ganancia_total | int | format('.')}}</td>
                     </tr>
                     {% endfor %}
                     {% else %}
@@ -314,15 +312,15 @@
                     <thead>
                         <tr>
                             <th>Método de Pago</th>
-                            <th>Ganancias</th>
+                            <th>Ventas</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if ventas_metodo_pago %}
                         {% for metodo in ventas_metodo_pago %}
                         <tr>
-                            <td>{{ metodo.metodo_pago }}</td>
-                            <td>{{ metodo.ganancia_total | int }}</td>
+                            <td>{{ metodo['metodo_pago'] }}</td>
+                            <td>{{ metodo['total_ventas'] | format('.') }}</td>
                         </tr>
                         {% endfor %}
                         {% else %}
@@ -348,8 +346,8 @@
                 </div>
                 <div class="ventas-actual-container">
                     <h3>Ventas del Día Actual</h3>
-                    <p><strong>Total de Ventas:</strong> <span id="totalVentas">{{ ventas_dia | int }}</span></p>
-                    <p><strong>Ganancias Totales:</strong> <span id="gananciasTotales">{{ ganancias_dia | int }}</span></p>
+                    <p><strong>Total de Ventas:</strong> <span id="totalVentas">{{ ventas_dia | int | format('.')}}</span></p>
+                    <p><strong>Ganancias Totales:</strong> <span id="gananciasTotales">{{ ganancias_dia | int | format('.')}}</span></p>
                 </div>
             </div>
         </div>
@@ -414,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
         console.log(data);
         updateCharts(data);
+        
 
         // Actualizar la tabla de categorías vendidas
         updateTable('categorias-container', data.categorias_vendidas, ['categoria', 'ingresos_brutos']);
@@ -422,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTable('ganancias-container', data.ganancias_categoria, ['categoria', 'ganancia_total']);
 
         // Actualizar la tabla de ventas por método de pago
-        updateTable('metodo-container', data.ventas_metodo_pago, ['metodo_pago', 'ganancia_total']);
+        updateTable('metodo-container', data.ventas_metodo_pago, ['metodo_pago', 'total_ventas']);
 
         // Actualizar las ventas del día y ganancias
         document.getElementById('totalVentas').textContent = Math.floor(data.ventas_dia) || 'No disponible';
@@ -504,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data: {
                 labels: data.ventas_metodo_pago.map(item => item.metodo_pago),
                 datasets: [{
-                    data: data.ventas_metodo_pago.map(item => parseFloat(item.ganancia_total)),
+                    data: data.ventas_metodo_pago.map(item => parseFloat(item.total_ventas)),
                     backgroundColor: ['#4BC0C0', '#9966FF'],
                     hoverBackgroundColor: ['#4BC0C0', '#9966FF']
                 }]
@@ -558,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Actualizar gráfico de ventas por método de pago
         metodoPagoChart.data.labels = data.ventas_metodo_pago.map(item => item.metodo_pago);
-        metodoPagoChart.data.datasets[0].data = data.ventas_metodo_pago.map(item => parseFloat(item.ganancia_total));
+        metodoPagoChart.data.datasets[0].data = data.ventas_metodo_pago.map(item => parseFloat(item.total_ventas));
         metodoPagoChart.update();
 
         // Actualizar gráfico de ventas diarias
@@ -570,33 +569,6 @@ document.addEventListener('DOMContentLoaded', () => {
 }); //hasta aca llega el document.addEventListener('DOMContentLoaded'...
 
 
-    // Función para alternar el sidebar (similar a la utilizada en otras páginas)
-    function toggleSidebar() {
-      const sidebar = document.querySelector('.sidebar');
-      const mainContent = document.querySelector('.main-content');
-      const toggleButton = document.querySelector('.toggle-sidebar');
-      
-      sidebar.classList.toggle('collapsed');
-      mainContent.classList.toggle('expanded');
-      toggleButton.classList.toggle('collapsed');
-    }
-    
-    // Manejo responsive del sidebar
-    function handleMobileView() {
-      const sidebar = document.querySelector('.sidebar');
-      const toggleButton = document.querySelector('.toggle-sidebar');
-      
-      if (window.innerWidth <= 768) {
-        sidebar.classList.add('collapsed');
-        toggleButton.classList.add('collapsed');
-      } else {
-        sidebar.classList.remove('collapsed');
-        toggleButton.classList.remove('collapsed');
-      }
-    }
-    
-    window.addEventListener('load', handleMobileView);
-    window.addEventListener('resize', handleMobileView);
 </script>
 </body>
 </html>

@@ -43,18 +43,16 @@ def query_reportes(id_usuario_actual, fecha_inicio, fecha_fin):
 
             # 3️⃣ Ventas por método de pago
             query_ventas_metodo_pago = """
-            SELECT
-                v.metodo_pago,
-                SUM((CAST(dv.valor AS DECIMAL(10,2)) - CAST(dv.costo AS DECIMAL(10,2))) * CAST(dv.cantidad AS DECIMAL(10,2))) AS ganancia_total
-            FROM
-                detalleventas dv
-            INNER JOIN
-                ventas v ON dv.idventa = v.idventas
-            WHERE
-                dv.idusuario = %s
-                AND dv.fecha BETWEEN %s AND %s
-            GROUP BY
-                v.metodo_pago;
+                SELECT
+                    v.metodo_pago,
+                    SUM(v.totalventa) AS total_ventas
+                FROM
+                    ventas v
+                WHERE
+                    v.idusuario = %s
+                    AND v.fecha BETWEEN %s AND %s
+                GROUP BY
+                    v.metodo_pago;
             """
             cur.execute(query_ventas_metodo_pago, (id_usuario_actual, fecha_inicio, fecha_fin))
             ventas_metodo_pago = cur.fetchall()

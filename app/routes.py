@@ -64,6 +64,17 @@ initial_history = [
 # Inicia una sesión de chat
 chat_session = model.start_chat(history=initial_history)
 
+# Registrar el filtro en el contexto de la aplicación
+@routes_blueprint.app_template_filter('format')
+def format_number(value, separator=','):
+    if value is None:
+        return ""
+    try:
+        # Formatear el número con separadores de miles
+        return f"{int(value):,}".replace(",", separator)
+    except (ValueError, TypeError):
+        return value  # Si no es un número, devolver el valor original
+
 @routes_blueprint.route('/login', methods=["GET", "POST"])
 def login():
     return login_user()
