@@ -186,7 +186,7 @@
                                         <p class="devolucion-info">
                                             * La devolución solo está disponible durante las primeras 24 horas después de adquirir un nuevo plan.
                                         </p>
-                                    {% elif puede_pedir_devolucion and ha_hecho_solicitud %}
+                                    {% elif ha_hecho_solicitud == 'pendiente' %}
                                         <p class="devolucion-info">
                                             * Ya has solicitado una devolución para este plan. Tu solicitud está actualmente en proceso y se encuentra pendiente de revisión.
                                         </p>
