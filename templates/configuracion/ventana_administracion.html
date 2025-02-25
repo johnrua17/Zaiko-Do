@@ -12,6 +12,79 @@
   <link rel="stylesheet" href="/static/styles.css">
   
   <style>
+
+.modal {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro */
+  }
+
+  .modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 30%;
+    text-align: center;
+    border-radius: 8px;
+  }
+
+  .close-modal {
+  position: absolute; /* Posiciona el elemento de forma absoluta dentro del modal */
+  top: 10px; /* Distancia desde la parte superior */
+  right: 10px; /* Distancia desde la derecha */
+  cursor: pointer;
+  font-size: 24px;
+  color: #888; /* Color gris para la "X" */
+  background: none; /* Fondo transparente */
+  border: none; /* Sin borde */
+  padding: 0; /* Sin padding */
+}
+
+  .btn-aceptar, .btn-rechazar {
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .btn-aceptar {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+  }
+
+  .btn-rechazar {
+    background-color: #f44336; /* Rojo */
+    color: white;
+  }
+
+  .btn-devolucion {
+    background-color: #388e3c;
+    color: #fff;
+    padding: 5px;
+    border: none;
+    border-radius: 7px;
+    padding: 10px 20px;
+    font-size: 16px;
+    }
+
+    .btn-devolucion:hover {
+      background-color: #0e492f;
+    }
+
+    .btn-devolucion:disabled {
+      background-color: #ccc; /* Color gris para botones deshabilitados */
+      color: #666; /* Texto más oscuro */
+      cursor: not-allowed; /* Cambia el cursor a "no permitido" */
+      opacity: 0.7; /* Reduce la opacidad */
+    }
+
     /* Reset y configuración base */
     body {
       margin: 0;
@@ -186,6 +259,7 @@
               <th>Total Ventas</th>
               <th>Última Venta</th>
               <th>Días Inactivo</th>
+              <th>Devoluciones</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -202,6 +276,17 @@
               <td>{{ usuario.total_ventas }}</td>
               <td>{{ usuario.ultima_venta }}</td>
               <td>{{ usuario.dias_inactivo }}</td>
+              <td>
+                {% if usuario.estado_devolucion == 'none' %}
+                  No
+                {% elif usuario.estado_devolucion == 'pendiente' %}
+                  <button class="data-table btn-devolucion" data-id="{{ usuario.idusuario }}">Ver Devolución</button>
+                {% elif usuario.estado_devolucion == 'aprobada' %}
+                  <button class="data-table btn-devolucion" disabled>Aprobada</button>
+                {% elif usuario.estado_devolucion == 'rechazada' %}
+                  <button class="data-table btn-devolucion" disabled>Rechazada</button>
+                {% endif %}
+              </td>
               <td class="btn-actions">
                  
                      
@@ -219,6 +304,15 @@
               </td>
             </tr>
             {% endfor %}
+            <div id="modalDevolucion" class="modal">
+              <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h3>Manejar Devolución</h3>
+                <p>¿Qué acción deseas realizar?</p>
+                <button id="btnAceptarDevolucion" class="btn-aceptar">Aceptar Devolución</button>
+                <button id="btnRechazarDevolucion" class="btn-rechazar">Rechazar Devolución</button>
+              </div>
+            </div>
           </tbody>
         </table>
       </div>
@@ -227,6 +321,72 @@
 
   <!-- Asegúrate de incluir SweetAlert en tu plantilla, por ejemplo: -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+  // JavaScript para manejar el modal
+  document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('modalDevolucion');
+    const closeModal = document.querySelector('.close-modal');
+    const btnVerDevolucion = document.querySelectorAll('.btn-devolucion');
+    let idUsuarioSeleccionado = null;
+
+    // Abrir modal al hacer clic en "Ver Devolución"
+    btnVerDevolucion.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        idUsuarioSeleccionado = btn.getAttribute('data-id'); // Obtener el ID del usuario
+        modal.style.display = 'block'; // Mostrar el modal
+      });
+    });
+
+    // Cerrar modal al hacer clic en la "X"
+    closeModal.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    // Cerrar modal si se hace clic fuera del contenido
+    window.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+
+    // Manejar la acción de aceptar devolución
+    document.getElementById('btnAceptarDevolucion').addEventListener('click', () => {
+      manejarDevolucion(idUsuarioSeleccionado, 'aceptar');
+      modal.style.display = 'none';
+    });
+
+    // Manejar la acción de rechazar devolución
+    document.getElementById('btnRechazarDevolucion').addEventListener('click', () => {
+      manejarDevolucion(idUsuarioSeleccionado, 'rechazar');
+      modal.style.display = 'none';
+    });
+  });
+
+  // Función para enviar la acción al backend
+  function manejarDevolucion(idUsuario, accion) {
+    fetch('/manejar-devolucion', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ idUsuario, accion }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert(`Devolución ${accion} correctamente.`);
+          location.reload(); // Recargar la página para actualizar la tabla
+        } else {
+          alert('Hubo un error al procesar la devolución.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }
+</script>
 
 <script>
   // Selecciona todos los botones de eliminación de usuario

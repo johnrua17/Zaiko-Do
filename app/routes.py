@@ -703,7 +703,7 @@ def planes():
 
         # Verifica si se obtuvo una fecha de inicio del plan, o sea la fecha del plan del que quiere devolucion, en test no va a funcionar porque necesito comprar un plan para eso
         if fecha_inicio_plan_a_devolver:
-            fecha_inicio = fecha_inicio_plan_a_devolver[0]  # Ya es un objeto datetime
+            fecha_inicio = fecha_inicio_plan_a_devolver[0]  
             diferencia_horas = (fecha_actual - fecha_inicio).total_seconds() / 3600
 
             # Si no han pasado más de 24 horas
@@ -712,22 +712,28 @@ def planes():
         
 
         
-        puede_pedir_devolucion = True #esto es solo para testear, no deberia definirla como true
+        #puede_pedir_devolucion = True #esto es solo para testear, no deberia definirla como true
         ha_hecho_solicitud = True
-        #Si sí puede pedir una devolucion, verificamos si ya ha hecho una solicitud
-        if puede_pedir_devolucion:
-            query_ha_hecho_solicitud = ("""SELECT idusuario 
-                                        FROM solicitudes_devolucion
-                                        WHERE idusuario = %s 
-                                        AND idplan_comprado = %s;
-                                        """)
 
-            cur.execute(query_ha_hecho_solicitud, (id_usuario, id_plan))
-            ha_hecho_solicitud_result = cur.fetchone()
+        #verifica si ya ha hecho una solicitud de devolucion y en que estado esta dicha solicitud
+        query_ha_hecho_solicitud = ("""SELECT estado 
+                                    FROM solicitudes_devolucion
+                                    WHERE idusuario = %s 
+                                    AND idplan_comprado = %s
+                                    ORDER BY fecha_solicitud DESC
+                                    LIMIT 1;
+                                    """)
 
-            ha_hecho_solicitud = ha_hecho_solicitud_result is not None
+        cur.execute(query_ha_hecho_solicitud, (id_usuario, id_plan))
+        ha_hecho_solicitud_result = cur.fetchone()
 
+        if ha_hecho_solicitud_result is None:
+            ha_hecho_solicitud = False
+        else:
+            ha_hecho_solicitud = ha_hecho_solicitud_result['estado']
 
+        print(f"ha hecho devolucion es {ha_hecho_solicitud}")
+        print(f"el idplan de este usuario es {id_plan}")
             # Enviar datos a la plantilla
         return render_template('configuracion/planes.html', planes=planes, nombre=nombre, plan_actual=id_plan, fecha_expiracion_plan=fecha_expiracion_plan, puede_pedir_devolucion=puede_pedir_devolucion, ha_hecho_solicitud=ha_hecho_solicitud)
 
@@ -1587,15 +1593,32 @@ def ventana_administracion():
                 u.fecha_expiracion_plan,
                 COUNT(v.idventas) AS total_ventas,
                 MAX(v.fecha) AS ultima_venta,
-                DATEDIFF(NOW(), u.ultimo_intento) AS dias_inactivo
+                DATEDIFF(NOW(), u.ultimo_intento) AS dias_inactivo,
+                COALESCE(sd.estado, 'none') AS estado_devolucion
             FROM 
                 usuario u
             LEFT JOIN 
                 planes p ON u.idplan = p.idplan
             LEFT JOIN 
                 ventas v ON u.idusuario = v.idusuario
+            LEFT JOIN (
+                SELECT 
+                    sd1.idusuario,
+                    sd1.estado
+                FROM 
+                    solicitudes_devolucion sd1
+                INNER JOIN (
+                    SELECT 
+                        idusuario,
+                        MAX(fecha_solicitud) AS ultima_fecha
+                    FROM 
+                        solicitudes_devolucion
+                    GROUP BY 
+                        idusuario
+                ) sd2 ON sd1.idusuario = sd2.idusuario AND sd1.fecha_solicitud = sd2.ultima_fecha
+            ) sd ON u.idusuario = sd.idusuario
             GROUP BY 
-                u.idusuario
+                u.idusuario;
         """
         cursor.execute(query)
         usuarios = cursor.fetchall()
@@ -1608,6 +1631,66 @@ def ventana_administracion():
         print(f"Error al listar usuarios: {e}")
         # Renderizar la misma plantilla con un mensaje de error
         return render_template('admin.html', error_message="Error al cargar la información de los usuarios.")
+    
+@routes_blueprint.route('/manejar-devolucion', methods=['POST'])
+def manejar_devolucion():
+    data = request.get_json()  # Obtener los datos enviados desde el frontend
+    id_usuario = data['idUsuario']
+    accion = data['accion']  # 'aceptar' o 'rechazar'
+    print(f"manejar devolucion: el usuario al que le acpete o rechaze essss {id_usuario}")
+
+    try:
+        cursor = mysql.connection.cursor()
+
+        # 1. Actualizar el estado en la tabla solicitudes_devolucion
+        nuevo_estado = 'aprobada' if accion == 'aceptar' else 'rechazada'
+        cursor.execute("""
+            UPDATE solicitudes_devolucion
+            SET estado = %s
+            WHERE idusuario = %s
+        """, (nuevo_estado, id_usuario))
+
+        # 2. Si la acción es "aceptar", actualizar el plan del usuario
+        if accion == 'aceptar':
+            # Obtener el plan anterior desde historial_planes
+            cursor.execute("""
+                SELECT idplan_anterior, fecha_creacion_plan_anterior, fecha_expiracion_plan_anterior
+                FROM historial_planes
+                WHERE idusuario = %s
+                ORDER BY id DESC
+                LIMIT 1
+            """, (id_usuario,))
+            plan_anterior = cursor.fetchone()
+
+            # Determinar el idplan a asignar
+            if plan_anterior:
+                idplan_nuevo = plan_anterior['idplan_anterior']
+                fecha_creacion_plan = plan_anterior['fecha_creacion_plan_anterior']
+                fecha_expiracion_plan = plan_anterior['fecha_expiracion_plan_anterior']
+            else:
+                # Si no hay registros en historial_planes, asignar idplan = 1 (plan por defecto)
+                idplan_nuevo = 1
+                fecha_creacion_plan = None  # O asigna una fecha por defecto si es necesario
+                fecha_expiracion_plan = None  # O asigna una fecha por defecto si es necesario
+
+            # Actualizar la tabla usuario con el nuevo plan
+            cursor.execute("""
+                UPDATE usuario
+                SET idplan = %s,
+                    fecha_creacion_plan = %s,
+                    fecha_expiracion_plan = %s
+                WHERE idusuario = %s
+            """, (idplan_nuevo, fecha_creacion_plan, fecha_expiracion_plan, id_usuario))
+        
+        mysql.connection.commit()
+        cursor.close()
+
+        # Retornar una respuesta de éxito al frontend
+        return jsonify({'success': True, 'message': f'Devolución {accion} correctamente.'})
+
+    except Exception as e:
+        print(f"Error al manejar la devolución: {e}")
+        return jsonify({'success': False, 'message': 'Hubo un error al procesar la devolución.'}), 500
     
 @routes_blueprint.route('/usuarios/eliminar/<int:id_usuario>', methods=['GET'])
 def eliminar_usuario(id_usuario):
