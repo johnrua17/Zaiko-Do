@@ -16,7 +16,7 @@
             <p>Hola {{ nombre_usuario }},</p>
             <p>Por favor, introduce el código que hemos enviado a tu correo electrónico para verificar tu cuenta.</p>
             <form action="{{ url_for('routes.validar', token=token) }}" method="POST">
-                <label for="otp">Código OTP:</label>
+                <label for="otp">Código:</label>
                 <input type="text" id="otp" name="otp" required>
                 <button type="submit" class="button">Verificar Codigo</button>
             </form>
