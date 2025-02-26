@@ -21,6 +21,12 @@ from app.auth import validar_sesion  # Importar el decorador
 from .reporte_ventas import query_reportes
 import requests # Para el chatbot
 import google.generativeai as genai # Para el chatbot
+from app.ventas.devolucion import devolucion_venta
+from app.clientes.clientestop import clientestop
+from app.clientes.editarcliente import editarcliente
+from app.ventas.detallesventa import detallesventa
+from app.clientes.eliminarcliente import eliminarcliente
+from app.ventas.ventas import obtenerventa,venta
 load_dotenv(dotenv_path='../.env')
  
 TEMPLATES_DIR = '../../templates'   
@@ -1399,139 +1405,22 @@ def buscar_producto_codigo():
 @routes_blueprint.route('/ventas/realizadas', methods=["GET"])
 @login_required
 def ventas_realizadas():
-    # Verificar si el usuario está autenticado
-    if not session.get('idusuario'):
-        return redirect(url_for('auth.login'))
-
-    # Renderizar la plantilla sin datos (los datos se obtendrán mediante una solicitud POST)
-    return render_template('ventas/ventas_realizadas.html')
+    return venta()
 
 @routes_blueprint.route('/obtener_ventas', methods=["POST"])
 @login_required
 def obtener_ventas():
-    # Verificar si el usuario está autenticado
-    if not session.get('idusuario'):
-        return jsonify({"error": "Usuario no autenticado"}), 403
-
-    id_usuario_actual = session.get('idusuario')
-
-    try:
-        cur = mysql.connection.cursor()
-        # Obtener las ventas realizadas por el usuario
-        query = """
-        SELECT * FROM ventas WHERE idusuario = %s
-        """
-        cur.execute(query, (id_usuario_actual,))
-        ventas = cur.fetchall()
-        cur.close()
-
-        # Convertir las ventas a una lista de diccionarios
-        ventas_json = []
-        for venta in ventas:
-            venta_dict = {
-                "idventausuario": venta["idventausuario"],
-                "totalventa": float(venta["totalventa"]),
-                "fecha": venta["fecha"].strftime("%d/%m/%y"),  # Formatear fecha
-                "hora": str(venta["hora"]),  # Convertir timedelta a cadena
-                "metodo_pago": venta["metodo_pago"],
-                "cliente": venta["cliente"]
-            }
-            ventas_json.append(venta_dict)
-
-        # Devolver los datos en formato JSON
-        return jsonify(ventas_json)
-    except Exception as e:
-        print(f"Error al obtener las ventas: {e}")
-        return jsonify({"error": "Error al cargar las ventas."}), 500
+    return obtenerventa()
 
 @routes_blueprint.route('/detalles/<int:idventa>', methods=["GET"])
 def detalles_venta(idventa):
-    try:
-        idusuario = session.get("idusuario", None)
-        if idusuario is None:
-            return jsonify({"error": "Usuario no autenticado"}), 403
+    return detallesventa(idventa)
 
-        print(f"Consultando detalles de venta: idventa={idventa}, idusuario={idusuario}")
-        
-        cur = mysql.connection.cursor()
-
-        # Obtener detalles de los productos de la venta
-        query_detalles = "SELECT * FROM detalleventas WHERE idventa = %s AND idusuario = %s"
-        cur.execute(query_detalles, (idventa, idusuario))
-        detalles = cur.fetchall()
-
-        # Obtener información general de la venta
-        query_venta = "SELECT totalventa, pagocon, fecha, hora, metodo_pago, devuelto, cliente, idcliente FROM ventas WHERE idventausuario = %s AND idusuario = %s"
-        cur.execute(query_venta, (idventa, idusuario))
-        venta = cur.fetchone()
-        
-
-        cur.close()
-
-        if not detalles or not venta:
-            print("No se encontraron detalles para la venta.")
-            return jsonify({"error": "No se encontraron detalles para la venta."}), 404
-
-        print("Detalles encontrados:", detalles)
-        print("Información de la venta:", venta)
-
-        # Convertir timedelta a una cadena en formato HH:MM:SS
-        if isinstance(venta['hora'], timedelta):
-            total_seconds = int(venta['hora'].total_seconds())
-            hours = total_seconds // 3600
-            minutes = (total_seconds % 3600) // 60
-            seconds = total_seconds % 60
-            venta['hora'] = f"{hours:02}:{minutes:02}:{seconds:02}"
-
-        # Combinar los datos en un solo JSON
-        return jsonify({
-            "detalles": detalles,
-            "venta": venta
-        })
-
-    except Exception as e:
-        print(f"Error al obtener los detalles de la venta: {e}")
-        return jsonify({"error": "Error al cargar los detalles."}), 500
 
 @routes_blueprint.route('/devolucion/<int:idventa>', methods=["POST"])
 def aplicar_devolucion(idventa):
-    try:
-        id_usuario = session.get('idusuario')  # Obtener el id_usuario de la sesión
-        cursor = mysql.connection.cursor()
-        
-        # 1. Obtener el código de barras y la cantidad de los productos vendidos
-        cursor.execute(
-            "SELECT codigo_de_barras, cantidad FROM detalleventas WHERE idventa = %s AND idusuario = %s",
-            (idventa, id_usuario)
-        )
-        productos_vendidos = cursor.fetchall()
+    return devolucion_venta(idventa)
 
-        # 2. Actualizar la cantidad en la tabla 'productos'
-        for producto in productos_vendidos:
-            cursor.execute(
-                'UPDATE productos SET cantidad = cantidad + %s WHERE codigo_de_barras = %s AND id_usuario = %s',
-                (producto['cantidad'], producto['codigo_de_barras'], id_usuario)
-            )
-
-        # 3. Poner en cero el total de la venta y marcarla como devuelta
-        cursor.execute(
-            "UPDATE ventas SET totalventa = 0, devuelto = TRUE WHERE idventausuario = %s AND idusuario = %s",
-            (idventa, id_usuario)
-        )
-
-        # 4. Poner en cero el precio_valor y precio_costo en detalleventas
-        cursor.execute(
-            "UPDATE detalleventas SET valor = 0, costo = 0 WHERE idventa = %s AND idusuario = %s",
-            (idventa, id_usuario)
-        )
-
-        mysql.connection.commit()
-        cursor.close()
-        return jsonify({"success": "Devolución aplicada correctamente."}), 200
-    except Exception as e:
-        print(f"Error al aplicar la devolución: {e}")  # Asegúrate de que 'e' esté definido
-        return jsonify({"error": "Error al aplicar la devolución."}), 500
-    
 @routes_blueprint.route('/factura/<int:idventa>', methods=["GET"])
 def generar_factura(idventa):
     # Verificar que el usuario esté autenticado
@@ -1798,86 +1687,17 @@ def editar_usuario(id_usuario):
 
 @routes_blueprint.route('/clientes/eliminar/<int:idcliente>', methods=['DELETE'], endpoint='eliminar_cliente')
 def eliminar_cliente(idcliente):
-    """Eliminar un cliente por su ID."""
-    if not session.get('idusuario'):
-        return jsonify({'error': 'No autenticado'}), 401
-
-    cur = mysql.connection.cursor()
-    
-    # Verificar si el cliente pertenece al usuario autenticado
-    cur.execute("SELECT idusuario FROM clientes WHERE idcliente = %s", (idcliente,))
-    result = cur.fetchone()
-    
-    if not result or result["idusuario"] != session.get('idusuario'):
-        return jsonify({'error': 'Acceso no autorizado'}), 403
-
-    # Eliminar el cliente
-    cur.execute("DELETE FROM clientes WHERE idcliente = %s", (idcliente,))
-    mysql.connection.commit()
-    cur.close()
-
-    return jsonify({'message': 'Cliente eliminado correctamente'}), 200
+    return eliminarcliente(idcliente)
 
 @routes_blueprint.route('/clientes/editar/<int:idcliente>', methods=['PUT'], endpoint='editar_cliente')
 def editar_cliente(idcliente):
-    """Editar un cliente existente."""
-    if not session.get('idusuario'):
-        return jsonify({'error': 'No autenticado'}), 401
-
-    data = request.json
-    nombre = data.get('nombre')
-    contacto = data.get('contacto')
-
-    cur = mysql.connection.cursor()
-    
-    # Verificar si el cliente pertenece al usuario autenticado
-    cur.execute("SELECT idusuario FROM clientes WHERE idcliente = %s", (idcliente,))
-    result = cur.fetchone()
-    
-    if not result or result["idusuario"] != session.get('idusuario'):
-        return jsonify({'error': 'Acceso no autorizado'}), 403
-
-    # Actualizar el cliente
-    query = """
-        UPDATE clientes 
-        SET nombre = %s, contacto = %s
-        WHERE idcliente = %s and idusuario =%s
-    """
-    cur.execute(query, (nombre, contacto, idcliente,session.get('idusuario')))
-    mysql.connection.commit()
-    cur.close()
-
-    return jsonify({'message': 'Cliente actualizado correctamente'}), 200
-
+    return editarcliente(idcliente)
 
 @routes_blueprint.route('/clientes/top', methods=['GET'], endpoint='clientes_top')
 @login_required
 def clientes_top():
     """Obtener los 10 clientes con más compras."""
-    id_usuario = session.get('idusuario')
-    cur = mysql.connection.cursor()
-
-    query = """
-        SELECT 
-            COALESCE(c.idcliente, 0) AS idcliente,
-            COALESCE(c.nombre, v.cliente, 'No suministrado') AS nombre,
-            COALESCE(c.identificacion, v.idcliente, 'No suministrado') AS identificacion,
-            COALESCE(c.contacto, 'No suministrado') AS contacto,
-            SUM(v.totalventa) AS total_compras
-        FROM ventas v
-        LEFT JOIN clientes c ON c.identificacion = v.idcliente AND c.idusuario = %s
-        WHERE v.idusuario = %s
-        GROUP BY c.idcliente, c.nombre, c.identificacion, c.contacto, v.cliente, v.idcliente
-        ORDER BY total_compras DESC
-        LIMIT 10;
-    """
-    cur.execute(query, (id_usuario, id_usuario))
-    
-    clientes_top = cur.fetchall()
-    
-    cur.close()
-
-    return render_template('clientes/clientes_top.html', clientes_top=clientes_top)
+    return clientestop()
 
 @routes_blueprint.route('/chatbot', methods=['POST'], endpoint='chatbot')
 def chatbot():
