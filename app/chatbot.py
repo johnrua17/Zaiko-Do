@@ -1,16 +1,31 @@
 import os
 import google.generativeai as genai
+from flask import session
+from app.database import get_connection
 
 # Configuración de la API de Gemini
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 def get_username():
     """
-    Esta función sirve para obtener el nombre de usuario del usuario.
-    Aquí podrías implementar lógica para obtener el nombre desde la sesión o base de datos.
-    Por ahora, retorna "Juan".
+    Obtiene el nombre de usuario del usuario autenticado.
+    Si no hay usuario autenticado, retorna una cadena vacía.
     """
-    return "Juan"
+    user_id = session.get("user_id")
+    if not user_id:
+        return ""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT nombre FROM usuario WHERE idusuario = %s"
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+        if result and "nombre" in result:
+            return result["nombre"]
+        return ""
+    except Exception as e:
+        # En caso de error, retornamos cadena vacía
+        return ""
 
 # Declaración de la función (tool) para que el modelo pueda invocar get_username
 username_function = {

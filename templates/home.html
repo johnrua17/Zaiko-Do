@@ -366,7 +366,8 @@
             // Opcional: Agregar el mensaje del usuario al chat
             const userTemplate = document.getElementById('user-message-template');
             const userMessageClone = userTemplate.content.cloneNode(true);
-            userMessageClone.querySelector('.message-text').textContent = message;
+            // Para el mensaje del usuario:
+            userMessageClone.querySelector('.message-text').textContent = "Tú: " + message;
             chatMessages.appendChild(userMessageClone);
             chatMessages.scrollTop = chatMessages.scrollHeight;
     
@@ -384,7 +385,7 @@
                 // Agregar la respuesta del bot al chat
                 const botTemplate = document.getElementById('bot-message-template');
                 const botMessageClone = botTemplate.content.cloneNode(true);
-                botMessageClone.querySelector('.message-text').textContent = data.reply;
+                botMessageClone.querySelector('.message-text').textContent = "Chatbot: " + data.reply;
                 // Opcional: Agregar una marca de tiempo
                 const now = new Date();
                 const timestamp = now.getHours() + ":" + (now.getMinutes()<10?"0":"") + now.getMinutes();
@@ -401,6 +402,13 @@
                 chatMessages.appendChild(botMessageClone);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             });
+        });
+ // Listener para la tecla Enter en el input
+ chatInput.addEventListener('keydown', function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById('chat-send').click();
+            }
         });
     });
     </script>    
