@@ -49,13 +49,10 @@
 
         .barcode-entry {
     display: flex;
-    align-items: center;
-    padding: 10px;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 4000px;
-    margin: 0 auto;
+    align-items: center; /* Alinear verticalmente los elementos */
+    gap: 10px; /* Espacio entre los elementos */
 }
+
 
 /* Estilo de la etiqueta */
 .barcode-entry label {
@@ -139,6 +136,14 @@
 
 
 </style>
+
+<style>
+    /* Estilo para la fila seleccionada */
+.selected-row {
+    background-color: #e0f7fa; /* Color de fondo para la fila seleccionada */
+    border: 2px solid #00bcd4; /* Borde para resaltar */
+}
+</style>
 </head>
 <body>
     
@@ -169,9 +174,7 @@
                 <button id="buscar_productos" class="data-table">
                     <i class="fas fa-search"></i> Buscar producto - B
                 </button>
-                <button id="modificar_valor" class="data-table">
-                    <i class="fas fa-edit"></i> Modificar valor unitario - M
-                </button>
+                
             </div>                               
             <div class="table-header">
                 <h2>Productos</h2>
@@ -301,6 +304,57 @@
                 
             }
         }
+    </script>
+    <script>
+        // Variable para almacenar la fila seleccionada
+let filaSeleccionada = null;
+
+// Función para manejar la selección de filas
+function seleccionarFila(event) {
+    const fila = event.target.closest('tr'); // Obtener la fila clicada
+
+    // Si ya hay una fila seleccionada, quitar el estilo
+    if (filaSeleccionada) {
+        filaSeleccionada.classList.remove('selected-row');
+    }
+
+    // Si la fila clicada es diferente a la seleccionada, seleccionarla
+    if (fila !== filaSeleccionada) {
+        fila.classList.add('selected-row');
+        filaSeleccionada = fila;
+    } else {
+        filaSeleccionada = null; // Deseleccionar si se hace clic en la misma fila
+    }
+}
+
+// Agregar el evento de clic a todas las filas de la tabla
+document.querySelectorAll('#tabla_productos tr').forEach(fila => {
+    fila.addEventListener('click', seleccionarFila);
+});
+
+
+// Función para eliminar la fila seleccionada
+function eliminarProducto() {
+    if (!filaSeleccionada) {
+        alert('Por favor, selecciona un producto de la tabla para eliminar.');
+        return;
+    }
+
+    // Obtener el código de barras del producto seleccionado
+    const codigoBarras = filaSeleccionada.cells[0].textContent;
+
+    // Eliminar la fila de la tabla
+    filaSeleccionada.remove();
+
+    // Eliminar el producto del objeto productosEnTabla
+    delete productosEnTabla[codigoBarras];
+
+    // Limpiar la fila seleccionada
+    filaSeleccionada = null;
+}
+
+// Asignar la función al botón "Eliminar producto"
+document.getElementById('eliminar_producto').addEventListener('click', eliminarProducto);
     </script>
    
 

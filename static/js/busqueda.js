@@ -49,13 +49,10 @@
     }
 }
 
-function Boton(){
-    alert("Pronto podrás disfrutar de esta funcionalidad...")
-}
+
 // Asignar el evento de clic al botón de búsqueda
 document.getElementById('buscar_producto_codigo').addEventListener('click', buscarProductoCodigo);
-document.getElementById('modificar_valor').addEventListener('click', Boton);
-document.getElementById('eliminar_producto').addEventListener('click', Boton);
+
 
 
 

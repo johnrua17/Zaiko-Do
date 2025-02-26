@@ -1195,14 +1195,7 @@ def registrar_venta():
 
             # Acumular el total de la venta
             total_venta += cantidad_solicitada * precio_unitario
-        total_original_calculado = total_venta
-        # Aplicar descuento si se envía información desde el cliente
-        total_final = float(data["total_final"])
-        if total_final < total_original_calculado:
-            total_venta = total_final  # Se usa el total final (con descuento) para la venta
-            
-        else:
-            print("No se aplica descuento, total final es igual o mayor al total original.")
+        
         # Fecha y hora de Bogotá
         timezone = pytz.timezone('America/Bogota')
         fecha_actual = datetime.now(timezone)

@@ -26,7 +26,7 @@ function verificarProducto(producto) {
             <td>${producto.Codigo_de_barras}</td>
             <td>${producto.Nombre}</td>
             <td>${producto.Descripcion}</td>
-            <td>$${producto.Precio_Valor}</td>
+            <td data-precio-original="${producto.Precio_Valor}">$${producto.Precio_Valor}</td> <!-- Guardar el precio original -->
             <td>${producto.Stock}</td> <!-- Stock disponible -->
             <td>${producto.Categoria}</td>
             <td>1</td> <!-- Cantidad inicial -->
@@ -38,5 +38,8 @@ function verificarProducto(producto) {
         productosEnTabla[producto.Codigo_de_barras] = row;
         console.log('productos en tabla')
         console.log(Object.values(productosEnTabla))
+        // Agregar el evento de clic a la nueva fila
+        row.addEventListener('click', seleccionarFila);
+
     }
 }

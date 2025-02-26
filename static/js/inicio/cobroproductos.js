@@ -1,34 +1,51 @@
  // Variable global para almacenar el total original
- let totalOriginal = 0;
-  
- // Aplica un descuento fijo en porcentaje (5% o 10%)
- function aplicarDescuento(porcentaje) {
-   const totalElement = document.getElementById('total-pagar');
-   // Se usa totalOriginal para evitar descuentos acumulados
-   const descuento = totalOriginal * (porcentaje / 100);
-   const totalConDescuento = totalOriginal - descuento;
-   totalElement.innerText = totalConDescuento.toFixed(2);
-   // Actualizamos el valor del input "pago-con" para reflejar el cambio
-   document.getElementById('pago-con').value = totalConDescuento.toFixed(2);
- }
+// Variable global para almacenar el total original
+let totalOriginal = 0;
 
+// Aplica un descuento fijo en porcentaje (5% o 10%)
+function aplicarDescuento(porcentaje) {
+    const totalElement = document.getElementById('total-pagar');
+    const descuento = totalOriginal * (porcentaje / 100);
+    const totalConDescuento = totalOriginal - descuento;
+
+    // Actualizar el total a cobrar
+    totalElement.innerText = totalConDescuento.toFixed(2);
+    document.getElementById('pago-con').value = totalConDescuento.toFixed(2);
+
+    // Recalcular el Precio_Valor de cada producto en la tabla
+    const filas = document.querySelectorAll('#tabla_productos tr');
+    filas.forEach(fila => {
+        const precioValorCell = fila.cells[3]; // Columna de Precio_Valor (índice 3)
+        const precioOriginal = parseFloat(precioValorCell.getAttribute('data-precio-original')); // Precio original sin descuento
+
+        // Si no se ha guardado el precio original, guardarlo
+        if (!precioOriginal) {
+            precioValorCell.setAttribute('data-precio-original', precioValorCell.textContent.replace('$', ''));
+        }
+
+        // Calcular el nuevo Precio_Valor con el descuento
+        const nuevoPrecio = precioOriginal * (1 - porcentaje / 100);
+        precioValorCell.textContent = `$${nuevoPrecio.toFixed(2)}`; // Actualizar el valor en la tabla
+    });
+}
  // Muestra el input para ingresar un descuento personalizado
  function mostrarDescuentoPersonalizado() {
    document.getElementById('descuento-personalizado').style.display = 'block';
  }
 
  // Aplica el descuento ingresado por el usuario
- function aplicarDescuentoPersonalizado() {
-   const inputDescuento = document.getElementById('input-descuento');
-   const porcentaje = parseFloat(inputDescuento.value);
-   if (!isNaN(porcentaje) && porcentaje >= 0 && porcentaje <= 100) {
-     aplicarDescuento(porcentaje);
-     document.getElementById('descuento-personalizado').style.display = 'none';
-   } else {
-     alert('Ingrese un porcentaje válido entre 0 y 100.');
-   }
- }
+// Aplica el descuento ingresado por el usuario
+function aplicarDescuentoPersonalizado() {
+  const inputDescuento = document.getElementById('input-descuento');
+  const porcentaje = parseFloat(inputDescuento.value);
 
+  if (!isNaN(porcentaje) && porcentaje >= 0 && porcentaje <= 100) {
+      aplicarDescuento(porcentaje); // Aplicar el descuento
+      document.getElementById('descuento-personalizado').style.display = 'none'; // Ocultar el input
+  } else {
+      alert('Ingrese un porcentaje válido entre 0 y 100.');
+  }
+}
  // Evento para calcular el total y mostrar el modal de cobro
 document.getElementById('cobrar').addEventListener('click', () => {
     // Verificar si hay productos en la tabla
