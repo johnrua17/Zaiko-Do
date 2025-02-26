@@ -259,7 +259,7 @@
             <label for="end-date">Hasta:</label>
             <input type="date" id="end-date" name="end-date">
             
-            <button class="generate-report-btn" id="generate-report-btn">Generar Reporte</button>
+            <button class="generate-report-btn" id="generate-report-btn">Generar reporte</button>
         </div>
 
     </div>
@@ -273,7 +273,7 @@
         <!-- Categorías Más Vendidas con Gráfico Circular -->
         <div class="fila">
             <div class="categorias-container">
-                <h3>Categorías Más Vendidas</h3>
+                <h3>Categorías más vendidas</h3>
                 <table>
                     <thead>
                         <tr>
@@ -305,7 +305,7 @@
 
         <!-- Ganancias por Categoría -->
         <div class="ganancias-container">
-            <h3>Ganancias por Categoría</h3>
+            <h3>Ganancias por categoría</h3>
             <table>
                 <thead>
                     <tr>
@@ -334,11 +334,11 @@
         <!-- Ventas por Método de Pago con Gráfico Circular -->
         <div class="fila">
             <div class="metodo-container">
-                <h3>Ventas por Método de Pago</h3>
+                <h3>Ventas por método de pago</h3>
                 <table>
                     <thead>
                         <tr>
-                            <th>Método de Pago</th>
+                            <th>Método de pago</th>
                             <th>Ventas</th>
                         </tr>
                     </thead>
@@ -366,25 +366,25 @@
 
         <!-- Ventas por Día con Gráfico de Barras -->
         <div class="ventas-dia-container">
-            <h3>Ventas por Día</h3>
+            <h3>Ventas por día</h3>
             <div class="grafico-y-ventas-actual">
                 <div class="grafico-container">
                     <canvas id="ventasDiaChart"></canvas>
                 </div>
                 <div class="ventas-actual-container">
-                    <h3>Ventas del Día Actual</h3>
-                    <p><strong>Total de Ventas:</strong> <span id="totalVentas">{{ ventas_dia | int | format('.')}}</span></p>
-                    <p><strong>Ganancias Totales:</strong> <span id="gananciasTotales">{{ ganancias_dia | int | format('.')}}</span></p>
+                    <h3>Ventas del día actual</h3>
+                    <p><strong>Total de ventas:</strong> <span id="totalVentas">{{ ventas_dia | int | format('.')}}</span></p>
+                    <p><strong>Ganancias totales:</strong> <span id="gananciasTotales">{{ ganancias_dia | int | format('.')}}</span></p>
                 </div>
             </div>
         </div>
 
         <!-- Ventas por Mes -->
         <div class="ventas-mes-container">
-            <h3>Ventas por Mes</h3>
+            <h3>Ventas por mes</h3>
             <div class="ventas-mes-datos">
-                <p><strong>Total de Ventas:</strong> <span id="totalVentasMes">{{ ventas_mes | int | format('.') }}</span></p>
-                <p><strong>Ganancias Totales:</strong> <span id="gananciasTotalesMes">{{ ganancias_mes | int | format('.') }}</span></p>
+                <p><strong>Total de ventas:</strong> <span id="totalVentasMes">{{ ventas_mes | int | format('.') }}</span></p>
+                <p><strong>Ganancias totales:</strong> <span id="gananciasTotalesMes">{{ ganancias_mes | int | format('.') }}</span></p>
             </div>
             <div class="grafico-container">
                 <canvas id="ventasMesChart"></canvas>
