@@ -158,16 +158,18 @@
     }
 
     .grafico-y-ventas-actual {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-    }
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
 
     .grafico-container,
     .ventas-actual-container {
         flex: 1;
-        min-width: 300px;
-        max-width: 600px;
+        min-width: 0; /* Permite que los elementos se reduzcan más allá de su contenido mínimo */
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
     }
     .reporte-header {
       text-align: center;
@@ -215,6 +217,31 @@
         position: static; /* Ajustamos para evitar conflictos */
         display: inline-block; /* Evita comportamientos inesperados */
     }
+
+    /* Estilos para el contenedor de ventas mensuales */
+.ventas-mes-container {
+    margin-top: 20px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+/* Estilos para los datos de ventas mensuales */
+.ventas-mes-datos {
+    margin-bottom: 20px; /* Espacio entre los datos y el gráfico */
+}
+
+.ventas-mes-datos p {
+    margin: 0; /* Elimina el margen por defecto de los párrafos */
+    font-size: 16px;
+    color: #333;
+}
+
+/* Asegura que el gráfico ocupe todo el ancho */
+.ventas-mes-container .grafico-container {
+    width: 100%;
+    height: auto;
+}
 </style>
 </head>
 <body>
@@ -265,7 +292,7 @@
                         {% else %}
                         <tr>
                             <td>No hay datos disponibles</td>
-                            <td>No hay datos disponibless</td>
+                            <td>No hay datos disponibles</td>
                         </tr>
                         {% endif %}
                     </tbody>
@@ -297,7 +324,7 @@
                     {% else %}
                     <tr>
                         <td>No hay datos disponibles</td>
-                        <td>No hay datos disponibless</td>
+                        <td>No hay datos disponibles</td>
                     </tr>
                     {% endif %}
                 </tbody>
@@ -326,7 +353,7 @@
                         {% else %}
                         <tr>
                             <td>No hay datos disponibles</td>
-                            <td>No hay datos disponibless</td>
+                            <td>No hay datos disponibles</td>
                         </tr>
                         {% endif %}
                     </tbody>
@@ -349,6 +376,18 @@
                     <p><strong>Total de Ventas:</strong> <span id="totalVentas">{{ ventas_dia | int | format('.')}}</span></p>
                     <p><strong>Ganancias Totales:</strong> <span id="gananciasTotales">{{ ganancias_dia | int | format('.')}}</span></p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Ventas por Mes -->
+        <div class="ventas-mes-container">
+            <h3>Ventas por Mes</h3>
+            <div class="ventas-mes-datos">
+                <p><strong>Total de Ventas:</strong> <span id="totalVentasMes">{{ ventas_mes | int | format('.') }}</span></p>
+                <p><strong>Ganancias Totales:</strong> <span id="gananciasTotalesMes">{{ ganancias_mes | int | format('.') }}</span></p>
+            </div>
+            <div class="grafico-container">
+                <canvas id="ventasMesChart"></canvas>
             </div>
         </div>
     </div>
@@ -426,6 +465,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Actualizar las ventas del día y ganancias
         document.getElementById('totalVentas').textContent = Math.floor(data.ventas_dia) || 'No disponible';
         document.getElementById('gananciasTotales').textContent = Math.floor(data.ganancias_dia) || 'No disponible';
+
+        // Actualizar ventas mensuales
+        document.getElementById('totalVentasMes').textContent = Math.floor(data.ventas_mes) || 'No disponible';
+        document.getElementById('gananciasTotalesMes').textContent = Math.floor(data.ganancias_mes) || 'No disponible';
     });
 
 /**
@@ -471,11 +514,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ganancias_categoria: {{ ganancias_categoria | tojson | safe }},
         ventas_metodo_pago: {{ ventas_metodo_pago | tojson | safe }},
         ventas_dia: {{ ventas_dia | tojson | safe }},
-        ganancias_dia: {{ ganancias_dia | tojson | safe }}
+        ganancias_dia: {{ ganancias_dia | tojson | safe }},
+        ventas_mes: {{ ventas_mes | tojson | safe }}, 
+        ganancias_mes: {{ ganancias_mes | tojson | safe }} 
     };
 
     // Inicializar gráficas con los datos iniciales
-    let categoriasChart, metodoPagoChart, ventasDiaChart;
+    let categoriasChart, metodoPagoChart, ventasDiaChart, ventasMesChart;
     initializeCharts(initialData);
 
     // Función para inicializar las gráficas
@@ -546,6 +591,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+
+        // Gráfico de barras para ventas mensuales
+        ventasMesChart = new Chart(document.getElementById('ventasMesChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Mes Actual'], // Solo un label para el mes actual
+                datasets: [
+                    {
+                        label: 'Ventas',
+                        data: [parseFloat(data.ventas_mes)], // Valor de ventas del mes
+                        backgroundColor: '#FF6384',
+                        borderColor: '#FF6384',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Ganancias',
+                        data: [parseFloat(data.ganancias_mes)], // Valor de ganancias del mes
+                        backgroundColor: '#36A2EB',
+                        borderColor: '#36A2EB',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     }
 
     // Función para actualizar las gráficas con nuevos datos
@@ -564,6 +642,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ventasDiaChart.data.datasets[0].data = [parseFloat(data.ventas_dia)];
         ventasDiaChart.data.datasets[1].data = [parseFloat(data.ganancias_dia)];
         ventasDiaChart.update();
+
+        ventasMesChart.data.datasets[0].data = [parseFloat(data.ventas_mes)];
+        ventasMesChart.data.datasets[1].data = [parseFloat(data.ganancias_mes)];
+        ventasMesChart.update();
     }
 
 }); //hasta aca llega el document.addEventListener('DOMContentLoaded'...

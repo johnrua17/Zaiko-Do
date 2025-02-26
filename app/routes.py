@@ -1110,6 +1110,8 @@ def reporte_ventas():
         print(f"ventas metoido pago {lista_consultas_para_reporte[2]}")
         print(f"ventas dia {lista_consultas_para_reporte[3]}")
         print(f"ganancias dia {lista_consultas_para_reporte[4]}")
+        print(f"ventas mes {lista_consultas_para_reporte[5]}")
+        print(f"ganancias mes {lista_consultas_para_reporte[6]}")
 
 
         return jsonify({
@@ -1117,7 +1119,9 @@ def reporte_ventas():
             'ganancias_categoria': lista_consultas_para_reporte[1],
             'ventas_metodo_pago': lista_consultas_para_reporte[2],
             'ventas_dia': lista_consultas_para_reporte[3],
-            'ganancias_dia': lista_consultas_para_reporte[4]
+            'ganancias_dia': lista_consultas_para_reporte[4],
+            'ventas_mes': lista_consultas_para_reporte[5],
+            'ganancias_mes': lista_consultas_para_reporte[6],
         })
     
 
@@ -1129,7 +1133,9 @@ def reporte_ventas():
                             ganancias_categoria=lista_consultas_para_reporte[1],
                             ventas_metodo_pago=lista_consultas_para_reporte[2],
                             ventas_dia=lista_consultas_para_reporte[3],
-                            ganancias_dia=lista_consultas_para_reporte[4])
+                            ganancias_dia=lista_consultas_para_reporte[4],
+                            ventas_mes=lista_consultas_para_reporte[5],
+                            ganancias_mes=lista_consultas_para_reporte[6],)
 
 
 
