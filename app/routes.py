@@ -20,6 +20,7 @@ from jinja2 import Environment, FileSystemLoader
 from app.auth import validar_sesion  # Importar el decorador
 from .reporte_ventas import query_reportes
 import requests # Para el chatbot
+<<<<<<< HEAD
 import google.generativeai as genai # Para el chatbot
 from app.ventas.devolucion import devolucion_venta
 from app.clientes.clientestop import clientestop
@@ -27,8 +28,10 @@ from app.clientes.editarcliente import editarcliente
 from app.ventas.detallesventa import detallesventa
 from app.clientes.eliminarcliente import eliminarcliente
 from app.ventas.ventas import obtenerventa,venta
+=======
+>>>>>>> cea45a724d8869d4bf61318f65176c084f60a22d
 load_dotenv(dotenv_path='../.env')
- 
+from app.chatbot import get_message
 TEMPLATES_DIR = '../../templates'   
 env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
 
@@ -37,38 +40,9 @@ routes_blueprint = Blueprint('routes', __name__)
 
 mysql = None # Inicialización de MySQL
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"]) # Configura la API Key usando la variable de entorno
 def init_mysql(app):
     global mysql
     mysql = MySQL(app)
-
-# Configuración de generación (ajusta los parámetros según necesites)
-generation_config = {
-    "temperature": 1,
-    "top_p": 0.95,
-    "top_k": 40,
-    "max_output_tokens": 8192,
-    "response_mime_type": "text/plain",
-}
-
-# Crea el modelo de generación
-model = genai.GenerativeModel(
-    model_name="gemini-2.0-flash",
-    generation_config=generation_config,
-)
-
-# Opcional: Define un historial inicial si deseas enviar contexto (puedes dejarlo vacío o inicializarlo con el prompt deseado)
-initial_history = [
-    {
-        "role": "user",
-        "parts": [
-            "Vamos a implementar el chatbot del sitio web Zaiko Do (zaikodo.com)..."
-            # Aquí puedes incluir el prompt completo o un resumen que establezca el contexto.
-        ],
-    }
-]
-# Inicia una sesión de chat
-chat_session = model.start_chat(history=initial_history)
 
 # Registrar el filtro en el contexto de la aplicación
 @routes_blueprint.app_template_filter('format')
@@ -1703,8 +1677,9 @@ def clientes_top():
 def chatbot():
     user_input = request.json.get('message')
     try:
-        # Envía el mensaje a la sesión de chat y recibe la respuesta
-        response = chat_session.send_message(user_input)
+        # Recibir la respuesta desde chatbot.py
+        response = get_message(user_input)
+        print(response)
         if response and response.text:
             reply_text = response.text
         else:
