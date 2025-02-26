@@ -20,7 +20,6 @@ from jinja2 import Environment, FileSystemLoader
 from app.auth import validar_sesion  # Importar el decorador
 from .reporte_ventas import query_reportes
 import requests # Para el chatbot
-<<<<<<< HEAD
 import google.generativeai as genai # Para el chatbot
 from app.ventas.devolucion import devolucion_venta
 from app.clientes.clientestop import clientestop
@@ -28,8 +27,6 @@ from app.clientes.editarcliente import editarcliente
 from app.ventas.detallesventa import detallesventa
 from app.clientes.eliminarcliente import eliminarcliente
 from app.ventas.ventas import obtenerventa,venta
-=======
->>>>>>> cea45a724d8869d4bf61318f65176c084f60a22d
 load_dotenv(dotenv_path='../.env')
 from app.chatbot import get_message
 TEMPLATES_DIR = '../../templates'   
