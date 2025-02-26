@@ -1292,7 +1292,7 @@ def agregar_productos():
                 producto.get('Codigo_de_barras'),
                 producto.get('Nombre'),
                 producto.get('Descripcion', ''),
-                total,
+                producto.get('Precio_Valor', ''),
                 producto.get('Precio_Costo'),
                 producto.get('Cantidad'),
                 producto.get('Categoria', ''),
