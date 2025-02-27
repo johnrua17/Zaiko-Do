@@ -291,17 +291,23 @@
             const seccionCredito = document.getElementById('seccion-credito');
             const botonCliente = document.getElementById('toggle-datos-cliente');
             const datosCliente = document.getElementById('datos-cliente'); // Selecciona el div de datos 
+            const pagoConInput = document.getElementById('pago-con'); 
+            const totalPagar = parseFloat(document.getElementById('total-pagar').textContent) || 0; 
+
            
     
             if (metodo === 'efectivo') {
                 seccionEfectivo.style.display = 'block';
                 botonCliente.style.display = 'block'; // 
                 seccionCredito.style.display = 'none';
+                pagoConInput.value = totalPagar; // Restablece el valor original
+
             } else if (metodo === 'credito') {
                 seccionEfectivo.style.display = 'block';
                 seccionCredito.style.display = 'block';
                 botonCliente.style.display = 'none'; 
                 datosCliente.style.display = 'none'; // Oculta el div de datos del cliente
+                pagoConInput.value = 0; // Establece el valor en 0 para crédito
                 
                 
             }

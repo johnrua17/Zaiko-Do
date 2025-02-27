@@ -27,6 +27,7 @@ from app.clientes.editarcliente import editarcliente
 from app.ventas.detallesventa import detallesventa
 from app.clientes.eliminarcliente import eliminarcliente
 from app.ventas.ventas import obtenerventa,venta
+from app.ventas.ventascredito import ventacredito
 load_dotenv(dotenv_path='../.env')
 from app.chatbot import get_message
 TEMPLATES_DIR = '../../templates'   
@@ -1372,10 +1373,203 @@ def buscar_producto_codigo():
     finally:
         cur.close()
 
+
+
+@routes_blueprint.route('/creditos/detalles/<int:idcredito>', methods=['GET'])
+def obtener_detalles_credito(idcredito):
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return jsonify({"error": "Usuario no autenticado"}), 403
+
+    id_usuario_actual = session.get('idusuario')
+
+    try:
+        cur = mysql.connection.cursor()
+
+        # Obtener los detalles del crédito
+        consulta_credito = """
+            SELECT idcredito, nombre_cliente, identificacion_cliente, total_compra, abono, fecha_registro, nota, idventausuario
+            FROM creditos
+            WHERE idcredito = %s AND idusuario = %s
+        """
+        cur.execute(consulta_credito, (idcredito, id_usuario_actual))
+        credito = cur.fetchone()
+        print(credito)
+
+        if not credito:
+            return jsonify({"error": "Crédito no encontrado"}), 404
+
+        # Obtener los productos asociados a la venta
+        consulta_productos = """
+            SELECT nombre, cantidad, valor
+            FROM detalleventas
+            WHERE idventa = %s AND idusuario = %s
+        """
+        cur.execute(consulta_productos, (credito["idventausuario"], id_usuario_actual))
+        productos = cur.fetchall()
+
+        # Obtener el historial de abonos
+        consulta_abonos = """
+            SELECT fecha_abono, hora_abono, monto_abono
+            FROM registro_abonos
+            WHERE idcredito = %s AND idusuario = %s
+        """
+        cur.execute(consulta_abonos, (idcredito, id_usuario_actual))
+        abonos = cur.fetchall()
+
+        # Convertir timedelta a cadena en el historial de abonos
+        for abono in abonos:
+            if isinstance(abono["hora_abono"], timedelta):
+                abono["hora_abono"] = str(abono["hora_abono"])  # Convertir a cadena
+
+
+        # Cerrar la conexión
+        cur.close()
+
+        # Devolver los datos en formato JSON
+        return jsonify({
+            "credito": credito,
+            "productos": productos,
+            "abonos": abonos
+        }), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "Ocurrió un error al obtener los detalles del crédito"}), 500
+
+@routes_blueprint.route('/creditos/abonar', methods=['POST'])
+def abonar_credito():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return jsonify({"error": "Usuario no autenticado"}), 403
+
+    id_usuario_actual = session.get('idusuario')
+
+    try:
+        # Obtener los datos del cuerpo de la solicitud
+        datos = request.get_json()
+        idcredito = datos.get('idcredito')
+        monto = datos.get('monto')
+
+        if not idcredito or not monto:
+            return jsonify({"error": "Datos incompletos"}), 400
+
+        cur = mysql.connection.cursor()
+
+        # Obtener el abono actual y total_compra
+        consulta_credito = """
+            SELECT idventausuario, total_compra, abono 
+            FROM creditos 
+            WHERE idcredito = %s AND idusuario = %s
+        """
+        cur.execute(consulta_credito, (idcredito, id_usuario_actual))
+        resultado = cur.fetchone()
+
+        if not resultado:
+            return jsonify({"error": "Crédito no encontrado"}), 404
+
+        idventausuario = resultado["idventausuario"]
+        total_compra = resultado["total_compra"] or 0
+        abono_actual = resultado["abono"] or 0
+
+        # Validar que el abono no exceda el total de la compra
+        if (abono_actual + monto) > total_compra:
+            return jsonify({"error": "El abono excede el total de la compra"}), 200
+
+        # Registrar el abono en la tabla registro_abonos
+        query_abono = """
+            INSERT INTO registro_abonos (idcredito, idusuario, monto_abono, fecha_abono, hora_abono)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        # Definir la zona horaria de Bogotá
+        bogota_tz = pytz.timezone('America/Bogota')
+
+        # Obtener la fecha y hora en la zona horaria de Bogotá
+        fecha_actual = datetime.now(bogota_tz).date()
+        hora_actual = datetime.now(bogota_tz).time()
+        cur.execute(query_abono, (idcredito, id_usuario_actual, monto, fecha_actual, hora_actual))
+
+        # Actualizar el campo abono en la tabla creditos
+        query_actualizar_abono = """
+            UPDATE creditos
+            SET abono = abono + %s, estado = CASE WHEN (abono + %s) >= total_compra THEN 'Pagado' ELSE 'Activo' END
+            WHERE idcredito = %s AND idusuario = %s
+        """
+        cur.execute(query_actualizar_abono, (monto, monto, idcredito, id_usuario_actual))
+
+        # Actualizar el campo pagocon en la tabla ventas
+        query_venta = """
+            UPDATE ventas
+            SET pagocon = pagocon + %s
+            WHERE idventausuario = %s AND idusuario = %s
+        """
+        cur.execute(query_venta, (monto, idventausuario, id_usuario_actual))
+
+        # Confirmar los cambios en la base de datos
+        mysql.connection.commit()
+        cur.close()
+
+        return jsonify({"success": "Abono registrado correctamente"}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "Ocurrió un error al registrar el abono"}), 500
+
+
+@routes_blueprint.route('/creditos/obtener', methods=['GET'])
+def obtener_creditos():
+    # Verificar si el usuario está autenticado
+    if not session.get('idusuario'):
+        return jsonify({"error": "Usuario no autenticado"}), 403
+
+    id_usuario_actual = session.get('idusuario')
+
+    try:
+        cur = mysql.connection.cursor()
+
+        # Consulta para obtener los créditos del usuario actual
+        query = """
+            SELECT idcredito, nombre_cliente, identificacion_cliente, total_compra, abono, fecha_registro, estado
+            FROM creditos
+            WHERE idusuario = %s
+        """
+        cur.execute(query, (id_usuario_actual,))
+        creditos = cur.fetchall()
+
+        # Convertir los créditos a una lista de diccionarios
+        creditos_json = []
+        for credito in creditos:
+            credito_dict = {
+                "idcredito": credito["idcredito"],
+                "nombre_cliente": credito["nombre_cliente"],
+                "identificacion_cliente": credito["identificacion_cliente"],
+                "total_compra": float(credito["total_compra"]),
+                "abono": float(credito["abono"]),
+                "fecha_registro": credito["fecha_registro"].strftime("%d/%m/%y"),  # Formatear fecha
+                "estado": credito["estado"]
+            }
+            creditos_json.append(credito_dict)
+
+        # Cerrar la conexión
+        cur.close()
+
+        # Devolver los créditos en formato JSON
+        return jsonify(creditos_json), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "Ocurrió un error al obtener los créditos"}), 500
+
+
 @routes_blueprint.route('/ventas/realizadas', methods=["GET"])
 @login_required
 def ventas_realizadas():
     return venta()
+
+@routes_blueprint.route('/ventas/realizadas/credito', methods=["GET"])
+@login_required
+def ventas_realizadas_credito():
+    return ventacredito()
 
 @routes_blueprint.route('/obtener_ventas', methods=["POST"])
 @login_required

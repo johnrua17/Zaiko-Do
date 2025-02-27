@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/css/ventas/detalleventa.css">
+    <link rel="icon" href="{{ url_for('static', filename='images/icono/icono.ico') }}" type="image/x-icon">
+    <title>Zaiko Do </title>
+    
+    <!-- Otras etiquetas meta y enlaces -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   
+</head>
+<style>
+  /* Estilos para el modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra suave */
+    font-family: 'Arial', sans-serif;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    font-size: 24px;
+    color: #333;
+    border-bottom: 2px solid #007bff; /* Línea decorativa debajo del título */
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-content p {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.modal-content p strong {
+    color: #333;
+}
+
+/* Estilos para las tablas */
+.modal-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.modal-content th, .modal-content td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.modal-content th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.modal-content td {
+    color: #555;
+}
+
+.modal-content tbody tr:hover {
+    background-color: #f1f1f1; /* Efecto hover en las filas */
+}
+
+/* Estilos para los botones */
+.modal-content button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+}
+
+.modal-content button:hover {
+    background-color: #0056b3; /* Efecto hover en el botón */
+}
+
+
+</style>
+<style>
+    /* Estilos para la tabla */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.data-table th, .data-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.data-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+/* Estilos para los botones */
+.btn-abonar, .btn-detalles {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.btn-abonar {
+    background-color: #4caf83;
+    color: white;
+}
+
+.btn-abonar:hover {
+    background-color: #388e3c;
+}
+
+.btn-detalles {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-detalles:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para el filtro */
+.filtro-estado {
+    margin-bottom: 20px;
+}
+
+.filtro-estado label {
+    margin-right: 10px;
+}
+
+.filtro-estado select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+</style>
+
+{% include 'sidebar.html' %}
+<!-- <div class="overlay" id="overlay" style="display: none;"></div> Div para la superposición -->
+<div class="main-content">
+    <h1>Créditos</h1>
+
+    <!-- Filtro por estado -->
+    <div class="filtro-estado">
+        <label for="filtro-estado">Filtrar por estado:</label>
+        <select id="filtro-estado">
+            <option value="Todos">Todos</option>
+            <option value="Activo">Activo</option>
+            <option value="Pagado">Pagado</option>
+        </select>
+    </div>
+
+    <!-- Tabla de créditos -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID Crédito</th>
+                    <th>Nombre del Cliente</th>
+                    <th>Identificación</th>
+                    <th>Total Compra</th>
+                    <th>Abono</th>
+                    <th>Fecha Registro</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-creditos">
+                <!-- Filas de créditos se añadirán aquí dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    let creditos = []; // Variable global para almacenar los créditos
+
+async function cargarCreditos() {
+    try {
+        const response = await fetch('/creditos/obtener'); // Endpoint para obtener créditos
+        if (!response.ok) throw new Error('Error al cargar los créditos');
+
+        creditos = await response.json();
+        mostrarCreditos(creditos); // Mostrar todos los créditos inicialmente
+    } catch (error) {
+        console.error(error);
+        alert('Ocurrió un error al cargar los créditos.');
+    }
+}
+
+// Llamar a la función al cargar la página
+window.onload = cargarCreditos;
+</script>
+<script>
+    function mostrarCreditos(creditos) {
+    const tabla = document.getElementById('tabla-creditos');
+    tabla.innerHTML = ''; // Limpiar la tabla
+
+    creditos.forEach(credito => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+            <td>${credito.idcredito}</td>
+            <td>${credito.nombre_cliente}</td>
+            <td>${credito.identificacion_cliente}</td>
+            <td>$${credito.total_compra.toFixed(2)}</td>
+            <td>$${credito.abono.toFixed(2)}</td>
+            <td>${credito.fecha_registro}</td>
+            <td>${credito.estado}</td>
+            <td>
+                ${credito.estado === 'Activo' ? `<button class="btn-abonar" onclick="abonarCredito(${credito.idcredito})">Abonar</button>` : ''}
+                <button class="btn-detalles" onclick="verDetalles(${credito.idcredito})">Detalles</button>
+            </td>
+        `;
+        tabla.appendChild(fila);
+    });
+}
+</script>
+<script>
+    document.getElementById('filtro-estado').addEventListener('change', (event) => {
+    const estado = event.target.value;
+
+    if (estado === 'Todos') {
+        mostrarCreditos(creditos); // Mostrar todos los créditos
+    } else {
+        const creditosFiltrados = creditos.filter(credito => credito.estado === estado);
+        mostrarCreditos(creditosFiltrados); // Mostrar créditos filtrados
+    }
+});
+</script>
+
+<script>
+    async function abonarCredito(idcredito) {
+    const montoAbono = prompt('Ingrese el monto a abonar:');
+    if (!montoAbono || isNaN(montoAbono)) {
+        alert('Ingrese un monto válido.');
+        return;
+    }
+
+    try {
+        const response = await fetch('/creditos/abonar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                idcredito: idcredito,
+                monto: parseFloat(montoAbono),
+            }),
+        });
+
+        if (!response.ok) throw new Error('Error al abonar el crédito.');
+
+        const data = await response.json();
+        if (data.success) {
+            alert('Abono registrado correctamente.');
+            cargarCreditos(); // Recargar la lista de créditos
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Ocurrió un error al abonar el crédito.');
+    }
+}
+</script>
+<script>
+    async function verDetalles(idcredito) {
+    try {
+        // Obtener los detalles del crédito, productos y abonos
+        const response = await fetch(`/creditos/detalles/${idcredito}`);
+        if (!response.ok) throw new Error('Error al obtener los detalles del crédito.');
+
+        const data = await response.json();
+
+        // Crear el contenido del modal
+        const modalContent = `
+            <div class="modal-overlay">
+                <div class="modal-content">
+                    <h2>Detalles del Crédito</h2>
+                    <p><strong>ID Crédito:</strong> ${data.credito.idcredito}</p>
+                    <p><strong>Cliente:</strong> ${data.credito.nombre_cliente}</p>
+                    <p><strong>Identificación:</strong> ${data.credito.identificacion_cliente}</p>
+                    <p><strong>Total Compra:</strong> $${data.credito.total_compra}</p>
+                    <p><strong>Abono:</strong> $${data.credito.abono}</p>
+                    <p><strong>Fecha:</strong> ${data.credito.fecha_registro}</p>
+                    <p><strong>Nota:</strong> ${data.credito.nota || 'N/A'}</p>
+
+                    <h3>Productos</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.productos.map(producto => `
+                                <tr>
+                                    <td>${producto.nombre}</td>
+                                    <td>${producto.cantidad}</td>
+                                    <td>$${producto.valor}</td>
+                                    <td>$${(producto.valor * producto.cantidad).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <h3>Historial de Abonos</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.abonos.map(abono => `
+                                <tr>
+                                    <td>${abono.fecha_abono}</td>
+                                    <td>${abono.hora_abono}</td>
+                                    <td>$${abono.monto_abono}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <button onclick="cerrarModal()">Cerrar</button>
+                </div>
+            </div>
+        `;
+
+        // Agregar el modal al cuerpo del documento
+        document.body.insertAdjacentHTML('beforeend', modalContent);
+    } catch (error) {
+        console.error(error);
+        alert('Ocurrió un error al obtener los detalles del crédito.');
+    }
+}
+
+// Función para cerrar el modal
+function cerrarModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+        modal.remove(); // Eliminar el modal del DOM
+    }
+}
+</script>
