@@ -245,9 +245,12 @@ border-radius: 8px;
 
 /* Team Section */
 .sobre-nosotros-section {
-padding: 50px 20px;
-background: linear-gradient(135deg, var(--Verde_azulado) 0%, var(--Verde) 100%);
-margin-bottom: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 20px;
+  background: linear-gradient(135deg, var(--Verde_azulado) 0%, var(--Verde) 100%);
+  margin-bottom: 50px;
 }
 
 .sobre-nosotros-section h5 {
@@ -257,14 +260,55 @@ margin-bottom: 20px;
 color: var(--Blanco);
 }
 
-.blog {
-max-width: 800px;
-margin: 0 auto;
-background-color: #fff;
-padding: 20px;
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-border-radius: 8px;
+.blog1 {
+  display: flex;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
+
+.blog1-content {
+  flex: 1;
+}
+
+.foto-equipo {
+  margin-left: 20px;
+}
+
+.foto-equipo img {
+  width: 350px; /* Ajusta el ancho de la imagen según sea necesario */
+  height: auto; /* Mantén la proporción de la imagen */
+  border-radius: 15px; /* Bordes redondeados */
+}
+
+.blog {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  }
+
+.blog1 h6 {
+    font-size: 24px;
+    margin-top: 20px;
+    color: var(--Verde_azulado_oscuro2);
+  }
+    
+.blog1 p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #666;
+    margin-bottom: 20px;
+    }
+    
 
 .blog h6 {
 font-size: 24px;

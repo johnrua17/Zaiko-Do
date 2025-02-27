@@ -5,7 +5,7 @@ from app.config import Config
 from app.database import get_connection
 from functools import wraps
 from app import mysql
-from app.email import enviar_correos
+from app.email import enviar_correos_vencimiento
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from dotenv import load_dotenv
 import os
@@ -254,7 +254,7 @@ def register_user():
             
             conn.commit()
 
-            enviar_correos(correo, nombre, "vencimiento", otp)
+            enviar_correos_vencimiento(correo, nombre, otp)
 
             session['logueado'] = True
             session['idusuario'] = cur.lastrowid
@@ -300,3 +300,39 @@ def validar_otp():
         finally:
             cur.close()
     return render_template('login/validar_otp.html')
+ 
+def reset_token(email, expires_sec=1800):
+    s = URLSafeTimedSerializer(os.getenv("SECRET_KEY"), expires_sec)
+    return s.dumps(email, salt='password-reset-salt')
+
+def verify_reset_token(token, expires_sec=1800):
+    s = URLSafeTimedSerializer(os.getenv("SECRET_KEY"))
+    try:
+        email = s.loads(token, salt='password-reset-salt', max_age=expires_sec)
+        return email
+    except (SignatureExpired, BadSignature):
+        return None
+
+
+@auth_blueprint.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if request.method == 'POST':
+        new_password = request.form['password']
+        email = verify_reset_token(token)
+        conn = get_connection()
+        cur = conn.cursor()
+
+        try:
+            cur.execute('SELECT * FROM usuario WHERE correo = %s', [email])
+            usuario = cur.fetchone()
+
+            if usuario:
+                cur.execute('UPDATE usuario SET contraseña = %s WHERE correo = %s', (generate_password_hash(new_password), email))
+                conn.commit()
+                return redirect(url_for('auth.login'))
+            else:
+                return render_template('login/reset_password.html', message='Error al restablecer la contraseña.')
+        except Exception as e:
+            conn.rollback()
+
+    return render_template('login/reset_password.html', token=token)

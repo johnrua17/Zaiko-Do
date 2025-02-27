@@ -17,24 +17,35 @@ def init_mail(app):
     global mail
     mail = Mail(app)
 
-def enviar_correos(destinatario, nombre_usuario, tipo, otp):
+def enviar_correos_vencimiento(destinatario, nombre_usuario, otp):
+        try:
+            asunto = 'Confirmación de correo'
+            current_year = datetime.now().year
+            cuerpo_html = render_template('Correos/correo_verificacion.html', nombre_usuario=nombre_usuario,
+                    destinatario=destinatario,
+                    current_year=current_year,
+                    otp = otp)
+            mensaje = Message(asunto, recipients=[destinatario])
+            mensaje.html = cuerpo_html
+            mail.send(mensaje)
+            print(f"Correo enviado exitosamente a: {destinatario}")
+        except Exception as e:
+            print(f"Error al enviar el correo a {destinatario}: {e}")
 
-    try:
-        asunto = 'Confirmación de correo'
-        current_year = datetime.now().year
-        cuerpo_html = render_template('Correos/correo_verificacion.html', nombre_usuario=nombre_usuario,
-                destinatario=destinatario,
-                current_year=current_year,
-                otp = otp)
-        mensaje = Message(asunto, recipients=[destinatario])
-        mensaje.html = cuerpo_html
-        mail.send(mensaje)
-        print(f"Correo enviado exitosamente a: {destinatario}")
-    except Exception as e:
-        print(f"Error al enviar el correo a {destinatario}: {e}")
-
-
-    
+def enviar_correos_contraeña(destinatario, nombre_usuario, link):
+        try:
+            asunto = 'Recuperación de contraseña'
+            current_year = datetime.now().year
+            cuerpo_html = render_template('Correos/correo_contrasena.html', nombre_usuario=nombre_usuario,
+                    destinatario=destinatario,
+                    current_year=current_year,
+                    link = link)
+            mensaje = Message(asunto, recipients=[destinatario])
+            mensaje.html = cuerpo_html
+            mail.send(mensaje)
+            print(f"Correo enviado exitosamente a: {destinatario}")
+        except Exception as e:
+            print(f"Error al enviar el correo a {destinatario}: {e}")
 
 # def enviar_correos(destinatario, nombre_usuario, tipo, otp):
 #     if tipo == "vencimiento":

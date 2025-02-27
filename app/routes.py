@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, jsonify
-from app.auth import login_user, register_user
+from app.auth import login_user, register_user, reset_token
 from app.utils import obtener_hora_actual_bogota, login_required
 from app.database import get_connection
 from flask_mysqldb import MySQL
@@ -31,6 +31,8 @@ from app.ventas.ventascredito import ventacredito
 from decimal import Decimal
 load_dotenv(dotenv_path='../.env')
 from app.chatbot import get_message
+from app.email import enviar_correos_contraeña
+
 TEMPLATES_DIR = '../../templates'   
 env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
 
@@ -67,7 +69,7 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 @routes_blueprint.route('/validar_otp/<token>', methods=['GET', 'POST'])
 def validar(token):
     try:
-        s = URLSafeTimedSerializer(os.getenv("SECRET_KEY"))
+        s = URLSafeTimedSerializer(os.getenv('SECRET_KEY'))
         correo = s.loads(token, salt='email-confirm', max_age=86400)  # Token válido por 24 horas
     except SignatureExpired:
         return render_template('login/validar_otp.html', message='El enlace de verificación ha expirado.')
@@ -102,6 +104,28 @@ def validar(token):
         finally:
             cur.close()
     return render_template('login/validar_otp.html', token=token)
+
+@routes_blueprint.route('/olvido_contrasena', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        print(email)
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM usuario WHERE correo = %s', [email])
+        user = cur.fetchone()
+        if user:
+            token = reset_token(email)
+            reset_url = url_for('auth.reset_password', token=token, _external=True)
+            print(str(reset_url))
+            enviar_correos_contraeña(email, user["nombre"], reset_url)
+            cur.close()
+            print('Se ha enviado un enlace para restablecer tu contraseña a tu correo electrónico.', 'info')
+        else:
+            cur.close()
+            print('No se encontró una cuenta con ese correo electrónico.', 'warning')
+        return redirect(url_for('auth.login'))
+    return render_template('login/restablecer.html')
 
 @routes_blueprint.route('/')
 def home():
