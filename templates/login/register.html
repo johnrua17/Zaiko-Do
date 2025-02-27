@@ -83,14 +83,15 @@
             {% endif %}
             <!-- <button type="submit">Registrarse</button> -->
             <div class="form-group form-check">
-                <input type="checkbox" id="termsCheckbox" class="form-check-input">
+                <input type="checkbox" id="termsCheckbox" class="form-check-input" required>
                 <label for="termsCheckbox" class="form-check-label">
                     Acepto los <a href="terminos_condiciones" target="_blank">términos y condiciones</a>.
                 </label>
             </div>
-
-            <button id="registerButton" type="submit" >Registrarse</button>
-        </form>
+            
+            <button id="registerButton" type="submit">Registrarse</button>
+            </form>
+            
         <p>¿Ya tienes una cuenta? <a href="{{ url_for('auth.login') }}">¡Iniciar sesión!</a></p>
     </div>
     <!-- Turnstile Script -->
