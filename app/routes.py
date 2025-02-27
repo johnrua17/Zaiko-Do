@@ -1454,6 +1454,14 @@ def abonar_credito():
         if not idcredito or not monto:
             return jsonify({"error": "Datos incompletos"}), 400
 
+        # Verificar que monto sea un número y mayor a 0
+        try:
+            monto = float(monto)
+            if monto <= 0:
+                return jsonify({"error": "El monto debe ser mayor a 0"}), 200
+        except ValueError:
+            return jsonify({"error": "El monto debe ser un número válido"}), 200
+
         cur = mysql.connection.cursor()
 
         # Obtener el abono actual y total_compra
@@ -1472,9 +1480,17 @@ def abonar_credito():
         total_compra = resultado["total_compra"] or 0
         abono_actual = resultado["abono"] or 0
 
+        # Calcular el nuevo total de abono
+        nuevo_abono = abono_actual + monto
+        
+
         # Validar que el abono no exceda el total de la compra
-        if (abono_actual + monto) > total_compra:
+        if nuevo_abono > total_compra:
             return jsonify({"error": "El abono excede el total de la compra"}), 200
+
+        # Determinar el nuevo estado del crédito
+        nuevo_estado = 'Pagado' if nuevo_abono >= total_compra else 'Activo'
+
 
         # Registrar el abono en la tabla registro_abonos
         query_abono = """
@@ -1492,10 +1508,10 @@ def abonar_credito():
         # Actualizar el campo abono en la tabla creditos
         query_actualizar_abono = """
             UPDATE creditos
-            SET abono = abono + %s, estado = CASE WHEN (abono + %s) >= total_compra THEN 'Pagado' ELSE 'Activo' END
+            SET abono = %s, estado = %s
             WHERE idcredito = %s AND idusuario = %s
         """
-        cur.execute(query_actualizar_abono, (monto, monto, idcredito, id_usuario_actual))
+        cur.execute(query_actualizar_abono, (nuevo_abono, nuevo_estado, idcredito, id_usuario_actual))
 
         # Actualizar el campo pagocon en la tabla ventas
         query_venta = """
