@@ -1,5 +1,5 @@
 // Manejar el registro de la venta
-document.getElementById('registrar_venta').addEventListener('click', async () => {
+async function registrarVentas(imprimir = false) {
     const botonRegistrar = document.getElementById('registrar_venta');
 
     // Verificar que haya productos en la tabla
@@ -92,6 +92,10 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
                 document.getElementById('tabla_productos').innerHTML = ''; // Limpiar la tabla
                 productosEnTabla = {}; // Vaciar el objeto
                 document.getElementById('modal-overlay').style.display = 'none'; // Cerrar el modal
+                // Si se debe imprimir, generar la factura POS
+                if (imprimir) {
+                    generarFacturaPOS(productos, total, metodoPago, pagoCon, clienteNombre, clienteCC);
+                }
             } else {
                 alert(productosData.error);
             }
@@ -104,4 +108,102 @@ document.getElementById('registrar_venta').addEventListener('click', async () =>
     } finally {
         botonRegistrar.disabled = false; // Habilitar el botón nuevamente
     }
-});
+}
+
+
+function generarFacturaPOS(productos, total, metodoPago, pagoCon, clienteNombre, clienteCC) {
+    // Crear una nueva pestaña
+    const pestañaFactura = window.open('', '_blank');
+
+    // Crear el contenido de la factura
+    const contenidoFactura = `
+        <html>
+            <head>
+                <title>Factura POS</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        width: 300px;
+                        padding: 10px;
+                        margin: 0;
+                    }
+                    h2, p {
+                        text-align: center;
+                        margin: 5px 0;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #000;
+                        padding: 5px;
+                    }
+                    th {
+                        text-align: left;
+                    }
+                    td {
+                        text-align: right;
+                    }
+                    hr {
+                        border: 1px dashed #000;
+                    }
+                </style>
+            </head>
+            <body>
+                <h2>Zaiko Do</h2>
+                <p>Factura POS</p>
+                <p>Fecha: ${new Date().toLocaleDateString()}</p>
+                <p>Hora: ${new Date().toLocaleTimeString()}</p>
+                <hr>
+                <p><strong>Cliente:</strong> ${clienteNombre || "Consumidor Final"}</p>
+                <p><strong>Identificación:</strong> ${clienteCC || "222222222222"}</p>
+                <hr>
+                <h3>Productos</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cant.</th>
+                            <th>Precio</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${productos.map(producto => `
+                            <tr>
+                                <td>${producto.Nombre}</td>
+                                <td style="text-align: center;">${producto.Cantidad}</td>
+                                <td>$${producto.Precio_Valor.toFixed(2)}</td>
+                                <td>$${(producto.Precio_Valor * producto.Cantidad).toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <hr>
+                <p><strong>Total:</strong> $${total.toFixed(2)}</p>
+                <p><strong>Método de Pago:</strong> ${metodoPago}</p>
+                <p><strong>Pagó con:</strong> $${pagoCon.toFixed(2)}</p>
+                <p><strong>Cambio:</strong> $${(pagoCon - total).toFixed(2)}</p>
+                <hr>
+                <p>¡Gracias por su compra!</p>
+                <p>Vuelva pronto</p>
+                <script>
+                    // Imprimir la factura automáticamente al cargar la pestaña
+                    window.onload = () => {
+                        window.print(); // Imprimir la factura
+                    };
+
+                    // Cerrar la pestaña después de imprimir o cancelar
+                    window.onafterprint = () => {
+                        window.close(); // Cerrar la pestaña
+                    };
+                </script>
+            </body>
+        </html>
+    `;
+
+    // Escribir el contenido en la nueva pestaña
+    pestañaFactura.document.write(contenidoFactura);
+    pestañaFactura.document.close();
+}
