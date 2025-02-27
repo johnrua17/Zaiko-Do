@@ -38,82 +38,98 @@
 
 <!-- Lógica del Chatbot -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Elementos del modal y widget
-    const modal = document.getElementById('chatbotModal');
-    const widget = document.getElementById('chatbot-widget');
-    const closeBtn = document.querySelector('.modal .close');
-    const chatInput = document.getElementById('chat-input');
-    const chatMessages = document.getElementById('chat-messages');
-
-    // Abre el modal al hacer clic en el widget
-    widget.addEventListener('click', function() {
-        modal.style.display = 'block';
-    });
-
-    // Cierra el modal al hacer clic en la "X"
-    closeBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
-
-    // Cierra el modal al hacer clic fuera del contenido
-    window.addEventListener('click', function(event) {
-        if (event.target == modal) {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elementos del modal y widget
+        const modal = document.getElementById('chatbotModal');
+        const widget = document.getElementById('chatbot-widget');
+        const closeBtn = document.querySelector('.modal .close');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+    
+        // Bandera para mostrar el mensaje de prueba solo la primera vez
+        let modalOpened = false;
+    
+        // Al hacer clic en el widget, abre el modal y muestra el mensaje de prueba (una sola vez)
+        widget.addEventListener('click', function() {
+            modal.style.display = 'block';
+            if (!modalOpened) {
+                const botTemplate = document.getElementById('bot-message-template');
+                const botMessageClone = botTemplate.content.cloneNode(true);
+                let messageElem = botMessageClone.querySelector('.message-text');
+                messageElem.textContent = "Este chatbot está desarrollado por Zaiko Do usando la tecnología de Gemini de Google. Las respuestas generadas por IA pueden ser incorrectas; verifica la información. Podemos recopilar la información que proporciones; al utilizar este chat estás confirmando que aceptas la política de privacidad de Zaiko Do.";
+                messageElem.style.color = "#8c8c8c";
+                messageElem.style.fontSize = "0.7em";
+                // No se asigna timestamp para el mensaje de prueba
+                botMessageClone.querySelector('.message-time').textContent = "";
+                chatMessages.appendChild(botMessageClone);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                modalOpened = true;
+            }
+        });
+    
+        // Cierra el modal al hacer clic en la "X"
+        closeBtn.addEventListener('click', function() {
             modal.style.display = 'none';
-        }
-    });
-
-    // Función para enviar el mensaje
-    document.getElementById('chat-send').addEventListener('click', function() {
-        const message = chatInput.value.trim();
-        if (!message) return;  // No enviar mensajes vacíos
-
-        // Agregar el mensaje del usuario al chat
-        const userTemplate = document.getElementById('user-message-template');
-        const userMessageClone = userTemplate.content.cloneNode(true);
-        userMessageClone.querySelector('.message-text').textContent = "Tú: " + message;
-        chatMessages.appendChild(userMessageClone);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Limpiar el input
-        chatInput.value = "";
-
-        // Enviar el mensaje al servidor mediante fetch
-        fetch('/chatbot', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Agregar la respuesta del bot al chat
-            const botTemplate = document.getElementById('bot-message-template');
-            const botMessageClone = botTemplate.content.cloneNode(true);
-            botMessageClone.querySelector('.message-text').textContent = "Chatbot: " + data.reply;
-            // Agregar una marca de tiempo
-            const now = new Date();
-            const timestamp = now.getHours() + ":" + (now.getMinutes() < 10 ? "0" : "") + now.getMinutes();
-            botMessageClone.querySelector('.message-time').textContent = timestamp;
-            chatMessages.appendChild(botMessageClone);
+        });
+    
+        // Cierra el modal al hacer clic fuera del contenido
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+    
+        // Función para enviar el mensaje del usuario
+        document.getElementById('chat-send').addEventListener('click', function() {
+            const message = chatInput.value.trim();
+            if (!message) return;  // No enviar mensajes vacíos
+    
+            // Agregar el mensaje del usuario al chat
+            const userTemplate = document.getElementById('user-message-template');
+            const userMessageClone = userTemplate.content.cloneNode(true);
+            userMessageClone.querySelector('.message-text').textContent = "Tú: " + message;
+            chatMessages.appendChild(userMessageClone);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-        })
-        .catch(error => {
-            console.error('Error al enviar el mensaje:', error);
-            // Mostrar un mensaje de error en el chat
-            const botTemplate = document.getElementById('bot-message-template');
-            const botMessageClone = botTemplate.content.cloneNode(true);
-            botMessageClone.querySelector('.message-text').textContent = "Lo siento, ocurrió un error. Por favor, inténtalo de nuevo.";
-            chatMessages.appendChild(botMessageClone);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+            // Limpiar el input
+            chatInput.value = "";
+    
+            // Enviar el mensaje al servidor mediante fetch
+            fetch('/chatbot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Agregar la respuesta real del bot al chat
+                const botTemplate = document.getElementById('bot-message-template');
+                const botMessageClone = botTemplate.content.cloneNode(true);
+                botMessageClone.querySelector('.message-text').textContent = "Chatbot: " + data.reply;
+                const now = new Date();
+                const timestamp = now.getHours() + ":" + (now.getMinutes() < 10 ? "0" : "") + now.getMinutes();
+                let timeElem = botMessageClone.querySelector('.message-time');
+                timeElem.textContent = timestamp;
+                timeElem.style.color = "#8c8c8c";
+                chatMessages.appendChild(botMessageClone);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error al enviar el mensaje:', error);
+                const botTemplate = document.getElementById('bot-message-template');
+                const botMessageClone = botTemplate.content.cloneNode(true);
+                botMessageClone.querySelector('.message-text').textContent = "Lo siento, ocurrió un error. Por favor, inténtalo de nuevo.";
+                chatMessages.appendChild(botMessageClone);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        });
+    
+        // Listener para enviar mensaje con la tecla Enter
+        chatInput.addEventListener('keydown', function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById('chat-send').click();
+            }
         });
     });
-
-    // Listener para la tecla Enter en el input
-    chatInput.addEventListener('keydown', function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            document.getElementById('chat-send').click();
-        }
-    });
-});
-</script>
+    </script>
