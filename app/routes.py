@@ -28,6 +28,7 @@ from app.ventas.detallesventa import detallesventa
 from app.clientes.eliminarcliente import eliminarcliente
 from app.ventas.ventas import obtenerventa,venta
 from app.ventas.ventascredito import ventacredito
+from decimal import Decimal
 load_dotenv(dotenv_path='../.env')
 from app.chatbot import get_message
 TEMPLATES_DIR = '../../templates'   
@@ -1456,7 +1457,7 @@ def abonar_credito():
 
         # Verificar que monto sea un número y mayor a 0
         try:
-            monto = float(monto)
+            monto = Decimal(monto)
             if monto <= 0:
                 return jsonify({"error": "El monto debe ser mayor a 0"}), 200
         except ValueError:
@@ -1481,7 +1482,7 @@ def abonar_credito():
         abono_actual = resultado["abono"] or 0
 
         # Calcular el nuevo total de abono
-        nuevo_abono = abono_actual + monto
+        nuevo_abono = Decimal(abono_actual) + Decimal(monto)
         
 
         # Validar que el abono no exceda el total de la compra
