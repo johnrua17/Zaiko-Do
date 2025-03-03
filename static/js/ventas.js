@@ -40,6 +40,10 @@ async function registrarVentas(imprimir = false) {
     botonRegistrar.disabled = true;
 
     try {
+        if(metodoPago==="credito" && (!nombre || !identificacion || !contacto)){
+            alert("Por favor, complete todos los campos obligatorios para pago con crédito.");
+            return;
+        }
         // Primera solicitud: Registrar la venta
         const response = await fetch('/ventas/registrar', {
             method: 'POST',

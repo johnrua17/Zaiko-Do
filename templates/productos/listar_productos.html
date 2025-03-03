@@ -183,23 +183,28 @@
                                 </form>
                                 
                                 <script>
-                                    document.getElementById('btnDelete').addEventListener('click', function (event) {
-                                        Swal.fire({
-                                            title: '¿Estás seguro?',
-                                            text: "¡No podrás revertir esta acción!",
-                                            icon: 'warning',
-                                            showCancelButton: true,
-                                            confirmButtonColor: '#3085d6',
-                                            cancelButtonColor: '#d33',
-                                            confirmButtonText: 'Sí, eliminar',
-                                            cancelButtonText: 'Cancelar'
-                                        }).then((result) => {
-                                            if (result.isConfirmed) {
-                                                document.getElementById('deleteForm').submit(); // Envía el formulario
-                                            }
+                                    document.addEventListener("DOMContentLoaded", function () {
+                                        document.querySelectorAll(".btn-delete").forEach(button => {
+                                            button.addEventListener("click", function (event) {
+                                                Swal.fire({
+                                                    title: '¿Estás seguro?',
+                                                    text: "¡No podrás revertir esta acción!",
+                                                    icon: 'warning',
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: '#3085d6',
+                                                    cancelButtonColor: '#d33',
+                                                    confirmButtonText: 'Sí, eliminar',
+                                                    cancelButtonText: 'Cancelar'
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        this.closest(".delete-form").submit(); // Encuentra el formulario asociado y lo envía
+                                                    }
+                                                });
+                                            });
                                         });
                                     });
                                 </script>
+                                
                                 
                         </tr>
                         {% endfor %}

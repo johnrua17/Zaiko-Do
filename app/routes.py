@@ -1127,7 +1127,7 @@ def reporte_ventas():
 
     if request.method == 'POST':
         data = request.get_json()
-        fecha_inicio = data.get("fecha_inicio"),
+        fecha_inicio = data.get("fecha_inicio")
         fecha_fin = data.get("fecha_fin")
         print("Datos recibidos:", data)  # Verifica que los datos se están recibiendo correctamente
         lista_consultas_para_reporte = query_reportes(id_usuario_actual, fecha_inicio, fecha_fin)
