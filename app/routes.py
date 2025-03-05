@@ -717,7 +717,9 @@ def planes():
 
         # Verifica si se obtuvo una fecha de inicio del plan, o sea la fecha del plan del que quiere devolucion, en test no va a funcionar porque necesito comprar un plan para eso
         if fecha_inicio_plan_a_devolver:
-            fecha_inicio = fecha_inicio_plan_a_devolver[0]  
+            fecha_inicio = fecha_inicio_plan_a_devolver["fecha_inicio"]  
+            # Convertir fecha_inicio (date) a datetime con la hora en 00:00:00
+            fecha_inicio = datetime.combine(fecha_inicio, datetime.min.time(), tzinfo=timezone)
             diferencia_horas = (fecha_actual - fecha_inicio).total_seconds() / 3600
 
             # Si no han pasado más de 24 horas
@@ -752,7 +754,7 @@ def planes():
         return render_template('configuracion/planes.html', planes=planes, nombre=nombre, plan_actual=id_plan, fecha_expiracion_plan=fecha_expiracion_plan, puede_pedir_devolucion=puede_pedir_devolucion, ha_hecho_solicitud=ha_hecho_solicitud)
 
     except Exception as e:
-        print("esta mierda da error")
+        print("error", e)
         return render_template('configuracion/planes.html', message=f'Error: {str(e)}')
     finally:
         cur.close()
@@ -841,7 +843,7 @@ def detalle_plan(token):
         return 'Token inválido o expirado.', 404
 
     # Debes tener tu secreto de integridad configurado
-    secreto_integridad = "prod_integrity_HuFn5nkn0F1LVkpJWZuIU1m3fUdznjCK"
+    secreto_integridad = "test_integrity_kS7jQ33KmdsQEB7zam1tl80nrNpzZduK"
 
     # Convertir el precio a centavos
     precio_centavos = int(suscripcion['precio'] * 100)
@@ -901,7 +903,7 @@ def validar_firma(signature, event_data, secreto_eventos, timestamp):
 @routes_blueprint.route('/pagos_wompi', methods=['POST'])
 def actualizar_estado():
     data = request.get_json()
-    secreto_eventos = "prod_events_cLkaC4Xb6f7iEiResaBK7FmKWxFDa1g3"
+    secreto_eventos = "test_events_NWojPkGMpQ4P6omT0E2fM7wCIreHAQ1y"
 
     # Verificar si la solicitud contiene datos suficientes
     if 'data' not in data or 'transaction' not in data['data']:
